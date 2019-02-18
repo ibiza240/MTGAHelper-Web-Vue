@@ -1,0 +1,1333 @@
+﻿<!DOCTYPE html>
+<head>
+    <meta charset="utf-8" />
+    <title>MTGAHelper - The ultimate collection tracker for Magic: The Gathering Arena</title>
+    <link rel="icon" type="image/png" href="/images/wcC.png" />
+
+    <script src="js/common.js"></script>
+    <script src="js/ajax.js"></script>
+    <script src="js/submitCollection.js"></script>
+    <link rel="stylesheet" href="css/bulma-pageloader.min.css" />
+    <link rel="stylesheet" href="css/bulma-tooltip.min.css" />
+    <link rel="stylesheet" href="css/bulma-switch.min.css" />
+
+    <!--<link rel="stylesheet" href="css/bulma-accordion.min.css" />
+    <script type="text/javascript" src="/js/bulma-accordion.min.js"></script>-->
+
+    <link rel="stylesheet" href="css/floating-icons.css" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.23.0/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js"></script>
+    <link rel="stylesheet" href="css/modalUglipop.css" />
+    <style type="text/css">
+        .is-hoverable {
+            cursor: pointer;
+        }
+
+        img.wc {
+            position: relative;
+            top: 3px;
+        }
+
+        .nowrap {
+            white-space: nowrap;
+        }
+
+        div.wrapper-tablescroll {
+            overflow: hidden;
+            overflow-y: scroll;
+            height: 600px;
+        }
+
+        .cardHover {
+            text-decoration: underline;
+            text-decoration-style: dotted;
+            cursor: help;
+        }
+
+        table.darkTable {
+            color: #aaa !important;
+        }
+
+            table.darkTable tbody td {
+                color: #aaa !important;
+                border: none !important;
+                font-weight: bold !important;
+            }
+
+            table.darkTable thead th {
+                color: #aaa !important;
+                border: none !important;
+            }
+
+            table.darkTable tfoot th {
+                color: #aaa !important;
+                border: none !important;
+                background: #111;
+            }
+
+        tr.nohover:hover {
+            background: none !important;
+        }
+
+        .herobg1 {
+            background: url(images/hero1-bg.jpg);
+            background-repeat: no-repeat;
+        }
+
+        .hero2bg {
+            /*width: 200px;
+            height: 200px;
+            display: block;
+            position: relative;*/
+            background: url(images/hero2-bg.png);
+            background-repeat: no-repeat;
+        }
+
+        /*.hero2bg::after {
+                content: "";
+                background: url(images/hero2-bg.png);
+                opacity: 0.2;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                right: 0;
+                position: absolute;
+                z-index: -1;
+            }*/
+    </style>
+</head>
+<body>
+    <div id="vueApp">
+        <div v-cloak>
+            <div class="columns is-gapless">
+                <div class="column">
+                    <button style="border-top-left-radius:0; border-top-right-radius:0;"
+                            v-on:click="loadPage('privateCollection');"
+                            class="button is-fullwidth is-rounded" v-bind:class="[currentPage === 'privateCollection' ? 'is-link' : '']">
+                        Collection
+                    </button>
+                </div>
+                <div class="column">
+                    <button style="border-top-left-radius:0; border-top-right-radius:0;"
+                            v-on:click="loadPage('publicDecks');"
+                            class="button is-fullwidth is-rounded" v-bind:class="[currentPage === 'publicDecks' ? 'is-link' : '']">
+                        Decks
+                    </button>
+                </div>
+                <div class="column">
+                    <button style="border-top-left-radius:0; border-top-right-radius:0;"
+                            v-on:click="loadPage('privateDashboardSummary');"
+                            class="button is-fullwidth is-rounded" v-bind:class="[currentPage === 'privateDashboardSummary' ? 'is-link' : '']">
+                        Missing cards Summary
+                    </button>
+                </div>
+                <div class="column">
+                    <button style="border-top-left-radius:0; border-top-right-radius:0;"
+                            v-on:click="loadPage('privateDashboardDetails');"
+                            class="button is-fullwidth is-rounded" v-bind:class="[currentPage === 'privateDashboardDetails' ? 'is-link' : '']">
+                        Missing cards Details
+                    </button>
+                </div>
+                <div class="column">
+                    <button style="border-top-left-radius:0; border-top-right-radius:0;"
+                            v-on:click="loadPage('privateUserProfile');"
+                            class="button is-fullwidth is-rounded" v-bind:class="[currentPage === 'privateUserProfile' ? 'is-link' : '']">
+                        Profile
+                    </button>
+                </div>
+                <template v-if="modelUser.collection.cards.length > 0">
+                    <div class="column is-two-fifths">
+                        <div class="nowrap has-text-right has-text-weight-bold" v-if="modelUser.collection.cards.length > 0">
+                            <div style="margin-top:0.25rem; padding-right:0.75rem;">
+                                <span class="tooltip is-tooltip-left" data-tooltip="Common wildcards">
+                                    {{modelUser.collection.mtgaUserProfile.wildcards.Common}}
+                                    <img class="wc" src="/images/wcC.png" width="16" height="16" />
+                                </span>
+                                /
+                                <span class="tooltip is-tooltip-left" data-tooltip="Uncommon wildcards">
+                                    {{modelUser.collection.mtgaUserProfile.wildcards.Uncommon}}
+                                    <img class="wc" src="/images/wcU.png" width="16" height="16" />
+                                </span>
+                                /
+                                <span class="tooltip is-tooltip-left" data-tooltip="Rare wildcards">
+                                    {{modelUser.collection.mtgaUserProfile.wildcards.Rare}}
+                                    <img class="wc" src="/images/wcR.png" width="16" height="16" />
+                                </span>
+                                /
+                                <span class="tooltip is-tooltip-left" data-tooltip="Mythic wildcards">
+                                    {{modelUser.collection.mtgaUserProfile.wildcards.Mythic}}
+                                    <img class="wc" src="/images/wcM.png" width="16" height="16" />
+                                </span>
+                                /
+                                <span class="tooltip is-tooltip-left" data-tooltip="Gold">
+                                    {{numeral(modelUser.collection.mtgaUserProfile.gold).format('0,0')}}
+                                    <img class="wc" src="/images/inventory_gold.png" width="16" height="16" />
+                                </span>
+                                /
+                                <span class="tooltip is-tooltip-left" data-tooltip="Gems">
+                                    {{numeral(modelUser.collection.mtgaUserProfile.gems).format('0,0')}}
+                                    <img class="wc" src="/images/inventory_gem.png" width="16" height="16" />
+                                </span>
+                                /
+                                <span class="tooltip is-tooltip-left" data-tooltip="Vault progress">
+                                    {{numeral(modelUser.collection.mtgaUserProfile.vaultProgress).format('0.0')}} %
+                                    <img class="wc" src="/images/vault.png" width="22" height="22" />
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+                <div v-else class="column has-text-right">
+                    <button class="button is-primary" v-on:click="showLoginModal = true; vueApp.$nextTick(() => txtLoginId.focus());">
+                        Login with a user id
+                    </button>
+                </div>
+            </div>
+            <div class="hero herobg1 is-info" v-if="modelUser.collection.cards.length === 0 && isLoadingData('collectionGet') === false" style="margin-bottom:1rem;">
+                <div class="hero-body">
+                    <h2 class="title is-2">
+                        MTGAHelper &mdash; The ultimate collection tracker for Magic: The Gathering Arena
+                    </h2>
+                    <button class="button is-large" style="margin-left:8rem;" v-on:click="showUploadCollectionModal = true">Start by uploading your collection</button>
+                </div>
+            </div>
+            <div v-if="currentPage === 'privateCollection'" id="divPrivateCollection">
+                <h4 class="title is-4" v-if="modelUser.collection.cards.length > 0">
+                    {{numeral(modelUser.collection.cards.reduce((a, b) => a += b.amount, 0)).format('0,0')}} cards owned as of {{modelUser.collection.collectionDate.startsWith('0001-01-01') ? 'Unknown' : modelUser.collection.collectionDate }}
+                    <span v-bind:class="['button', 'is-primary', modelUser.collection.cards.length === 0 ? 'hidden' : '']"
+                          v-on:click="showUploadCollectionModal = true">
+                        Update
+                    </span>
+                </h4>
+                <div v-if="modelUser.collection.cards.length !== 0" class="columns">
+                    <div class="column">
+                        <button v-on:click="currentPageCollection = 'currently'"
+                                class="button is-fullwidth is-rounded" v-bind:class="[currentPageCollection === 'currently' ? 'is-info' : '']">
+                            Currently
+                        </button>
+                    </div>
+                    <div class="column">
+                        <button v-on:click="currentPageCollection = 'history'"
+                                class="button is-fullwidth is-rounded" v-bind:class="[currentPageCollection === 'history' ? 'is-info' : '']">
+                            History
+                        </button>
+                    </div>
+                </div>
+                <div v-if="modelUser.id === ''">
+                    <p>
+                        You must <a v-on:click="registerUser();">register</a> first (This just sets a cookie in order to identify you among other users).
+                    </p>
+                </div>
+                <div v-else-if="modelUser.collection.cards.length === 0 && isLoadingData('collectionGet') === false">
+                    <div class="hero is-primary hero2bg" v-on:click="currentPage = 'privateDashboardDetails'" style="cursor:pointer;">
+                        <div class="hero-body">
+                            <h4 class="title is-4">
+                                Don't waste those precious wildcards &mdash; Optimize your deckbuilding experience :)
+                            </h4>
+                            <h4 class="subtitle is-4">
+                                Grow your collection more efficiently by knowing which packs to open and which cards to craft at all times
+                            </h4>
+                            <h5 class="subtitle is-5">
+                                Upload your collection and start tracking your favorite decks!
+                            </h5>
+                        </div>
+                    </div>
+                </div>
+                <div v-else>
+                    <span v-if="isLoadingData('collectionGet')" class="button is-loading"></span>
+                    <div v-else>
+                        <div v-if="currentPageCollection === 'currently'">
+                            <div class="columns">
+                                <div class="column" v-for="color in ['W','U','B','R','G','', 'Multicolor', 'Land']">
+                                    <div class="columns">
+                                        <div class="column is-one-third" style="text-align:right; padding:0.1rem;">
+                                            <span v-if="color==='W'" class="tooltip" data-tooltip="White">
+                                                <img width="24" height="24"
+                                                     src="https://vignette.wikia.nocookie.net/mtg/images/d/da/Mana_W.png" />
+                                            </span>
+                                            <span v-else-if="color==='U'" class="tooltip" data-tooltip="Blue">
+                                                <img width="24" height="24"
+                                                     src="https://vignette.wikia.nocookie.net/mtg/images/a/a8/Mana_U.png" />
+                                            </span>
+                                            <span v-else-if="color==='B'" class="tooltip" data-tooltip="Black">
+                                                <img width="24" height="24"
+                                                     src="https://vignette.wikia.nocookie.net/mtg/images/a/a6/Mana_B.png" />
+                                            </span>
+                                            <span v-else-if="color==='R'" class="tooltip" data-tooltip="Red">
+                                                <img width="24" height="24"
+                                                     src="https://vignette.wikia.nocookie.net/mtg/images/c/ce/Mana_R.png" />
+                                            </span>
+                                            <span v-else-if="color==='G'" class="tooltip" data-tooltip="Green">
+                                                <img width="24" height="24"
+                                                     src="https://vignette.wikia.nocookie.net/mtg/images/f/f7/Mana_G.png" />
+                                            </span>
+                                            <span v-else-if="color===''" class="tooltip" data-tooltip="Colorless">
+                                                <img width="24" height="24"
+                                                     src="https://vignette.wikia.nocookie.net/mtg/images/1/18/Mana_C.png" />
+                                            </span>
+                                            <span v-else-if="color==='Multicolor'" class="tooltip" data-tooltip="Gold">
+                                                <img width="24" height="24"
+                                                     src="images/color_gold.png" />
+                                            </span>
+                                            <span v-else-if="color==='Land'" class="tooltip" data-tooltip="Land">
+                                                <img width="24" height="24" v-bind:src="iconLand" />
+                                            </span>
+                                            <span v-else>
+                                                {{color}}
+                                            </span>
+                                        </div>
+                                        <div class="column" style="padding:0.1rem;">
+                                            <strong>
+                                                ({{numeral(modelUser.collection.cards.filter((i) => color === 'Multicolor' ? (i.color.length > 1 && i.color !== 'Land') : i.color === color).reduce((a, b) => a += b.amount, 0)).format('0,0')}}
+                                                cards)
+                                            </strong>
+                                        </div>
+                                    </div>
+                                    <ul v-for="c in modelUser.collection.cards.filter((i) => color === 'Multicolor' ? (i.color.length > 1 && i.color !== 'Land') : i.color === color)">
+                                        <li v-on:mouseleave="showCard(null)"
+                                            v-on:mouseover="showCard(c.name, c.set, c.setId)" class="cardHover">
+                                            {{c.amount}}x {{c.name}}
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div v-else>
+                            <div class="columns">
+                                <div class="column">
+                                    <span v-if="isLoadingData('userHistory')" class="button is-loading"></span>
+                                    <table v-else class="table is-narrow is-hoverable">
+                                        <thead>
+                                            <tr>
+                                                <th>
+                                                    Date
+                                                </th>
+                                                <th>
+                                                    Cards
+                                                </th>
+                                                <th>
+                                                    Gold
+                                                </th>
+                                                <th>
+                                                    Gems
+                                                </th>
+                                                <th>
+                                                    Vault
+                                                </th>
+                                                <th>
+                                                    Wildcards
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="h in modelUserHistory" v-bind:class="[modelUserHistorySelected === h ? 'is-selected' : '']" v-on:click="modelUserHistorySelected = h">
+                                                <td>
+                                                    {{moment(h.date).format('YYYY-MM-DD')}}
+                                                </td>
+                                                <td>
+                                                    {{numeral(h.newCards.reduce((a, b) => a += b.amount, 0)).format('+0,0')}}
+                                                </td>
+                                                <td>
+                                                    {{numeral(h.goldChange).format('+0,0')}}
+                                                </td>
+                                                <td>
+                                                    {{numeral(h.gemsChange).format('+0,0')}}
+                                                </td>
+                                                <td>
+                                                    {{numeral(h.vaultProgress).format('+0,0.0')}}%
+                                                </td>
+                                                <td>
+                                                    <span class="tooltip is-tooltip-left" data-tooltip="Common wildcards">
+                                                        {{numeral(h.wildcardsChange.Common).format('+0,0')}}
+                                                        <img class="wc" src="/images/wcC.png" width="16" height="16" />
+                                                    </span>
+                                                    <span class="tooltip is-tooltip-left" data-tooltip="Uncommon wildcards">
+                                                        {{numeral(h.wildcardsChange.Uncommon).format('+0,0')}}
+                                                        <img class="wc" src="/images/wcU.png" width="16" height="16" />
+                                                    </span>
+                                                    <span class="tooltip is-tooltip-left" data-tooltip="Rare wildcards">
+                                                        {{numeral(h.wildcardsChange.Rare).format('+0,0')}}
+                                                        <img class="wc" src="/images/wcR.png" width="16" height="16" />
+                                                    </span>
+                                                    <span class="tooltip is-tooltip-left" data-tooltip="Mythic wildcards">
+                                                        {{numeral(h.wildcardsChange.Mythic).format('+0,0')}}
+                                                        <img class="wc" src="/images/wcM.png" width="16" height="16" />
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="column">
+                                    <span v-if="typeof modelUserHistorySelected.date === 'undefined'">
+                                        Select a date to view its new cards details
+                                    </span>
+                                    <h6 class="title is-6" v-else-if="modelUserHistorySelected.newCards.length === 0">
+                                        No new cards acquired
+                                        on {{moment(modelUserHistorySelected.date).format('YYYY-MM-DD')}}
+                                    </h6>
+                                    <div v-else>
+                                        <h6 class="title is-6">
+                                            {{numeral(modelUserHistorySelected.newCards.reduce((a, b) => a += b.amount, 0)).format('0,0')}} new cards acquired
+                                            (<span v-html="formatUserHistoryDetailsTitle()"></span>)
+                                            on {{moment(modelUserHistorySelected.date).format('YYYY-MM-DD')}}
+                                        </h6>
+                                        <ul>
+                                            <li v-for="c in modelUserHistorySelected.newCards" class="cardHover"
+                                                v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.name, c.set, c.setId)">
+                                                {{c.amount}}x {{c.name}}
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div v-if="currentPage === 'publicDecks'" id="divPublicDecks">
+                <h4 class="title is-4">
+                    Track decks and view their details in relation to your collection
+                </h4>
+                <div v-if="isNotificationActive('tipDecksOrder')" class="notification" style="margin-top:1em;">
+                    <button class="delete" v-on:click="stopNotification('tipDecksOrder')"></button>
+                    <p>
+                        <span class="icon has-text-info"><i class="fas fa-info-circle"></i></span>
+                        Decks are presented in ascending order of their missing cards weight (wildcards needed for you to complete them).
+                    </p>
+                </div>
+                <div class="columns">
+                    <div class="column">
+                        <div style="margin-bottom:1rem;">
+                            <h6 class="title is-6" style="line-height:inherit;">
+                                {{modelDecks.decks.filter((i) => i.priorityFactor > 0).length}} decks tracked / {{modelDecks.decks.length}} total
+                                <button class="button is-small is-warning" v-on:click="resetDecksPriorityFactor(1)" v-bind:class="getClassIsLoadingData('decks')" :disabled="isLoadingData('decks')">Track all</button>
+                                <button class="button is-small is-warning" v-on:click="resetDecksPriorityFactor(0)" v-bind:class="getClassIsLoadingData('decks')" :disabled="isLoadingData('decks')">Untrack all</button>
+                                <button class="button is-small is-info" v-bind:class="getClassIsLoadingData('decks')" :disabled="isLoadingData('decks')" v-on:click="function() { refreshDecks();refreshDashboard(); }">
+                                    Refresh
+                                </button>
+                            </h6>
+                        </div>
+                        <table class="table is-narrow">
+                            <thead>
+                                <tr>
+                                    <th colspan="5">Filters <span class="smallText gray">(Press Enter)</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="field">
+                                            <div class="control">
+                                                <label class="label is-small">Name</label>
+                                                <input class="input is-small" type="text" v-model="modelDecks.filters.name" v-on:change="filterDecks();" size="12" placeholder="e.g. Rainbow" />
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="field">
+                                            <div class="control">
+                                                <label class="label is-small">
+                                                    Source
+                                                    <span class="icon has-text-info tooltip" style="height:inherit; cursor:pointer;"
+                                                          data-tooltip="Go configure sources of decks" v-on:click="currentPageProfile = 'scrapers'; currentPage = 'privateUserProfile';">
+                                                        <i class="fas fa-info-circle"></i>
+                                                    </span>
+                                                </label>
+                                                <select class="input is-small" v-model="modelDecks.filters.scraperTypeId" v-on:change="filterDecks();">
+                                                    <option v-for="source in ['(All)'].union(modelDecks.decks.map((i) => i.scraperTypeId).filter((value, index, self) => self.indexOf(value) === index).sort())"
+                                                            v-bind:value="source">
+                                                        {{ formatScraperKey(source, true) }}
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="field">
+                                            <div class="control">
+                                                <label class="label is-small">Color</label>
+                                                <input class="input is-small" type="text" v-model="modelDecks.filters.color" v-on:change="filterDecks();" size="12" placeholder="e.g. WUBRG" />
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="field">
+                                            <div class="control">
+                                                <label class="label is-small">
+                                                    Date
+                                                    <span class="icon has-text-info tooltip is-tooltip-multiline" style="height:inherit;"
+                                                          data-tooltip="You can type an exact date or specify a range (by using &gt; before your date)">
+                                                        <i class="fas fa-info-circle"></i>
+                                                    </span>
+                                                </label>
+                                                <input class="input is-small" type="text" v-model="modelDecks.filters.date" v-on:change="filterDecks();" size="14"
+                                                       placeholder="e.g. &gt; 2019-01-21" />
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="field">
+                                            <div class="control">
+                                                <label class="label is-small">
+                                                    Weight
+                                                    <span class="icon has-text-info tooltip" style="height:inherit;"
+                                                          data-tooltip="Use &lt; and &gt; along with a Missing cards weight value">
+                                                        <i class="fas fa-info-circle"></i>
+                                                    </span>
+                                                </label>
+                                                <input class="input is-small" type="text" v-model="modelDecks.filters.missingWeight" v-on:change="filterDecks();" size="12"
+                                                       placeholder="e.g. &lt; 200" />
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td style="vertical-align:bottom;">
+                                        <div class="field">
+                                            <input type="checkbox" id="switchFilterDecksShowUntracked" name="switchFilterDecksShowUntracked" class="switch" v-model="modelDecks.filters.showUntracked" v-on:change="filterDecks()">
+                                            <label for="switchFilterDecksShowUntracked">
+                                                <span class="tooltip" v-bind:data-tooltip="modelDecks.filters.showUntracked ? 'Tracked and untracked decks are shown' : 'Only Tracked decks are shown'">
+                                                    {{modelDecks.filters.showUntracked ? 'All' : 'Tracked'}}
+                                                </span>
+                                            </label>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h6 class="subtitle is-6" style="line-height:inherit;">
+                            Showing {{modelDecksFiltered.length}} deck<span v-if="modelDecksFiltered.length != 1">s</span> filtered
+                            <button class="button is-small is-warning tooltip" v-on:click="trackFilteredDecks(true)" data-tooltip="Add the filtered decks to your list of tracked decks"
+                                    v-bind:class="getClassIsLoadingData('decks')" :disabled="isLoadingData('decks')">
+                                Track these decks
+                            </button>
+                            <button class="button is-small is-warning tooltip" v-on:click="trackFilteredDecks(null)" data-tooltip="Make the filtered decks your list of tracked decks"
+                                    v-bind:class="getClassIsLoadingData('decks')" :disabled="isLoadingData('decks')">
+                                Track *ONLY* these decks
+                            </button>
+                            <button class="button is-small is-warning tooltip" v-on:click="trackFilteredDecks(false)" data-tooltip="Remove the filtered decks from your list of tracked decks"
+                                    v-bind:class="getClassIsLoadingData('decks')" :disabled="isLoadingData('decks')">
+                                Untrack these decks
+                            </button>
+                            <button v-if="decksAreFiltered()" v-on:click="clearFiltersDecks();" :disabled="isLoadingData('decks')" class="button is-danger is-small tooltip" data-tooltip="Reset the filters to show your tracked decks">
+                                Clear filters
+                            </button>
+                        </h6>
+                        <span v-if="isLoadingData('decks')" class="button is-loading"></span>
+                        <div v-else class="wrapper-tablescroll">
+                            <table class="table is-narrow is-hoverable">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            Priority factor
+                                            <br />
+                                            <span class="icon has-text-info tooltip is-tooltip-multiline is-tooltip-right"
+                                                  data-tooltip="Set to 0 to stop tracking a deck. This factor is applied to the missing cards weight of the deck, if you consider some decks more important than others.">
+                                                <i class="fas fa-info-circle"></i>
+                                            </span>
+                                        </th>
+                                        <th>Name and source</th>
+                                        <th>Color</th>
+                                        <th>Date</th>
+                                        <th>Missing wildcards</th>
+                                        <th>Missing cards<br />weight</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="iDeck in modelDecksFiltered" v-on:click="getDeck(iDeck.id)" v-bind:class="[iDeck.id === modelDeckSelected.id ? 'is-selected' : '']">
+                                        <td class="textCenter">
+                                            <input type="text" v-model="iDeck.priorityFactor" size="1" v-on:change.stop="setDeckPriorityFactor(iDeck.id, iDeck.priorityFactor)" />
+                                            <span v-if="iDeck.priorityFactor > 0" class="tooltip is-tooltip-right" data-tooltip="Stop tracking this deck">
+                                                <span class="delete is-small" v-on:click.stop="stopTracking(iDeck.id)" style="margin-top:4px;"></span>
+                                            </span>
+                                            <div>
+                                                <a :disabled="iDeck.priorityFactor <= 0" style="width:auto;" class="icon has-text-info" v-on:click.stop="setDeckPriorityFactor(iDeck.id, parseFloat(iDeck.priorityFactor) - 1)">
+                                                    <i class="far fa-caret-square-down"></i>
+                                                </a>
+                                                <a style="width:auto;" class="icon has-text-info" v-on:click.stop="setDeckPriorityFactor(iDeck.id, parseFloat(iDeck.priorityFactor) + 1)">
+                                                    <i class="far fa-caret-square-up"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            {{iDeck.name}}
+                                            <div class="content is-small">
+                                                {{formatScraperKey(iDeck.scraperTypeId, true)}}
+                                            </div>
+                                        </td>
+                                        <td>{{iDeck.color}}</td>
+                                        <td class="has-text-centered nowrap">{{moment(iDeck.dateCreated).format('YYYY-MM-DD')}}</td>
+                                        <td>
+                                            <table>
+                                                <tbody>
+                                                    <tr class="nohover">
+                                                        <td class="tooltip" data-tooltip="Main">M:</td>
+                                                        <td class="nowrap">
+                                                            {{iDeck.wildcardsMissingMain.Mythic}}
+                                                            <span class="tooltip" data-tooltip="Mythic">
+                                                                <img class="wc" src="/images/wcM.png" width="16" height="16" />
+                                                            </span>
+                                                        </td>
+                                                        <td class="nowrap">
+                                                            {{iDeck.wildcardsMissingMain.Rare}}
+                                                            <span class="tooltip" data-tooltip="Rare">
+                                                                <img class="wc" src="/images/wcR.png" width="16" height="16" />
+                                                            </span>
+                                                        </td>
+                                                        <td class="nowrap">
+                                                            {{iDeck.wildcardsMissingMain.Uncommon}}
+                                                            <span class="tooltip" data-tooltip="Uncommon">
+                                                                <img class="wc" src="/images/wcU.png" width="16" height="16" />
+                                                            </span>
+                                                        </td>
+                                                        <td class="nowrap">
+                                                            {{iDeck.wildcardsMissingMain.Common}}
+                                                            <span class="tooltip" data-tooltip="Common">
+                                                                <img class="wc" src="/images/wcC.png" width="16" height="16" />
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="nohover">
+                                                        <td class="tooltip" data-tooltip="Sideboard">S:</td>
+                                                        <td class="nowrap">
+                                                            {{iDeck.wildcardsMissingSideboard.Mythic}}
+                                                            <span class="tooltip" data-tooltip="Mythic">
+                                                                <img class="wc" src="/images/wcM.png" width="16" height="16" />
+                                                            </span>
+                                                        </td>
+                                                        <td class="nowrap">
+                                                            {{iDeck.wildcardsMissingSideboard.Rare}}
+                                                            <span class="tooltip" data-tooltip="Rare">
+                                                                <img class="wc" src="/images/wcR.png" width="16" height="16" />
+                                                            </span>
+                                                        </td>
+                                                        <td class="nowrap">
+                                                            {{iDeck.wildcardsMissingSideboard.Uncommon}}
+                                                            <span class="tooltip" data-tooltip="Uncommon">
+                                                                <img class="wc" src="/images/wcU.png" width="16" height="16" />
+                                                            </span>
+                                                        </td>
+                                                        <td class="nowrap">
+                                                            {{iDeck.wildcardsMissingSideboard.Common}}
+                                                            <span class="tooltip" data-tooltip="Common">
+                                                                <img class="wc" src="/images/wcC.png" width="16" height="16" />
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                        <td class="has-text-right">{{numeral(iDeck.missingWeight).format('0,0')}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="column is-half">
+                        <span v-if="modelDeckSelected.id === ''">
+                            Select a deck to see its details
+                        </span>
+                        <span v-else-if="isLoadingData('deck')" class="button is-loading"></span>
+                        <div v-else>
+                            <h4 v-if="modelDeckSelected.url === null" class="title is-4">
+                                {{vueApp.modelDeckSelected.name}}
+                            </h4>
+                            <h4 v-else class="title is-4">
+                                {{vueApp.modelDeckSelected.name}}
+                                (<a v-bind:href="modelDeckSelected.url" target="_blank">
+                                    {{formatScraperKey(modelDeckSelected.scraperTypeId, true)}}
+                                </a>)
+                            </h4>
+                            <div class="columns">
+                                <div class="column is-one-half">
+                                    <h5 class="title is-5" style="margin-bottom:0.5rem;">
+                                        {{vueApp.displayTotalCards(false)}}
+                                    </h5>
+                                    <div v-if="isNotificationActive('tipDualLands')" class="notification" style="margin-top:1em;">
+                                        <button class="delete" v-on:click="stopNotification('tipDualLands')"></button>
+                                        <span class="icon has-text-info"><i class="fas fa-info-circle"></i></span>
+                                        <span>
+                                            You can easily replace the rare dual lands with common dual lands if you don't want to craft them yet.
+                                        </span>
+                                    </div>
+                                    <table class="table is-narrow">
+                                        <tr v-for="c in modelDeckSelected.cardsMain">
+                                            <td class="nowrap">
+                                                <span v-if="c.nbMissing > 0">
+                                                    {{c.nbMissing}}
+                                                    <span v-if="c.rarity === 'Mythic'" class="tooltip" data-tooltip="Mythic">
+                                                        <img class="wc" src="/images/wcM.png" width="16" height="16" />
+                                                    </span>
+                                                    <span v-else-if="c.rarity === 'Rare'" class="tooltip" data-tooltip="Rare">
+                                                        <img class="wc" src="/images/wcR.png" width="16" height="16" />
+                                                    </span>
+                                                    <span v-else-if="c.rarity === 'Uncommon'" class="tooltip" data-tooltip="Uncommon">
+                                                        <img class="wc" src="/images/wcU.png" width="16" height="16" />
+                                                    </span>
+                                                    <span v-else-if="c.rarity === 'Common'" class="tooltip" data-tooltip="Common">
+                                                        <img class="wc" src="/images/wcC.png" width="16" height="16" />
+                                                    </span>
+                                                </span>
+                                                <span v-else>&nbsp;</span>
+                                            </td>
+                                            <td>
+                                                <span v-on:mouseleave="showCard(null)"
+                                                      v-on:mouseover="showCard(c.name, c.set, c.setId)" class="cardHover">
+                                                    {{c.amount}}x {{c.name}}
+                                                </span>
+                                            </td>
+                                            <td>{{c.type}}</td>
+                                        </tr>
+                                    </table>
+
+                                    <h5 class="title is-5" style="margin-bottom:0.5rem;">
+                                        {{vueApp.displayTotalCards(true)}}
+                                    </h5>
+                                    <table class="table is-narrow" v-if="modelDeckSelected.cardsSideboard.length > 0">
+                                        <tr v-for="c in modelDeckSelected.cardsSideboard">
+                                            <td class="nowrap">
+                                                <span v-if="c.nbMissing > 0">
+                                                    {{c.nbMissing}}
+                                                    <span v-if="c.rarity === 'Mythic'" class="tooltip" data-tooltip="Mythic">
+                                                        <img class="wc" src="/images/wcM.png" width="16" height="16" />
+                                                    </span>
+                                                    <span v-else-if="c.rarity === 'Rare'" class="tooltip" data-tooltip="Rare">
+                                                        <img class="wc" src="/images/wcR.png" width="16" height="16" />
+                                                    </span>
+                                                    <span v-else-if="c.rarity === 'Uncommon'" class="tooltip" data-tooltip="Uncommon">
+                                                        <img class="wc" src="/images/wcU.png" width="16" height="16" />
+                                                    </span>
+                                                    <span v-else-if="c.rarity === 'Common'" class="tooltip" data-tooltip="Common">
+                                                        <img class="wc" src="/images/wcC.png" width="16" height="16" />
+                                                    </span>
+                                                </span>
+                                                <span v-else>&nbsp;</span>
+                                            </td>
+                                            <td>
+                                                <span v-on:mouseleave="showCard(null)"
+                                                      v-on:mouseover="showCard(c.name, c.set, c.setId)" class="cardHover">
+                                                    {{c.amount}}x {{c.name}}
+                                                </span>
+                                            </td>
+                                            <td>{{c.type}}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="column is-one-half">
+                                    <h5 class="title is-5" style="margin-bottom:0.5rem;">Missing cards summary</h5>
+                                    <table class="table is-narrow">
+                                        <thead>
+                                            <tr>
+                                                <th>Set</th>
+                                                <th>Count</th>
+                                                <th>Weight</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="c in modelDeckSelected.compareResults">
+                                                <td>{{c.set}}</td>
+                                                <td>{{c.nbMissing}}</td>
+                                                <td>{{c.missingWeightTotal}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                    <h5 class="title is-5" style="margin-bottom:0.5rem;">
+                                        Export to Arena
+                                    </h5>
+
+                                    <div v-if="isNotificationActive('tipBo1')" class="notification">
+                                        <button class="delete" v-on:click="stopNotification('tipBo1')"></button>
+                                        <span class="icon has-text-info"><i class="fas fa-info-circle"></i></span>
+                                        You can omit to select the sideboard if you prefer Bo1
+                                    </div>
+
+                                    <textarea cols="50" rows="40">{{vueApp.modelDeckSelected.mtgaImportFormat}}</textarea>
+                                    <p>
+                                        <span class="icon has-text-info"><i class="fas fa-info-circle"></i></span>
+                                        <strong>No more wildcards wasted!</strong>
+                                        <br />
+                                        Only your collection cards are considered above
+                                        (e.g. so you don't craft those Opts unwillingly)
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div v-if="currentPage === 'privateDashboardSummary'" id="divPrivateDashboardSummary">
+                <h4 v-if="modelDashboard.summary.length > 0" class="title is-4">
+                    Consider opening
+                    <span style="font-weight:bold;">{{formatSetToFullName(modelDashboard.summary[0].key)}}</span>
+                    packs
+                </h4>
+                <h5 v-if="modelDashboard.summary.length > 0" class="subtitle is-5">
+                    You are currently missing {{vueApp.modelDashboard.summary[0].value.reduce((a, b) => a += b.nbMissing, 0)}} cards from this set,
+                    worth a total weight of {{numeral(vueApp.modelDashboard.summary[0].value.reduce((a, b) => a += b.missingWeight, 0)).format('0, 0')}}
+                    <span class="icon has-text-info tooltip" style="cursor:pointer;" data-tooltip="Weight?" v-on:click="currentPageProfile='weights';currentPage='privateUserProfile'"><i class="fas fa-info-circle"></i></span>
+                </h5>
+                <div class="notification">
+                    Based on missing cards that are a part of the {{modelDecks.decks.filter((i) => i.priorityFactor > 0).length}} decks currently tracked.
+
+                    <div v-if="isNotificationActive('tipDashboardSummaryClick')" class="notification" style="padding-left:0; padding-bottom:0;">
+                        <button class="delete" v-on:click="stopNotification('tipDashboardSummaryClick')"></button>
+                        <p>
+                            <span class="icon has-text-info"><i class="fas fa-info-circle"></i></span>
+                            Click on any icon to get to the corresponding filtered view on the Missing cards Details page
+                        </p>
+                    </div>
+                </div>
+                <div>
+                    <span v-if="isLoadingData('dashboard')" class="button is-loading"></span>
+                    <table v-else style="border-spacing:1rem; border-collapse:separate;">
+                        <tr>
+                            <template v-for="set in modelDashboard.summary">
+                                <td>
+
+                                    <table class="table is-narrow is-bordered darkTable" v-bind:style="'background: url(images/set-' + set.key + '-pack.png); background-repeat:no-repeat; background-size:cover;'">
+                                        <thead>
+                                            <tr>
+                                                <th colspan="2" style="cursor:pointer;" v-on:click="openDashboardDetails(set.key, '')">
+                                                    <span class="tooltip" v-bind:data-tooltip="set.key">
+                                                        <img v-bind:src="'images/set-' + set.key + '.png'" />
+                                                    </span>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="c in set.value">
+                                                <td class="has-text-right tooltip" style="cursor:pointer;" v-on:click="openDashboardDetails(set.key, c.rarity)"
+                                                    v-bind:data-tooltip="'Missing ' + c.nbMissing + ' ' + (c.rarity === 'RareLand' ? ' Rare (Land)' : c.rarity === 'RareNonLand' ? ' Rare (Non-land)' : c.rarity)">
+                                                    {{c.nbMissing}}
+                                                    <img v-bind:src="'images/' + set.key + '-' + c.rarity.substring(0,1) + '.png'" class="wc"
+                                                         v-bind:style="c.rarity === 'RareLand' ? '' : 'margin-right:29px;'" />
+                                                    <img v-if="c.rarity === 'RareLand'" class="wc" style="filter: invert(100%);" v-bind:src="iconLand" width="24" height="24" />
+                                                </td>
+                                                <td class="has-text-right">{{numeral(c.missingWeight).format('0,0')}}</td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <th class="has-text-right"><span style="margin-right:1rem;">Total</span> {{set.value.reduce((a, b) => a += b.nbMissing, 0)}}</th>
+                                                <th class="has-text-right">{{numeral(set.value.reduce((a, b) => a += b.missingWeight, 0)).format('0,0')}}</th>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+
+                                </td>
+                                <td v-if="set.key !== modelDashboard.summary[modelDashboard.summary.length - 1].key">
+                                    &gt;
+                                </td>
+                            </template>
+                        </tr>
+                    </table>
+                </div>
+                <div class="notification">
+                    <span class="icon has-text-info"><i class="fas fa-info-circle"></i></span>
+                    Keep in mind that Ixalan (XLN), Rivals of Ixalan (RIX), Dominaria (DOM), and M19
+                    will rotate and can no longer be played in Standard in Fall 2019.
+                    Guilds of Ravnica (GRN) and Ravnica Allegiance (RNA) will be legal in Standard until Fall 2020.
+                </div>
+            </div>
+            <div v-if="currentPage === 'privateDashboardDetails'" id="divPrivateDashboardDetails">
+                <h4 class="title is-4">
+                    Consider crafting these cards, according to their weight value
+                    <span class="icon has-text-info tooltip" style="cursor:pointer;" data-tooltip="Weight?" v-on:click="currentPageProfile='weights';currentPage='privateUserProfile'"><i class="fas fa-info-circle"></i></span>
+                </h4>
+                <div class="notification">
+                    Based on missing cards that are a part of the {{modelDecks.decks.filter((i) => i.priorityFactor > 0).length}} decks currently tracked.
+                </div>
+                <table class="table is-narrow">
+                    <thead>
+                        <tr>
+                            <th colspan="2">Filters</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <label>Set</label>
+                                <select v-model="modelDashboard.detailsFilters.set" v-on:change="filterDashboardDetails();">
+                                    <option v-for="set in modelDashboard.detailsFilters.sets" v-bind:value="set">
+                                        {{ set == '' ? '(All)' : set }}
+                                    </option>
+                                </select>
+                            </td>
+                            <td>
+                                <label>Rarity</label>
+                                <select v-model="modelDashboard.detailsFilters.rarity" v-on:change="filterDashboardDetails();">
+                                    <option v-for="r in modelDashboard.detailsFilters.rarities" v-bind:value="r">
+                                        {{ r == '' ? '(All)' : r.startsWith('Rare') ? (r.indexOf('NonLand') >= 0 ? 'Rare (Non-land)' : 'Rare (Land)' ) : r }}
+                                    </option>
+                                </select>
+                            </td>
+                            <td>
+                                <button v-if="dashboardDetailsAreFiltered()" v-on:click="clearFiltersDashboardDetails();" class="button is-danger is-small">
+                                    Clear filters
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="columns">
+                    <div class="column">
+                        <span v-if="isLoadingData('dashboard')" class="button is-loading"></span>
+                        <div v-else class="wrapper-tablescroll">
+                            <table class="table is-narrow is-bordered is-striped is-hoverable">
+                                <thead>
+                                    <tr>
+                                        <th class="has-text-centered">Weight</th>
+                                        <th class="has-text-centered">Number of decks<br />using this card</th>
+                                        <th class="has-text-centered">Owned</th>
+                                        <th class="has-text-centered">Missing</th>
+                                        <th class="has-text-centered">Avg per deck</th>
+                                        <th class="has-text-centered">Card</th>
+                                        <th class="has-text-centered">Set</th>
+                                        <th class="has-text-centered">Rarity</th>
+                                        <th class="has-text-centered">Type</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="c in modelDashboard.detailsFiltered" v-on:click="getDecksForCard(c.cardName)" v-bind:class="[c.cardName === modelDetailsCardSelected.card ? 'is-selected' : '']">
+                                        <td class="has-text-right">{{numeral(c.missingWeight).format('0,0')}}</td>
+                                        <td class="has-text-right">{{c.nbDecks}}</td>
+                                        <td class="has-text-right">{{c.nbOwned}}</td>
+                                        <td class="has-text-right"><strong>{{c.nbMissing}}</strong></td>
+                                        <td class="has-text-right">{{c.nbAvgPerDeck}}</td>
+                                        <td>
+                                            <span v-on:mouseleave="showCard(null)"
+                                                  v-on:mouseover="showCard(c.cardName, c.set, c.setId)" class="cardHover">
+                                                {{c.cardName}}
+                                            </span>
+                                        </td>
+                                        <td>{{c.set}}</td>
+                                        <td>{{c.rarity.startsWith('Rare') ? 'Rare' : c.rarity}}</td>
+                                        <td>{{c.type}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="column is-one-quarter">
+                        <span v-if="modelDetailsCardSelected.card === ''">
+                            Select a card to see in which decks it is used
+                        </span>
+                        <div v-else>
+                            <h6 class="title is-6">
+                                {{vueApp.modelDetailsCardSelected.card}} found in:
+                            </h6>
+                            <span v-if="isLoadingData('dashboardDetailsCardUsedIn')" class="button is-loading"></span>
+                            <div v-else-if="vueApp.modelDetailsCardSelected.decks.length === 0">
+                                (None)
+                            </div>
+                            <table v-else class="table is-bordered is-striped is-narrow is-hoverable">
+                                <thead>
+                                    <tr>
+                                        <th>Deck</th>
+                                        <th class="tooltip" data-tooltip="Main">M</th>
+                                        <th class="tooltip" data-tooltip="Sideboard">S</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="d in vueApp.modelDetailsCardSelected.decks" v-on:click="goToDeck(d.deckId, d.deckName)">
+                                        <td>{{d.deckName}}</td>
+                                        <td>{{d.nbMain}}x</td>
+                                        <td>{{d.nbSideboard == 0 ? '&nbsp;' : d.nbSideboard + 'x'}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div v-if="currentPage === 'privateUserProfile'" id="divPrivateUserProfile">
+                <div class="columns">
+                    <div class="column">
+                        <h4 class="title is-4">
+                            Customize some stuff to your liking
+                        </h4>
+                    </div>
+                    <div class="column">
+                        <div class="level">
+                            <div class="level-item">
+                                <h4 class="subtitle is-4">
+                                    Your user id : {{vueApp.modelUser.id}}
+                                </h4>
+                            </div>
+                            <div class="level-item">
+                                <div class="field">
+                                    <input type="checkbox" id="switchTheme" name="switchTheme" class="switch" v-model="themeIsDark" v-on:change="saveTheme()">
+                                    <label for="switchTheme">{{themeIsDark ? 'Dark' : 'Light'}}</label>
+                                    theme
+                                </div>
+                            </div>
+                            <div class="level-item" v-if="modelUser.notificationsInactive.length > 0">
+                                <div class="field tooltip is-tooltip-left"
+                                     v-bind:data-tooltip="'Reactivate the ' + modelUser.notificationsInactive.length + ' hidden notification' + (modelUser.notificationsInactive.length === 1 ? '' : 's')">
+                                    <button type="button" class="button" v-on:click="resetNotifications()">
+                                        Reset tips
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="columns">
+                    <div class="column">
+                        <button v-on:click="currentPageProfile = 'scrapers'"
+                                class="button is-fullwidth is-rounded" v-bind:class="[currentPageProfile === 'scrapers' ? 'is-info' : '']">
+                            Sources of deck
+                        </button>
+                    </div>
+                    <div class="column">
+                        <button v-on:click="currentPageProfile = 'customDecks'"
+                                class="button is-fullwidth is-rounded" v-bind:class="[currentPageProfile === 'customDecks' ? 'is-info' : '']">
+                            Custom decks
+                        </button>
+                    </div>
+                    <div class="column">
+                        <button v-on:click="currentPageProfile = 'weights'"
+                                class="button is-fullwidth is-rounded" v-bind:class="[currentPageProfile === 'weights' ? 'is-info' : '']">
+                            Weights
+                        </button>
+                    </div>
+                </div>
+                <div v-if="currentPageProfile === 'scrapers'">
+                    <h5 class="title is-5">Manage which live sources you want to follow &mdash; These decks are refreshed automatically</h5>
+                    <div class="columns">
+                        <div class="column" v-for="scraperType in modelUser.scrapers.groupBy('key')">
+                            <div>
+                                <h6 class="title is-6">{{scraperType.key}}</h6>
+                                <template v-if="scraperType.key === 'Streamdecker'">
+                                    <span>
+                                        Add your favorite users on <a href="https://www.streamdecker.com/" target="_blank">Streamdecker</a> to track their decks
+                                    </span>
+                                    <div class="field has-addons">
+                                        <div class="control">
+                                            <input v-model="modelUserScrapers.streamdecker" v-on:change="addUserScraper('streamdecker')" class="input" v-bind:class="modelUserScrapers.streamdecker.length === 0 ? 'is-danger' : 'is-success'" type="text" placeholder="e.g. tigerzord" />
+                                        </div>
+                                        <div class="control">
+                                            <button class="button is-info" :disabled="modelUserScrapers.streamdecker.length === 0 || isLoadingData('userScraperAsync')" v-on:click="addUserScraper('streamdecker')">Add</button>
+                                        </div>
+                                    </div>
+                                    <div v-if="isLoadingData('userScraperAsync')">
+                                        <span class="button is-loading"></span>
+                                        Retrieving decks, results will come in a few moments.
+                                        <br />
+                                        You have to
+                                        <a class="has-text-weight-bold" v-on:click="refreshUserScrapers()">refresh manually</a>
+                                    </div>
+                                </template>
+                            </div>
+                            <div style="margin-top:1.5rem;">
+                                <span v-if="isLoadingData('userScrapersGet')" class="button is-loading"></span>
+                                <div v-else-if="modelUser.scrapers.length === 0">
+                                    (None)
+                                </div>
+                                <div v-else>
+                                    <table class="table is-narrow">
+                                        <tbody>
+                                            <tr v-for="s in scraperType.values">
+                                                <td v-bind:class="[ s.isActivated? 'has-text-weight-bold' : '']">
+                                                    <a v-bind:href="s.url" target="_blank">{{vueApp.formatScraperKey(s.id, false)}}</a>
+                                                </td>
+                                                <td>
+                                                    <div class="field">
+                                                        <input type="checkbox" v-bind:id="'scraper' + s.id.replace('-', '')" v-bind:name="'scraper' + s.id.replace('-', '')" class="switch"
+                                                               v-model="s.isActivated" v-on:change="saveUserScrapers()">
+                                                        <label v-bind:for="'scraper' + s.id.replace('-', '')">
+                                                            ({{s.nbDecks}} decks)
+                                                        </label>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div v-if="currentPageProfile === 'customDecks'" class="columns">
+                    <div class="column">
+                        <h5 class="title is-5">Add a new custom deck</h5>
+                        <div class="field">
+                            <div class="control">
+                                <label class="label">
+                                    Url (optional)
+                                    <span class="icon has-text-info tooltip is-tooltip-right is-tooltip-multiline" style="height:inherit;"
+                                          data-tooltip="If the url is a valid deck from Aetherhub or MtgGoldfish, it will be automatically parsed">
+                                        <i class="fas fa-info-circle"></i>
+                                    </span>
+                                    <span v-if="isLoadingData('userDeckFromUrl')" class="button is-loading"></span>
+                                </label>
+                                <input v-model="modelUserDeck.url" class="input is-success" v-on:change="getDeckFromUrl()"
+                                       type="text" placeholder="e.g. http://tappedout.net/mtg-decks/xyz">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="control">
+                                <label class="label">Name</label>
+                                <input v-model="modelUserDeck.name" class="input" v-bind:class="modelUserDeck.name.length === 0 ? 'is-danger' : 'is-success'" type="text" placeholder="e.g. My deck" />
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="control">
+                                <label class="label">Deck pasted in MTGA format</label>
+                                <textarea v-model="modelUserDeck.mtgaFormat" rows="12"
+                                          class="textarea" v-bind:class="modelUserDeck.mtgaFormat.length === 0 ? 'is-danger' : 'is-success'"></textarea>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="control">
+                                <button class="button is-info" :disabled="modelUserDeck.name.length === 0 || modelUserDeck.mtgaFormat.length === 0" v-on:click="addUserDeck();">Add new deck</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="column">
+                        <h5 class="title is-5">{{modelUser.decks.length}} custom decks</h5>
+                        <span v-if="isLoadingData('userDecksGet')" class="button is-loading"></span>
+                        <div v-else-if="modelUser.decks.length === 0">
+                            (None)
+                        </div>
+                        <ul v-else>
+                            <li v-for="d in modelUser.decks">
+                                <a v-on:click="goToDeck(d.id, d.name)">{{d.name}}</a>
+                                <span class="delete is-small" data-tooltip="Stop tracking this deck" v-on:click.stop="deleteUserDeck(d.id)" style="margin-top:4px;"></span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div v-if="currentPageProfile === 'weights'">
+                    <h5 class="title is-5">
+                        Weights used for missing cards
+                    </h5>
+                    <h5 class="subtitle is-5">
+                        These values determine the importance of each card based on its rarity and if it's mained/sideboarded.
+                    </h5>
+
+                    <p style="margin-bottom:2.4rem;">
+                        All values are relative so the number matters less than the relationship between them:
+                        <br />
+                        A card worth a total missing weight of 1,200 is twice more important to get than one worth 600.
+                    </p>
+
+                    <table class="table is-bordered is-striped is-narrow">
+                        <thead>
+                            <tr>
+                                <th>Rarity</th>
+                                <th>Main</th>
+                                <th>Sideboard</th>
+                                <th v-if="showWeightsProposed()">
+                                    <span class="tooltip" data-tooltip="Based on your available wildcards">
+                                        <button class="button is-small is-info" v-on:click="applyUserWeightsProposed()">Use values</button>
+                                    </span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Mythic</td>
+                                <td>
+                                    <input class="input is-small" type="text" v-model="modelUser.weights.Mythic.main" size="3" />
+                                </td>
+                                <td>
+                                    <input class="input is-small" type="text" v-model="modelUser.weights.Mythic.sideboard" size="3" />
+                                </td>
+                                <td v-if="showWeightsProposed()" class="has-text-centered">
+                                    {{modelUser.weightsProposed.Mythic}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Rare (Land)</td>
+                                <td>
+                                    <input class="input is-small" type="text" v-model="modelUser.weights.RareLand.main" size="3" />
+                                </td>
+                                <td>
+                                    <input class="input is-small" type="text" v-model="modelUser.weights.RareLand.sideboard" size="3" />
+                                </td>
+                                <td v-if="showWeightsProposed()" class="has-text-centered">
+                                    {{modelUser.weightsProposed.RareLand}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Rare (NonLand)</td>
+                                <td>
+                                    <input class="input is-small" type="text" v-model="modelUser.weights.RareNonLand.main" size="3" />
+                                </td>
+                                <td>
+                                    <input class="input is-small" type="text" v-model="modelUser.weights.RareNonLand.sideboard" size="3" />
+                                </td>
+                                <td v-if="showWeightsProposed()" class="has-text-centered">
+                                    {{modelUser.weightsProposed.RareNonLand}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Uncommon</td>
+                                <td>
+                                    <input class="input is-small" type="text" v-model="modelUser.weights.Uncommon.main" size="3" />
+                                </td>
+                                <td>
+                                    <input class="input is-small" type="text" v-model="modelUser.weights.Uncommon.sideboard" size="3" />
+                                </td>
+                                <td v-if="showWeightsProposed()" class="has-text-centered">
+                                    {{modelUser.weightsProposed.Uncommon}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Common</td>
+                                <td>
+                                    <input class="input is-small" type="text" v-model="modelUser.weights.Common.main" size="3" />
+                                </td>
+                                <td>
+                                    <input class="input is-small" type="text" v-model="modelUser.weights.Common.sideboard" size="3" />
+                                </td>
+                                <td v-if="showWeightsProposed()" class="has-text-centered">
+                                    {{modelUser.weightsProposed.Common}}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <span class="tooltip is-tooltip-right" data-tooltip="Use the initial default values">
+                        <button class="button is-danger" v-on:click="resetUserWeights()"
+                                v-bind:class="getClassIsLoadingData('setWeights')" :disabled="isLoadingData('setWeights')">
+                            Reset weights
+                        </button>
+                    </span>
+                    <button class="button is-primary" v-on:click="setUserWeights()"
+                            v-bind:class="getClassIsLoadingData('setWeights')" :disabled="isLoadingData('setWeights')">
+                        Update weights
+                    </button>
+                </div>
+            </div>
+            <div v-if="currentPage === 'publicContact'">
+                <h4 class="title is-4">Leave a message, feedback is appreciated</h4>
+                <h5 class="subtitle is-5">If you want a reply, be sure to include an email or some id (reddit, twitch, etc.)</h5>
+                <div class="field">
+                    <div class="control">
+                        <label class="label">Your message</label>
+                        <textarea v-model="contactMessage" rows="12"
+                                  class="textarea" v-bind:class="contactMessage.length === 0 ? 'is-danger' : 'is-success'"></textarea>
+                    </div>
+                </div>
+                <div class="field has-addons">
+                    <div class="control">
+                        <button class="button is-info" :disabled="contactMessage.length === 0 || isLoadingData('sendMessage')" v-on:click="sendMessage();">Send message</button>
+                    </div>
+                    <div class="control">
+                        <label class="label" style="padding:0.5rem 0 0 0.5rem;">Thanks!</label>
+                    </div>
+                </div>
+            </div>
+            <div v-if="currentPage === 'publicChangelog'">
+                <h4 class="title is-4">Changelog</h4>
+                <ul class="menu-list">
+                    <li v-for="v in modelChangelog">
+                        v{{v.version}} {{v.date}}
+                        <ul>
+                            <li v-for="i in v.changes">
+                                <span>[{{i.section}}]</span>
+                                <span style="position:absolute; left:15rem;">{{i.description}}</span>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <div id="divCardImg" v-if="modelCardSelectedUrl !== ''" style="position:absolute; top:0; left:0; width:223px; height:311px; background:#87a485;">
+                <img v-bind:src="modelCardSelectedUrl" />
+            </div>
+            <span id="iconChangelog" class="float tooltip is-tooltip-left" data-tooltip="Changelog" style="right:50px;"
+                  v-on:click="loadPage('publicChangelog')">
+                <i class="fas fa-history my-float"></i>
+            </span>
+            <span class="float tooltip is-tooltip-left" data-tooltip="Contact form" v-on:click="loadPage('publicContact')">
+                <i class="fas fa-envelope my-float"></i>
+            </span>
+
+            <div class="modal" v-bind:class="showLoginModal ? 'is-active' : ''">
+                <div class="modal-background" v-on:click="showLoginModal = false"></div>
+                <div class="modal-content box">
+                    <div class="field has-addons" style="justify-content: center;">
+                        <div class="control">
+                            <input type="text" class="input" id="txtLoginId" v-on:change="tryToLoginWithUserId()" v-model="loginUserId"
+                                   placeholder="Login with a user id"  style="width:24rem;" />
+                        </div>
+                        <div class="control"><button class="button is-link" v-on:click="tryToLoginWithUserId()">Go</button></div>
+                    </div>
+                </div>
+                <button class="modal-close is-large" aria-label="close" v-on:click="showLoginModal = false"></button>
+            </div>
+
+            <div class="modal" v-bind:class="showUploadCollectionModal ? 'is-active' : ''">
+                <div class="modal-background" v-on:click="showUploadCollectionModal = false"></div>
+                <div class="modal-content box">
+                    <p>
+                        To upload your collection, go to the folder containing the MTGA file, for example
+                    </p>
+                    <p>
+                        <code>
+                            C:\Users\[YOUR USERNAME]\AppData\LocalLow\Wizards Of The Coast\MTGA
+                        </code>
+                    </p>
+                    <p style="margin-top:1rem;">
+                        <strong>Zip the output_log.txt</strong> file
+                        <br />
+                        and send it here (max size 10MB)
+                    </p>
+                    <div id="formSubmitCollection">
+                        <form id="formSendCollection">
+                            <div class="field">
+                                <div class="control">
+                                    <input type="file" class="button" id="fileCollection" name="fileCollection" />
+                                    <span style="padding:0.1rem 0.5rem;">
+                                        &lt; --- Should be a zip file
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <div class="control">
+                                    <span onclick="submitCollection();" class="button is-primary"
+                                          v-bind:class="getClassIsLoadingData('collectionPost')" :disabled="isLoadingData('collectionPost')">
+                                        Submit
+                                    </span>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="notification" style="margin-top:1em;">
+                        <span class="icon has-text-info"><i class="fas fa-info-circle"></i></span>
+                        Important: Close your MTG Arena game before zipping the file
+                    </div>
+                </div>
+                <button class="modal-close is-large" aria-label="close" v-on:click="showUploadCollectionModal = false"></button>
+            </div>
+        </div>
+
+        <div class="pageloader" style="z-index:2147483647;"
+             v-bind:class="[isAppLoaded === false || isLoadingData('collectionPost') || isLoadingData('collectionGet') || isLoadingLotsOfDecks() ? 'is-active' : '']">
+            <span class="title">Please wait...</span>
+        </div>
+    </div>
+    <div id="divInitialLoader" class="pageloader is-active">
+        <span class="title">Please wait...</span>
+    </div>
+    <!-- Script placement optimized -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.Event) {
+                document.captureEvents(Event.MOUSEMOVE);
+            }
+            document.onmousemove = getCursorXY;
+        });
+
+        function getCursorXY(e) {
+            var x = (window.Event) ? e.pageX : event.clientX + (document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft);
+            var y = (window.Event) ? e.pageY : event.clientY + (document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop);
+            vueApp.mouseX = x;
+            vueApp.mouseY = y;
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script src="js/vueApp.js"></script>
+</body>
