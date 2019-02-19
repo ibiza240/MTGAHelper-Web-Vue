@@ -7,3 +7,7 @@
 # MTGAHelper-Web-Vue
 
 This project contains source code for the web frontend using Vue.js and the MTGAHelper api endpoints.
+
+-----
+
+###### MTGAHelper is unofficial Fan Content permitted under the Fan Content Policy. Not approved/endorsed by Wizards of the Coast. Portions of the materials used are property of Wizards of the Coast.
