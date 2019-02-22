@@ -3,22 +3,19 @@
     <meta charset="utf-8" />
     <title>MTGAHelper - The ultimate collection tracker for Magic: The Gathering Arena</title>
     <link rel="icon" type="image/png" href="/images/wcC.png" />
-
     <script src="js/common.js"></script>
     <script src="js/ajax.js"></script>
     <script src="js/submitCollection.js"></script>
     <link rel="stylesheet" href="css/bulma-pageloader.min.css" />
     <link rel="stylesheet" href="css/bulma-tooltip.min.css" />
     <link rel="stylesheet" href="css/bulma-switch.min.css" />
-
+    <link rel="stylesheet" href="css/bulma-checkradio.min.css" />
     <!--<link rel="stylesheet" href="css/bulma-accordion.min.css" />
     <script type="text/javascript" src="/js/bulma-accordion.min.js"></script>-->
-
     <link rel="stylesheet" href="css/floating-icons.css" />
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.23.0/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js"></script>
-    <link rel="stylesheet" href="css/modalUglipop.css" />
     <style type="text/css">
         .is-hoverable {
             cursor: pointer;
@@ -178,55 +175,39 @@
                         </div>
                     </div>
                 </template>
-                <div v-else class="column has-text-right">
-                    <button class="button is-primary" v-on:click="showLoginModal = true; vueApp.$nextTick(() => txtLoginId.focus());">
-                        Login with a user id
-                    </button>
-                </div>
+                <template v-else>
+                    <div class="column has-text-right">
+                        <div class="field" style="margin-top:0.5rem;">
+                            <input type="checkbox" id="switchTheme" name="switchTheme" class="switch" v-model="themeIsDark" v-on:change="saveTheme()">
+                            <label for="switchTheme">{{themeIsDark ? 'Dark' : 'Light'}}</label>
+                        </div>
+                    </div>
+                    <div class="column has-text-right">
+                        <div class="field">
+                            <button class="button is-primary" v-on:click="showLoginModal = true; vueApp.$nextTick(() => txtLoginId.focus());">
+                                Login with a user id
+                            </button>
+                        </div>
+                    </div>
+                </template>
             </div>
-            <div class="hero herobg1 is-info" v-if="modelUser.collection.cards.length === 0 && isLoadingData('collectionGet') === false" style="margin-bottom:1rem;">
+            <div class="hero herobg1 is-info" v-if="modelUser.collection.cards.length === 0 && isLoadingData('collectionGet') === false">
                 <div class="hero-body">
-                    <h2 class="title is-2">
+                    <h2 class="title is-2" style="text-shadow: 4px 4px 10px #000000;">
                         MTGAHelper &mdash; The ultimate collection tracker for Magic: The Gathering Arena
                     </h2>
-                    <button class="button is-large" style="margin-left:8rem;" v-on:click="showUploadCollectionModal = true">Start by uploading your collection</button>
+                    <button class="button is-large" style="margin-left:4rem;" v-on:click="showUploadCollectionModal = true">Start by uploading your collection</button>
                 </div>
             </div>
-            <div v-if="currentPage === 'privateCollection'" id="divPrivateCollection">
-                <h4 class="title is-4" v-if="modelUser.collection.cards.length > 0">
-                    {{numeral(modelUser.collection.cards.reduce((a, b) => a += b.amount, 0)).format('0,0')}} cards owned as of {{modelUser.collection.collectionDate.startsWith('0001-01-01') ? 'Unknown' : modelUser.collection.collectionDate }}
-                    <span v-bind:class="['button', 'is-primary', modelUser.collection.cards.length === 0 ? 'hidden' : '']"
-                          v-on:click="showUploadCollectionModal = true">
-                        Update
-                    </span>
-                </h4>
-                <div v-if="modelUser.collection.cards.length !== 0" class="columns">
-                    <div class="column">
-                        <button v-on:click="currentPageCollection = 'currently'"
-                                class="button is-fullwidth is-rounded" v-bind:class="[currentPageCollection === 'currently' ? 'is-info' : '']">
-                            Currently
-                        </button>
-                    </div>
-                    <div class="column">
-                        <button v-on:click="currentPageCollection = 'history'"
-                                class="button is-fullwidth is-rounded" v-bind:class="[currentPageCollection === 'history' ? 'is-info' : '']">
-                            History
-                        </button>
-                    </div>
-                </div>
-                <div v-if="modelUser.id === ''">
-                    <p>
-                        You must <a v-on:click="registerUser();">register</a> first (This just sets a cookie in order to identify you among other users).
-                    </p>
-                </div>
-                <div v-else-if="modelUser.collection.cards.length === 0 && isLoadingData('collectionGet') === false">
-                    <div class="hero is-primary hero2bg" v-on:click="currentPage = 'privateDashboardDetails'" style="cursor:pointer;">
-                        <div class="hero-body">
+            <div v-if="currentPage === 'privateCollection'">
+                <div v-if="modelUser.collection.cards.length === 0 && isLoadingData('collectionGet') === false">
+                    <div class="hero is-primary hero2bg" v-on:click="currentPage = 'privateDashboardSummary'" style="cursor:pointer;">
+                        <div class="hero-body" style="text-shadow: 1px 1px 20px #000000;">
                             <h4 class="title is-4">
-                                Don't waste those precious wildcards &mdash; Optimize your deckbuilding experience :)
+                                Optimize your deckbuilding experience :) &mdash; Never waste another wildcard
                             </h4>
                             <h4 class="subtitle is-4">
-                                Grow your collection more efficiently by knowing which packs to open and which cards to craft at all times
+                                Grow your collection more efficiently by having a much clearer picture of which packs to open and which cards to craft
                             </h4>
                             <h5 class="subtitle is-5">
                                 Upload your collection and start tracking your favorite decks!
@@ -237,6 +218,33 @@
                 <div v-else>
                     <span v-if="isLoadingData('collectionGet')" class="button is-loading"></span>
                     <div v-else>
+                        <div class="columns">
+                            <div class="column">
+                                <h4 class="title is-4">
+                                    {{numeral(modelUser.collection.cards.reduce((a, b) => a += b.amount, 0)).format('0,0')}} cards owned as of {{modelUser.collection.collectionDate.startsWith('0001-01-01') ? 'Unknown' : modelUser.collection.collectionDate }}
+                                    <span v-bind:class="['button', 'is-primary', modelUser.collection.cards.length === 0 ? 'hidden' : '']"
+                                          v-on:click="showUploadCollectionModal = true">
+                                        Update
+                                    </span>
+                                </h4>
+                            </div>
+                            <div class="column is-two-fifths">
+                                <div class="columns">
+                                    <div class="column">
+                                        <button v-on:click="currentPageCollection = 'currently'"
+                                                class="button is-fullwidth is-rounded" v-bind:class="[currentPageCollection === 'currently' ? 'is-info' : '']">
+                                            Currently
+                                        </button>
+                                    </div>
+                                    <div class="column">
+                                        <button v-on:click="currentPageCollection = 'history'"
+                                                class="button is-fullwidth is-rounded" v-bind:class="[currentPageCollection === 'history' ? 'is-info' : '']">
+                                            History
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div v-if="currentPageCollection === 'currently'">
                             <div class="columns">
                                 <div class="column" v-for="color in ['W','U','B','R','G','', 'Multicolor', 'Land']">
@@ -286,17 +294,18 @@
                                     </div>
                                     <ul v-for="c in modelUser.collection.cards.filter((i) => color === 'Multicolor' ? (i.color.length > 1 && i.color !== 'Land') : i.color === color)">
                                         <li v-on:mouseleave="showCard(null)"
-                                            v-on:mouseover="showCard(c.name, c.set, c.setId)" class="cardHover">
+                                            v-on:mouseover="showCard(c.imageUrl)" class="cardHover">
                                             {{c.amount}}x {{c.name}}
                                         </li>
                                     </ul>
                                 </div>
                             </div>
                         </div>
-                        <div v-else>
+                        <div v-else-if="currentPageCollection === 'history'">
                             <div class="columns">
                                 <div class="column">
                                     <span v-if="isLoadingData('userHistory')" class="button is-loading"></span>
+                                    <strong v-else-if="modelUserHistory.length === 0">No data available</strong>
                                     <table v-else class="table is-narrow is-hoverable">
                                         <thead>
                                             <tr>
@@ -326,31 +335,43 @@
                                                     {{moment(h.date).format('YYYY-MM-DD')}}
                                                 </td>
                                                 <td>
-                                                    {{numeral(h.newCards.reduce((a, b) => a += b.amount, 0)).format('+0,0')}}
+                                                    <span v-if="h.newCards.reduce((a, b) => a += b.amount, 0) > 0">
+                                                        {{numeral(h.newCards.reduce((a, b) => a += b.amount, 0)).format('+0,0')}}
+                                                    </span>
+                                                    <span v-else>&nbsp;</span>
                                                 </td>
                                                 <td>
-                                                    {{numeral(h.goldChange).format('+0,0')}}
+                                                    <span v-if="h.goldChange > 0">
+                                                        {{numeral(h.goldChange).format('+0,0')}}
+                                                    </span>
+                                                    <span v-else>&nbsp;</span>
                                                 </td>
                                                 <td>
-                                                    {{numeral(h.gemsChange).format('+0,0')}}
+                                                    <span v-if="h.gemsChange > 0">
+                                                        {{numeral(h.gemsChange).format('+0,0')}}
+                                                    </span>
+                                                    <span v-else>&nbsp;</span>
                                                 </td>
                                                 <td>
-                                                    {{numeral(h.vaultProgress).format('+0,0.0')}}%
+                                                    <span v-if="h.vaultProgress > 0">
+                                                        {{numeral(h.vaultProgress).format('+0,0.0')}}%
+                                                    </span>
+                                                    <span v-else>&nbsp;</span>
                                                 </td>
                                                 <td>
-                                                    <span class="tooltip is-tooltip-left" data-tooltip="Common wildcards">
+                                                    <span v-if="h.wildcardsChange.Common > 0" class="tooltip is-tooltip-left" data-tooltip="Common wildcards">
                                                         {{numeral(h.wildcardsChange.Common).format('+0,0')}}
                                                         <img class="wc" src="/images/wcC.png" width="16" height="16" />
                                                     </span>
-                                                    <span class="tooltip is-tooltip-left" data-tooltip="Uncommon wildcards">
+                                                    <span v-if="h.wildcardsChange.Uncommon > 0" class="tooltip is-tooltip-left" data-tooltip="Uncommon wildcards">
                                                         {{numeral(h.wildcardsChange.Uncommon).format('+0,0')}}
                                                         <img class="wc" src="/images/wcU.png" width="16" height="16" />
                                                     </span>
-                                                    <span class="tooltip is-tooltip-left" data-tooltip="Rare wildcards">
+                                                    <span v-if="h.wildcardsChange.Rare > 0" class="tooltip is-tooltip-left" data-tooltip="Rare wildcards">
                                                         {{numeral(h.wildcardsChange.Rare).format('+0,0')}}
                                                         <img class="wc" src="/images/wcR.png" width="16" height="16" />
                                                     </span>
-                                                    <span class="tooltip is-tooltip-left" data-tooltip="Mythic wildcards">
+                                                    <span v-if="h.wildcardsChange.Mythic > 0" class="tooltip is-tooltip-left" data-tooltip="Mythic wildcards">
                                                         {{numeral(h.wildcardsChange.Mythic).format('+0,0')}}
                                                         <img class="wc" src="/images/wcM.png" width="16" height="16" />
                                                     </span>
@@ -375,7 +396,7 @@
                                         </h6>
                                         <ul>
                                             <li v-for="c in modelUserHistorySelected.newCards" class="cardHover"
-                                                v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.name, c.set, c.setId)">
+                                                v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageUrl)">
                                                 {{c.amount}}x {{c.name}}
                                             </li>
                                         </ul>
@@ -386,7 +407,7 @@
                     </div>
                 </div>
             </div>
-            <div v-if="currentPage === 'publicDecks'" id="divPublicDecks">
+            <div v-else-if="currentPage === 'publicDecks'">
                 <h4 class="title is-4">
                     Track decks and view their details in relation to your collection
                 </h4>
@@ -629,14 +650,14 @@
                         </span>
                         <span v-else-if="isLoadingData('deck')" class="button is-loading"></span>
                         <div v-else>
-                            <h4 v-if="modelDeckSelected.url === null" class="title is-4">
+                            <h4 class="title is-4">
                                 {{vueApp.modelDeckSelected.name}}
-                            </h4>
-                            <h4 v-else class="title is-4">
-                                {{vueApp.modelDeckSelected.name}}
-                                (<a v-bind:href="modelDeckSelected.url" target="_blank">
-                                    {{formatScraperKey(modelDeckSelected.scraperTypeId, true)}}
-                                </a>)
+                                <span v-if="modelDeckSelected.scraperTypeId.startsWith('usercustomdeck-')">
+                                    ({{formatScraperKey(modelDeckSelected.scraperTypeId, true)}})
+                                </span>
+                                <a v-else v-bind:href="modelDeckSelected.url" target="_blank">
+                                    ({{formatScraperKey(modelDeckSelected.scraperTypeId, true)}})
+                                </a>
                             </h4>
                             <div class="columns">
                                 <div class="column is-one-half">
@@ -672,14 +693,13 @@
                                             </td>
                                             <td>
                                                 <span v-on:mouseleave="showCard(null)"
-                                                      v-on:mouseover="showCard(c.name, c.set, c.setId)" class="cardHover">
+                                                      v-on:mouseover="showCard(c.imageUrl)" class="cardHover">
                                                     {{c.amount}}x {{c.name}}
                                                 </span>
                                             </td>
                                             <td>{{c.type}}</td>
                                         </tr>
                                     </table>
-
                                     <h5 class="title is-5" style="margin-bottom:0.5rem;">
                                         {{vueApp.displayTotalCards(true)}}
                                     </h5>
@@ -705,7 +725,7 @@
                                             </td>
                                             <td>
                                                 <span v-on:mouseleave="showCard(null)"
-                                                      v-on:mouseover="showCard(c.name, c.set, c.setId)" class="cardHover">
+                                                      v-on:mouseover="showCard(c.imageUrl)" class="cardHover">
                                                     {{c.amount}}x {{c.name}}
                                                 </span>
                                             </td>
@@ -731,17 +751,14 @@
                                             </tr>
                                         </tbody>
                                     </table>
-
                                     <h5 class="title is-5" style="margin-bottom:0.5rem;">
                                         Export to Arena
                                     </h5>
-
                                     <div v-if="isNotificationActive('tipBo1')" class="notification">
                                         <button class="delete" v-on:click="stopNotification('tipBo1')"></button>
                                         <span class="icon has-text-info"><i class="fas fa-info-circle"></i></span>
                                         You can omit to select the sideboard if you prefer Bo1
                                     </div>
-
                                     <textarea cols="50" rows="40">{{vueApp.modelDeckSelected.mtgaImportFormat}}</textarea>
                                     <p>
                                         <span class="icon has-text-info"><i class="fas fa-info-circle"></i></span>
@@ -756,7 +773,7 @@
                     </div>
                 </div>
             </div>
-            <div v-if="currentPage === 'privateDashboardSummary'" id="divPrivateDashboardSummary">
+            <div v-else-if="currentPage === 'privateDashboardSummary'">
                 <h4 v-if="modelDashboard.summary.length > 0" class="title is-4">
                     Consider opening
                     <span style="font-weight:bold;">{{formatSetToFullName(modelDashboard.summary[0].key)}}</span>
@@ -784,7 +801,6 @@
                         <tr>
                             <template v-for="set in modelDashboard.summary">
                                 <td>
-
                                     <table class="table is-narrow is-bordered darkTable" v-bind:style="'background: url(images/set-' + set.key + '-pack.png); background-repeat:no-repeat; background-size:cover;'">
                                         <thead>
                                             <tr>
@@ -814,7 +830,6 @@
                                             </tr>
                                         </tfoot>
                                     </table>
-
                                 </td>
                                 <td v-if="set.key !== modelDashboard.summary[modelDashboard.summary.length - 1].key">
                                     &gt;
@@ -830,10 +845,13 @@
                     Guilds of Ravnica (GRN) and Ravnica Allegiance (RNA) will be legal in Standard until Fall 2020.
                 </div>
             </div>
-            <div v-if="currentPage === 'privateDashboardDetails'" id="divPrivateDashboardDetails">
+            <div v-else-if="currentPage === 'privateDashboardDetails'">
                 <h4 class="title is-4">
                     Consider crafting these cards, according to their weight value
-                    <span class="icon has-text-info tooltip" style="cursor:pointer;" data-tooltip="Weight?" v-on:click="currentPageProfile='weights';currentPage='privateUserProfile'"><i class="fas fa-info-circle"></i></span>
+                    <span class="icon has-text-info tooltip" style="cursor:pointer;" data-tooltip="Weight?"
+                          v-on:click="currentPageProfile='weights';currentPage='privateUserProfile'">
+                        <i class="fas fa-info-circle"></i>
+                    </span>
                 </h4>
                 <div class="notification">
                     Based on missing cards that are a part of the {{modelDecks.decks.filter((i) => i.priorityFactor > 0).length}} decks currently tracked.
@@ -880,7 +898,13 @@
                                         <th class="has-text-centered">Weight</th>
                                         <th class="has-text-centered">Number of decks<br />using this card</th>
                                         <th class="has-text-centered">Owned</th>
-                                        <th class="has-text-centered">Missing</th>
+                                        <th class="has-text-centered">
+                                            Missing
+                                            <span class="icon has-text-info tooltip is-tooltip-multiline is-tooltip-bottom" style="cursor:pointer;"
+                                                  data-tooltip="Difference between your number of owned copies and the maximum number of copies of any tracked deck">
+                                                <i class="fas fa-info-circle"></i>
+                                            </span>
+                                        </th>
                                         <th class="has-text-centered">Avg per deck</th>
                                         <th class="has-text-centered">Card</th>
                                         <th class="has-text-centered">Set</th>
@@ -897,7 +921,7 @@
                                         <td class="has-text-right">{{c.nbAvgPerDeck}}</td>
                                         <td>
                                             <span v-on:mouseleave="showCard(null)"
-                                                  v-on:mouseover="showCard(c.cardName, c.set, c.setId)" class="cardHover">
+                                                  v-on:mouseover="showCard(c.imageUrl)" class="cardHover">
                                                 {{c.cardName}}
                                             </span>
                                         </td>
@@ -941,7 +965,7 @@
                     </div>
                 </div>
             </div>
-            <div v-if="currentPage === 'privateUserProfile'" id="divPrivateUserProfile">
+            <div v-else-if="currentPage === 'privateUserProfile'">
                 <div class="columns">
                     <div class="column">
                         <h4 class="title is-4">
@@ -990,6 +1014,12 @@
                         <button v-on:click="currentPageProfile = 'weights'"
                                 class="button is-fullwidth is-rounded" v-bind:class="[currentPageProfile === 'weights' ? 'is-info' : '']">
                             Weights
+                        </button>
+                    </div>
+                    <div class="column">
+                        <button v-on:click="currentPageProfile = 'lands'"
+                                class="button is-fullwidth is-rounded" v-bind:class="[currentPageProfile === 'lands' ? 'is-info' : '']">
+                            Lands
                         </button>
                     </div>
                 </div>
@@ -1049,7 +1079,7 @@
                         </div>
                     </div>
                 </div>
-                <div v-if="currentPageProfile === 'customDecks'" class="columns">
+                <div v-else-if="currentPageProfile === 'customDecks'" class="columns">
                     <div class="column">
                         <h5 class="title is-5">Add a new custom deck</h5>
                         <div class="field">
@@ -1099,20 +1129,18 @@
                         </ul>
                     </div>
                 </div>
-                <div v-if="currentPageProfile === 'weights'">
+                <div v-else-if="currentPageProfile === 'weights'">
                     <h5 class="title is-5">
                         Weights used for missing cards
                     </h5>
                     <h5 class="subtitle is-5">
                         These values determine the importance of each card based on its rarity and if it's mained/sideboarded.
                     </h5>
-
                     <p style="margin-bottom:2.4rem;">
                         All values are relative so the number matters less than the relationship between them:
                         <br />
                         A card worth a total missing weight of 1,200 is twice more important to get than one worth 600.
                     </p>
-
                     <table class="table is-bordered is-striped is-narrow">
                         <thead>
                             <tr>
@@ -1200,8 +1228,35 @@
                         Update weights
                     </button>
                 </div>
+                <div v-else-if="currentPageProfile === 'lands'">
+                    <h5 class="title is-5">
+                        Basic lands preference when importing a deck
+                    </h5>
+                    <div>
+                        <div class="field">
+                            <input class="is-checkradio" id="radLand" type="radio" name="exampleRadioInline" checked="checked">
+                            <label for="exampleRadioInline1">Option 1</label>
+                            <input class="is-checkradio" id="exampleRadioInline2" type="radio" name="exampleRadioInline">
+                            <label for="exampleRadioInline2">Option 2</label>
+                        </div>
+                        <p>
+                            params:
+                            switches:	have a favorite land per color per set
+                            switch:		use single art per color/use multiple arts per color
+                            switch:		force set only with most cards in deck
+
+                            Only your favorite art variations will be considered when picking lands
+
+                            Basic lands in the deck will use a single art variation per color
+                            Basic lands in the deck will use multiple art variations per color
+
+                            Art variation(s) will be picked only from the set with the most cards from your deck
+                            Art variation(s) will be picked among any of your favorites
+                        </p>
+                    </div>
+                </div>
             </div>
-            <div v-if="currentPage === 'publicContact'">
+            <div v-else-if="currentPage === 'publicContact'">
                 <h4 class="title is-4">Leave a message, feedback is appreciated</h4>
                 <h5 class="subtitle is-5">If you want a reply, be sure to include an email or some id (reddit, twitch, etc.)</h5>
                 <div class="field">
@@ -1220,7 +1275,7 @@
                     </div>
                 </div>
             </div>
-            <div v-if="currentPage === 'publicChangelog'">
+            <div v-else-if="currentPage === 'publicChangelog'">
                 <h4 class="title is-4">Changelog</h4>
                 <ul class="menu-list">
                     <li v-for="v in modelChangelog">
@@ -1234,9 +1289,17 @@
                     </li>
                 </ul>
             </div>
-            <div id="divCardImg" v-if="modelCardSelectedUrl !== ''" style="position:absolute; top:0; left:0; width:223px; height:311px; background:#87a485;">
+
+            <div class="notification is-size-7" style="margin-top:1rem; padding:0.5rem 2.5rem 0.5rem 1.5rem;">
+                All art is property of their respective artists and/or Wizards of the Coast Inc.
+                This website is not produced, endorsed, supported, or affiliated with Wizards of the Coast.
+                MTGAHelper is unofficial Fan Content permitted under the Fan Content Policy.
+            </div>
+
+            <div id="divCardImg" v-if="modelCardSelectedUrl !== ''" style="position:absolute; top:0; left:0; width:244px; height:340px; background:#87a485;">
                 <img v-bind:src="modelCardSelectedUrl" />
             </div>
+
             <span id="iconChangelog" class="float tooltip is-tooltip-left" data-tooltip="Changelog" style="right:50px;"
                   v-on:click="loadPage('publicChangelog')">
                 <i class="fas fa-history my-float"></i>
@@ -1244,26 +1307,29 @@
             <span class="float tooltip is-tooltip-left" data-tooltip="Contact form" v-on:click="loadPage('publicContact')">
                 <i class="fas fa-envelope my-float"></i>
             </span>
-
             <div class="modal" v-bind:class="showLoginModal ? 'is-active' : ''">
                 <div class="modal-background" v-on:click="showLoginModal = false"></div>
                 <div class="modal-content box">
-                    <div class="field has-addons" style="justify-content: center;">
-                        <div class="control">
-                            <input type="text" class="input" id="txtLoginId" v-on:change="tryToLoginWithUserId()" v-model="loginUserId"
-                                   placeholder="Login with a user id"  style="width:24rem;" />
+
+                    <div class="field is-grouped" style="justify-content: center;">
+                        <span class="is-size-4" style="margin-right:1rem;">User id:</span>
+                        <div class="field has-addons">
+                            <div class="control">
+                                <input type="text" class="input" id="txtLoginId" v-on:change="tryToLoginWithUserId()" v-model="loginUserId"
+                                       placeholder="3e67ec9fee324e9fa39742d563fc95ab" style="width:24rem;" />
+                            </div>
+                            <div class="control"><button class="button is-link" v-on:click="tryToLoginWithUserId()">Go</button></div>
                         </div>
-                        <div class="control"><button class="button is-link" v-on:click="tryToLoginWithUserId()">Go</button></div>
                     </div>
+
                 </div>
                 <button class="modal-close is-large" aria-label="close" v-on:click="showLoginModal = false"></button>
             </div>
-
             <div class="modal" v-bind:class="showUploadCollectionModal ? 'is-active' : ''">
                 <div class="modal-background" v-on:click="showUploadCollectionModal = false"></div>
                 <div class="modal-content box">
                     <p>
-                        To upload your collection, go to the folder containing the MTGA file, for example
+                        To upload your collection, find the <strong>output_log.txt</strong> file, for example go to the folder:
                     </p>
                     <p>
                         <code>
@@ -1303,7 +1369,6 @@
                 <button class="modal-close is-large" aria-label="close" v-on:click="showUploadCollectionModal = false"></button>
             </div>
         </div>
-
         <div class="pageloader" style="z-index:2147483647;"
              v-bind:class="[isAppLoaded === false || isLoadingData('collectionPost') || isLoadingData('collectionGet') || isLoadingLotsOfDecks() ? 'is-active' : '']">
             <span class="title">Please wait...</span>

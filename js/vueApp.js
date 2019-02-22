@@ -221,40 +221,52 @@ var vueApp = new Vue({
         isNotificationActive(key) {
             return this.modelUser.notificationsInactive.indexOf(key) < 0;
         },
-        showCard(name, set, setId) {
-            if (name === null) {
+        showCard(imageUrl) {
+            if (imageUrl === null) {
                 this.modelCardSelectedUrl = '';
             }
             else {
-                //this.modelCardSelectedUrl = 'https://img.scryfall.com/cards/normal/en/' + c.set.toLowerCase() + '/' + c.setId + '.jpg'
+                ////this.modelCardSelectedUrl = 'https://img.scryfall.com/cards/normal/en/' + c.set.toLowerCase() + '/' + c.setId + '.jpg'
 
-                if (name === 'Plains')
-                    this.modelCardSelectedUrl = 'https://cdn1.mtggoldfish.com/images/gf/Plains%2B%255BRIX%255D.jpg';
-                else if (name === 'Island')
-                    this.modelCardSelectedUrl = 'https://cdn1.mtggoldfish.com/images/gf/Island%2B%255BRIX%255D.jpg';
-                else if (name === 'Swamp')
-                    this.modelCardSelectedUrl = 'https://cdn1.mtggoldfish.com/images/gf/Swamp%2B%255BRIX%255D.jpg';
-                else if (name === 'Mountain')
-                    this.modelCardSelectedUrl = 'https://cdn1.mtggoldfish.com/images/gf/Mountain%2B%255BRIX%255D.jpg';
-                else if (name === 'Forest')
-                    this.modelCardSelectedUrl = 'https://cdn1.mtggoldfish.com/images/gf/Forest%2B%255BRIX%255D.jpg';
-                else {
-                    if (name.endsWith('Guildgate (a)') || name.endsWith('Guildgate (b)')) {
-                        name = name.replace('(a)', '%253C' + setId + '%253E').replace('(b)', '%253C' + setId + '%253E');
-                    }
-                    else if (name.endsWith('Guildgate')) {
-                        name = name + ' ' + '%253C' + setId + '%253E';
-                    }
+                //if (name === 'Plains')
+                //    this.modelCardSelectedUrl = 'https://cdn1.mtggoldfish.com/images/gf/Plains%2B%255BRIX%255D.jpg';
+                //else if (name === 'Island')
+                //    this.modelCardSelectedUrl = 'https://cdn1.mtggoldfish.com/images/gf/Island%2B%255BRIX%255D.jpg';
+                //else if (name === 'Swamp')
+                //    this.modelCardSelectedUrl = 'https://cdn1.mtggoldfish.com/images/gf/Swamp%2B%255BRIX%255D.jpg';
+                //else if (name === 'Mountain')
+                //    this.modelCardSelectedUrl = 'https://cdn1.mtggoldfish.com/images/gf/Mountain%2B%255BRIX%255D.jpg';
+                //else if (name === 'Forest')
+                //    this.modelCardSelectedUrl = 'https://cdn1.mtggoldfish.com/images/gf/Forest%2B%255BRIX%255D.jpg';
+                //else {
+                //    if (name.endsWith('Guildgate (a)') || name.endsWith('Guildgate (b)')) {
+                //        name = name.replace('(a)', '%253C' + setId + '%253E').replace('(b)', '%253C' + setId + '%253E');
+                //    }
+                //    else if (name.endsWith('Guildgate')) {
+                //        name = name + ' ' + '%253C' + setId + '%253E';
+                //    }
 
-                    this.modelCardSelectedUrl = 'https://cdn1.mtggoldfish.com/images/gf/' + name
-                        .replace(/ /g, '%2B')
-                        .replace(/'/g, '%2527')
-                        .replace(/,/g, '%252C')
-                        .replace(/\//g, '%252F')
-                        + '%2B%255B' + set + '%255D.jpg';
-                }
+                //    this.modelCardSelectedUrl = 'https://cdn1.mtggoldfish.com/images/gf/' + name
+                //        .replace(/ /g, '%2B')
+                //        .replace(/'/g, '%2527')
+                //        .replace(/,/g, '%252C')
+                //        .replace(/\//g, '%252F')
+                //        + '%2B%255B' + set + '%255D.jpg';
+                //}
 
-                this.$nextTick(/*debounce(*/function () {
+                //this.$nextTick(/*debounce(*/function () {
+                //    var div = document.getElementById('divCardImg');
+                //    var l = (vueApp.mouseX - 333);
+                //    if (l < 0) l += 500;
+                //    if (div !== null) {
+                //        div.style.left = l + 'px';
+                //        div.style.top = (vueApp.mouseY - 160) + 'px';
+                //    }
+                //}/*, 200)*/);
+
+                this.modelCardSelectedUrl = 'https://img.scryfall.com/cards' + imageUrl;
+
+                this.$nextTick(function () {
                     var div = document.getElementById('divCardImg');
                     var l = (vueApp.mouseX - 333);
                     if (l < 0) l += 500;
@@ -262,7 +274,7 @@ var vueApp = new Vue({
                         div.style.left = l + 'px';
                         div.style.top = (vueApp.mouseY - 160) + 'px';
                     }
-                }/*, 200)*/);
+                });
             }
         },
         tryToLoginWithUserId() {
@@ -579,8 +591,14 @@ var vueApp = new Vue({
             this.loadData('deck', true);
 
             sendAjaxGet('/api/Decks/' + deckId, function (statuscode, body) {
-                vueApp.modelDeckSelected = JSON.parse(body).deck;
-                vueApp.loadData('deck', false);
+                var data = JSON.parse(body);
+                if (statuscode === 200) {
+                    vueApp.modelDeckSelected = data.deck;
+                    vueApp.loadData('deck', false);
+                }
+                else {
+                    alert(data.error);
+                }
             });
         },
         clearSelectedDeck() {
@@ -670,12 +688,9 @@ var vueApp = new Vue({
             }
         },
         addUserDeck() {
-            var url = this.modelUserDeck.url;
-            if (url === '') url = window.location.href;
-
             var body = {
                 name: this.modelUserDeck.name.trim(),
-                url: url.trim(),
+                url: this.modelUserDeck.url.trim(),
                 mtgaFormat: this.modelUserDeck.mtgaFormat.trim()
             };
 
