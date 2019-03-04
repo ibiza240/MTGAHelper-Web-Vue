@@ -61,6 +61,7 @@ var vueApp = new Vue({
         currentPageProfile: 'scrapers',
 
         loading: [],
+        scraperIdLoading: '',
 
         modelCardSelectedUrl: '',
         contactMessage: '',
@@ -97,7 +98,18 @@ var vueApp = new Vue({
                 mtgaUserProfile: {}
             },
             decks: [],
-            scrapers: [],
+            scrapers: [
+                {
+                    //type: '',
+                    //searchByUser: '',
+                    //bySection: [
+                    //    { ScraperDto }
+                    //],
+                    //byUser: [
+                    //    { ScraperDto }
+                    //]
+                }
+            ],
             weights: {},
             weightsProposed: {
                 Mythic: 0,
@@ -116,10 +128,6 @@ var vueApp = new Vue({
             name: '',
             url: '',
             mtgaFormat: ''
-        },
-
-        modelUserScrapers: {
-            streamdecker: ''    // bound to textbox
         },
 
         modelDashboard: {
@@ -391,23 +399,61 @@ var vueApp = new Vue({
             });
         },
         refreshUserScrapers() {
+            //this.loadData('userscrapersGet', true);
+            //sendAjaxGet('/api/User/Scrapers', (statuscode, body) => {
+            //    vueApp.$set(this.modelUser, 'scrapers', JSON.parse(body).scrapersByType);
+
+            //    if (vueApp.isLoadingData('userScraperAsync')) {
+            //        if (vueApp.modelUser.scrapers.map(i => i.id).indexOf('streamdecker-' + vueApp.modelUserScrapers.streamdecker) >= 0) {
+            //            vueApp.modelUserScrapers.streamdecker = '';
+            //            vueApp.loadData('userScraperAsync', false);
+
+            //            vueApp.refreshDecks();
+            //            vueApp.refreshUserScrapers();
+            //            vueApp.refreshDashboard();
+            //        }
+            //    }
+            //    else {
+            //        vueApp.filterDecks();
+            //    }
+
+            //    vueApp.loadData('userscrapersGet', false);
+            //});
             this.loadData('userscrapersGet', true);
             sendAjaxGet('/api/User/Scrapers', (statuscode, body) => {
-                vueApp.$set(this.modelUser, 'scrapers', JSON.parse(body).scrapersByType);
+                var data = JSON.parse(body);
+                if (statuscode === 200) {
+                    var scrapersByType = data.scrapersByType
+                        .groupBy('type')
+                        .map(i => {
+                            return {
+                                type: i.key,
+                                searchByUser: '',
+                                bySection: i.values.filter(x => { return x.isByUser === false }),
+                                byUser: i.values.filter(x => { return x.isByUser === true })
+                            };
+                        });
 
-                if (vueApp.isLoadingData('userScraperAsync')) {
-                    if (vueApp.modelUser.scrapers.map(i => i.id).indexOf('streamdecker-' + vueApp.modelUserScrapers.streamdecker) >= 0) {
-                        vueApp.modelUserScrapers.streamdecker = '';
-                        vueApp.loadData('userScraperAsync', false);
-
-                        vueApp.refreshDecks();
-                        vueApp.refreshUserScrapers();
-                        vueApp.refreshDashboard();
-                    }
+                    vueApp.$set(this.modelUser, 'scrapers', scrapersByType);
                 }
                 else {
-                    vueApp.filterDecks();
+                    alert(data.error);
                 }
+
+                //if (vueApp.isLoadingData('userScraperAsync')) {
+                //    //if (vueApp.modelUser.scrapers.map(i => i.id).indexOf('streamdecker-' + vueApp.modelUserScrapers.streamdecker) >= 0) {
+                //    if (vueApp.getScrapersFlattened().indexOf(vueApp.scraperIdLoading) >= 0) {
+                //        vueApp.scraperIdLoading = '';
+                //        vueApp.loadData('userScraperAsync', false);
+
+                //        vueApp.refreshDecks();
+                //        vueApp.refreshUserScrapers();
+                //        vueApp.refreshDashboard();
+                //    }
+                //}
+                //else {
+                vueApp.filterDecks();
+                //}
 
                 vueApp.loadData('userscrapersGet', false);
             });
@@ -721,53 +767,51 @@ var vueApp = new Vue({
                 vueApp.refreshDashboard();
             });
         },
-        addUserScraper(type) {
-            var name = '';
+        addUserScraper(type, name) {
+            if (this.isLoadingData('userScraperAsync')) {
+                alert('Please wait for the current operation to complete');
+                return;
+            }
 
-            name = this.modelUserScrapers[type].trim();
-            if (vueApp.modelUser.scrapers.filter(i => i.id === type + '-' + name).length > 0) {
+            if (type !== 'streamdecker') {
+                name = 'user_' + name;
+            }
+
+            if (this.getScrapersFlattened().filter(i => i.id === type + '-' + name.toLowerCase()).length > 0) {
                 alert('This user is already monitored.');
-                this.modelUserScrapers.streamdecker = '';
                 return;
             }
 
             var body = {
                 id: type + '-' + name
             };
+            this.scraperIdLoading = body.id;
             this.loadData('userScraperAsync', true);
             sendAjaxPost('/api/User/Scrapers', body, null, (statuscode, body) => {
-                //this.loadData('userScraperAsync', false);
+                var data = JSON.parse(body);
+                this.loadData('userScraperAsync', false);
                 if (statuscode === 200) {
-                    //vueApp.modelUserScrapers.streamdecker = '';
-
-                    //vueApp.refreshDecks();
-                    //vueApp.refreshUserScrapers();
-                    //vueApp.refreshDashboard();
+                    vueApp.scraperIdLoading = '';
+                    vueApp.refreshDecks();
+                    vueApp.refreshUserScrapers();
+                    vueApp.refreshDashboard();
                 }
                 else {
-                    var data = JSON.parse(body);
-                    this.loadData('userScraperAsync', false);
                     alert(data.error);
                 }
             });
         },
-        //deleteUserScraper(type, name) {
-        //    this.loadData('deleteUserScraper_' + type + name, true);
-        //    sendAjaxDelete('/api/User/Scrapers/' + type + '-' + name, null, null, (statuscode, body) => {
-        //        this.loadData('deleteUserScraper_' + type + name, true);
-        //        vueApp.refreshDecks();
-        //        vueApp.refreshDashboard();
-        //        vueApp.refreshUserScrapers();
-        //    });
-        //},
+        getScrapersFlattened() {
+            return this.modelUser.scrapers
+                .reduce(function (a, b) { return a.concat(typeof b.bySection === 'undefined' ? [] : b.bySection.concat(b.byUser)); }, []);
+        },
         saveUserScrapers: debounce(function () {
             //var idx = findWithAttr(this.modelUser.scrapers, 'id', scraperId);
             //var scraperInfo = this.modelUser.scrapers[idx];
             //var nbDecksAfter = this.modelDecks.decks.length + scraperInfo.nbDecks;
-            var nbDecksAfter = vueApp.modelUser.scrapers
-                .filter(i => i.isActivated)
-                .reduce((a, b) => a += b.nbDecks, 0);
+            var mergedActive = vueApp.getScrapersFlattened().filter(i => i.isActivated);
 
+            var nbDecksAfter = mergedActive.reduce((a, b) => a += b.nbDecks, 0);
             if (/*activate &&*/ nbDecksAfter > vueApp.modelDecks.decks.length && nbDecksAfter >= vueApp.lotsOfDecks) {
                 if (confirm('Monitoring a large amount of decks might cause the app to slow down. Are you sure?') === false) {
                     // User cancelled: Revert the value and don't call the server
@@ -783,7 +827,7 @@ var vueApp = new Vue({
                 }
             }
 
-            var scrapersActive = vueApp.modelUser.scrapers.filter(i => i.isActivated).map(i => i.id);
+            var scrapersActive = mergedActive.map(i => i.id);
             sendAjaxPut('/api/User/Scrapers', { ScrapersActive: scrapersActive }, null, (statuscode, body) => {
                 if (statuscode === 200) {
                     vueApp.refreshDecks();
@@ -811,17 +855,32 @@ var vueApp = new Vue({
 
             if (name === 'averagearchetype') name = 'Average archetype';
             else if (name === 'meta') name = 'Meta';
+            else if (name === 'metapaper') name = 'Meta (Paper)';
+            else if (name === 'metaarena') name = 'Meta (Arena)';
             else if (name === 'againsttheodds') name = 'Against the Odds';
             else if (name === 'instantdecktech') name = 'Instant Deck Tech';
             else if (name === 'budgetmagic') name = 'Budget Magic';
             else if (name === 'goldfishgladiators') name = 'Goldfish Gladiators';
+            else if (name === 'tier1') name = 'Tier 1';
+            else if (name.startsWith('user_')) name = name.substring(5, name.length);
+
+            if (key.indexOf('-arenastandard') >= 0) name = name + ' (Arena)';
+            if (key.indexOf('-standard') >= 0) name = name + ' (Standard)';
 
             name = name.charAt(0).toUpperCase() + name.slice(1);
 
             if (keepType)
-                name = type + ' ' + name;
+                name = this.formatScraperType(type.toLowerCase()) + ' ' + name;
 
             return name;
+        },
+        formatScraperType(type) {
+            if (type === 'aetherhub') type = 'AetherHub';
+            else if (type === 'streamdecker') type = 'StreamDecker';
+            else if (type === 'mtggoldfish') type = 'MtgGoldfish';
+            else if (type === 'mtgdecks') type = 'MtgDecks';
+
+            return type;
         },
         saveTheme() {
             sendAjaxPost('/api/User/Theme?isDark=' + this.themeIsDark, null, null, (statuscode, body) => {

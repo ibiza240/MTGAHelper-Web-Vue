@@ -457,7 +457,7 @@
                                                     </span>
                                                 </label>
                                                 <select class="input is-small" v-model="modelDecks.filters.scraperTypeId" v-on:change="filterDecks();">
-                                                    <option v-for="source in ['(All)'].union(modelDecks.decks.map((i) => i.scraperTypeId).filter((value, index, self) => self.indexOf(value) === index).sort())"
+                                                    <option v-for="source in ['(All)'].concat(modelDecks.decks.map((i) => i.scraperTypeId).filter((value, index, self) => self.indexOf(value) === index).sort())"
                                                             v-bind:value="source">
                                                         {{ formatScraperKey(source, true) }}
                                                     </option>
@@ -535,6 +535,12 @@
                             </button>
                         </h6>
                         <span v-if="isLoadingData('decks')" class="button is-loading"></span>
+                        <div v-else-if="getScrapersFlattened().length === 0">
+                            <span class="button is-loading"></span>
+                            <span class="is-size-5">
+                                (...Initializing...Please refresh in 1 to 3 minutes...)
+                            </span>
+                        </div>
                         <div v-else class="wrapper-tablescroll">
                             <table class="table is-narrow is-hoverable">
                                 <thead>
@@ -655,9 +661,12 @@
                                 <span v-if="modelDeckSelected.scraperTypeId.startsWith('usercustomdeck-')">
                                     ({{formatScraperKey(modelDeckSelected.scraperTypeId, true)}})
                                 </span>
-                                <a v-else v-bind:href="modelDeckSelected.url" target="_blank">
-                                    ({{formatScraperKey(modelDeckSelected.scraperTypeId, true)}})
-                                </a>
+                                <span v-else>
+                                    from
+                                    <a v-bind:href="modelDeckSelected.url" target="_blank">
+                                        {{formatScraperKey(modelDeckSelected.scraperTypeId, true)}}
+                                    </a>
+                                </span>
                             </h4>
                             <div class="columns">
                                 <div class="column is-one-half">
@@ -757,7 +766,7 @@
                                     <div v-if="isNotificationActive('tipBo1')" class="notification">
                                         <button class="delete" v-on:click="stopNotification('tipBo1')"></button>
                                         <span class="icon has-text-info"><i class="fas fa-info-circle"></i></span>
-                                        You can omit to select the sideboard if you prefer Bo1
+                                        You can select only the first part if you prefer Bo1
                                     </div>
                                     <textarea cols="50" rows="40">{{vueApp.modelDeckSelected.mtgaImportFormat}}</textarea>
                                     <p>
@@ -1025,55 +1034,81 @@
                 </div>
                 <div v-if="currentPageProfile === 'scrapers'">
                     <h5 class="title is-5">Manage which live sources you want to follow &mdash; These decks are refreshed automatically</h5>
-                    <div class="columns">
-                        <div class="column" v-for="scraperType in modelUser.scrapers.groupBy('key')">
+                    <div v-if="getScrapersFlattened().length === 0">
+                        <span class="button is-loading"></span>
+                        <span class="is-size-5">
+                            (...Initializing...Please refresh in 1 to 3 minutes...)
+                        </span>
+                    </div>
+                    <div v-else class="columns">
+                        <div class="column" v-for="scraperType in modelUser.scrapers">
                             <div>
-                                <h6 class="title is-6">{{scraperType.key}}</h6>
-                                <template v-if="scraperType.key === 'Streamdecker'">
-                                    <span>
-                                        Add your favorite users on <a href="https://www.streamdecker.com/" target="_blank">Streamdecker</a> to track their decks
-                                    </span>
-                                    <div class="field has-addons">
-                                        <div class="control">
-                                            <input v-model="modelUserScrapers.streamdecker" v-on:change="addUserScraper('streamdecker')" class="input" v-bind:class="modelUserScrapers.streamdecker.length === 0 ? 'is-danger' : 'is-success'" type="text" placeholder="e.g. tigerzord" />
-                                        </div>
-                                        <div class="control">
-                                            <button class="button is-info" :disabled="modelUserScrapers.streamdecker.length === 0 || isLoadingData('userScraperAsync')" v-on:click="addUserScraper('streamdecker')">Add</button>
-                                        </div>
+                                <h6 class="title is-6">{{vueApp.formatScraperType(scraperType.type)}}</h6>
+                                <div style="margin-top:1.5rem;">
+                                    <span v-if="isLoadingData('userScrapersGet')" class="button is-loading"></span>
+                                    <div v-else-if="scraperType.bySection.length === 0 && scraperType.byUser.length === 0">
+                                        (None)
                                     </div>
-                                    <div v-if="isLoadingData('userScraperAsync')">
-                                        <span class="button is-loading"></span>
-                                        Retrieving decks, results will come in a few moments.
-                                        <br />
-                                        You have to
-                                        <a class="has-text-weight-bold" v-on:click="refreshUserScrapers()">refresh manually</a>
+                                    <div v-else>
+                                        <table v-if="scraperType.bySection.length > 0" class="table is-narrow">
+                                            <tbody>
+                                                <tr v-for="s in scraperType.bySection">
+                                                    <td v-bind:class="[ s.isActivated? 'has-text-weight-bold' : '']">
+                                                        <a v-bind:href="s.url" target="_blank">{{vueApp.formatScraperKey(s.id, false)}}</a>
+                                                    </td>
+                                                    <td>
+                                                        <div class="field">
+                                                            <input type="checkbox" v-bind:id="'scraper' + s.id.replace('-', '')" v-bind:name="'scraper' + s.id.replace('-', '')" class="switch"
+                                                                   v-model="s.isActivated" v-on:change="saveUserScrapers()">
+                                                            <label v-bind:for="'scraper' + s.id.replace('-', '')">
+                                                                ({{s.nbDecks}} decks)
+                                                            </label>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+
+                                        <template v-if="scraperType.type === 'streamdecker' || scraperType.type === 'aetherhub'">
+                                            <span v-if="scraperType.type === 'streamdecker'">
+                                                Add your favorite users on <a href="https://www.streamdecker.com/" target="_blank">StreamDecker</a> to track their decks
+                                            </span>
+                                            <span v-if="scraperType.type === 'aetherhub'">
+                                                Add your favorite users on <a href="https://www.aetherhub.com/" target="_blank">AetherHub</a> to track their decks
+                                            </span>
+                                            <div class="field has-addons">
+                                                <div class="control">
+                                                    <input v-model="scraperType.searchByUser" v-on:change="addUserScraper(scraperType.type, scraperType.searchByUser)" class="input" type="text" />
+                                                </div>
+                                                <div class="control">
+                                                    <button class="button is-info" :disabled="isLoadingData('userScraperAsync')" v-on:click="addUserScraper(scraperType.type, scraperType.searchByUser)">Add</button>
+                                                </div>
+                                            </div>
+                                            <div v-if="isLoadingData('userScraperAsync') && scraperIdLoading.startsWith(scraperType.type)">
+                                                <span class="button is-loading"></span>
+                                                Retrieving decks, results will come in a few moments.
+                                            </div>
+                                        </template>
+
+                                        <table v-if="scraperType.byUser.length > 0" class="table is-narrow">
+                                            <tbody>
+                                                <tr v-for="s in scraperType.byUser">
+                                                    <td v-bind:class="[ s.isActivated? 'has-text-weight-bold' : '']">
+                                                        <a v-bind:href="s.url" target="_blank">{{vueApp.formatScraperKey(s.id, false)}}</a>
+                                                    </td>
+                                                    <td>
+                                                        <div class="field">
+                                                            <input type="checkbox" v-bind:id="'scraper' + s.id.replace('-', '')" v-bind:name="'scraper' + s.id.replace('-', '')" class="switch"
+                                                                   v-model="s.isActivated" v-on:change="saveUserScrapers()">
+                                                            <label v-bind:for="'scraper' + s.id.replace('-', '')">
+                                                                ({{s.nbDecks}} decks)
+                                                            </label>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
                                     </div>
-                                </template>
-                            </div>
-                            <div style="margin-top:1.5rem;">
-                                <span v-if="isLoadingData('userScrapersGet')" class="button is-loading"></span>
-                                <div v-else-if="modelUser.scrapers.length === 0">
-                                    (None)
-                                </div>
-                                <div v-else>
-                                    <table class="table is-narrow">
-                                        <tbody>
-                                            <tr v-for="s in scraperType.values">
-                                                <td v-bind:class="[ s.isActivated? 'has-text-weight-bold' : '']">
-                                                    <a v-bind:href="s.url" target="_blank">{{vueApp.formatScraperKey(s.id, false)}}</a>
-                                                </td>
-                                                <td>
-                                                    <div class="field">
-                                                        <input type="checkbox" v-bind:id="'scraper' + s.id.replace('-', '')" v-bind:name="'scraper' + s.id.replace('-', '')" class="switch"
-                                                               v-model="s.isActivated" v-on:change="saveUserScrapers()">
-                                                        <label v-bind:for="'scraper' + s.id.replace('-', '')">
-                                                            ({{s.nbDecks}} decks)
-                                                        </label>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
                                 </div>
                             </div>
                         </div>
@@ -1233,26 +1268,7 @@
                         Basic lands preference when importing a deck
                     </h5>
                     <div>
-                        <div class="field">
-                            <input class="is-checkradio" id="radLand" type="radio" name="exampleRadioInline" checked="checked">
-                            <label for="exampleRadioInline1">Option 1</label>
-                            <input class="is-checkradio" id="exampleRadioInline2" type="radio" name="exampleRadioInline">
-                            <label for="exampleRadioInline2">Option 2</label>
-                        </div>
-                        <p>
-                            params:
-                            switches:	have a favorite land per color per set
-                            switch:		use single art per color/use multiple arts per color
-                            switch:		force set only with most cards in deck
-
-                            Only your favorite art variations will be considered when picking lands
-
-                            Basic lands in the deck will use a single art variation per color
-                            Basic lands in the deck will use multiple art variations per color
-
-                            Art variation(s) will be picked only from the set with the most cards from your deck
-                            Art variation(s) will be picked among any of your favorites
-                        </p>
+                        Coming up
                     </div>
                 </div>
             </div>

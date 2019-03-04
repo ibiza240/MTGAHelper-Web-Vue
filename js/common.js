@@ -1,10 +1,4 @@
-﻿Array.prototype.union = function (a) {
-    var r = this.slice(0);
-    a.forEach(function (i) { if (r.indexOf(i) < 0) r.push(i); });
-    return r;
-};
-
-Array.prototype.groupBy = function (key) {
+﻿Array.prototype.groupBy = function (key) {
     return this.reduce(function (rv, x) {
         let v = key instanceof Function ? key(x) : x[key];
         let el = rv.find((r) => r && r.key === v);
