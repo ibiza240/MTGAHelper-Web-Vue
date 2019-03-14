@@ -4,6 +4,7 @@
     <title>MTGAHelper - The ultimate collection tracker for Magic: The Gathering Arena</title>
     <link rel="icon" type="image/png" href="/images/wcC.png" />
     <script src="js/common.js"></script>
+    <script src="js/util.js"></script>
     <script src="js/ajax.js"></script>
     <script src="js/submitCollection.js"></script>
     <link rel="stylesheet" href="css/bulma-pageloader.min.css" />
@@ -16,7 +17,8 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.23.0/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js"></script>
-    <style type="text/css">
+    <style>
+
         .is-hoverable {
             cursor: pointer;
         }
@@ -92,6 +94,35 @@
                 position: absolute;
                 z-index: -1;
             }*/
+
+
+
+        ul.paginator {
+            display: inline;
+            padding: 0;
+            list-style-type: none;
+        }
+
+        .paginator a {
+            color: #999;
+        }
+
+        .paginator .current {
+            color: red;
+        }
+
+        .paginator li {
+            display: inline;
+            margin: 5px 5px;
+        }
+
+        .paginator a.first::after {
+            content: '...'
+        }
+
+        .paginator a.last::before {
+            content: '...'
+        }
     </style>
 </head>
 <body>
@@ -100,36 +131,36 @@
             <div class="columns is-gapless">
                 <div class="column">
                     <button style="border-top-left-radius:0; border-top-right-radius:0;"
-                            v-on:click="loadPage('privateCollection');"
-                            class="button is-fullwidth is-rounded" v-bind:class="[currentPage === 'privateCollection' ? 'is-link' : '']">
+                            v-on:click="loadPage(pageCollection);"
+                            class="button is-fullwidth is-rounded" v-bind:class="[currentPage === pageCollection ? 'is-link' : '']">
                         Collection
                     </button>
                 </div>
                 <div class="column">
                     <button style="border-top-left-radius:0; border-top-right-radius:0;"
-                            v-on:click="loadPage('publicDecks');"
-                            class="button is-fullwidth is-rounded" v-bind:class="[currentPage === 'publicDecks' ? 'is-link' : '']">
+                            v-on:click="loadPage(pageDecks);"
+                            class="button is-fullwidth is-rounded" v-bind:class="[currentPage === pageDecks ? 'is-link' : '']">
                         Decks
                     </button>
                 </div>
                 <div class="column">
                     <button style="border-top-left-radius:0; border-top-right-radius:0;"
-                            v-on:click="loadPage('privateDashboardSummary');"
-                            class="button is-fullwidth is-rounded" v-bind:class="[currentPage === 'privateDashboardSummary' ? 'is-link' : '']">
+                            v-on:click="loadPage(pageDashboardSummary);"
+                            class="button is-fullwidth is-rounded" v-bind:class="[currentPage === pageDashboardSummary ? 'is-link' : '']">
                         Missing cards Summary
                     </button>
                 </div>
                 <div class="column">
                     <button style="border-top-left-radius:0; border-top-right-radius:0;"
-                            v-on:click="loadPage('privateDashboardDetails');"
-                            class="button is-fullwidth is-rounded" v-bind:class="[currentPage === 'privateDashboardDetails' ? 'is-link' : '']">
+                            v-on:click="loadPage(pageDashboardDetails);"
+                            class="button is-fullwidth is-rounded" v-bind:class="[currentPage === pageDashboardDetails ? 'is-link' : '']">
                         Missing cards Details
                     </button>
                 </div>
                 <div class="column">
                     <button style="border-top-left-radius:0; border-top-right-radius:0;"
-                            v-on:click="loadPage('privateUserProfile');"
-                            class="button is-fullwidth is-rounded" v-bind:class="[currentPage === 'privateUserProfile' ? 'is-link' : '']">
+                            v-on:click="loadPage(pageProfile);"
+                            class="button is-fullwidth is-rounded" v-bind:class="[currentPage === pageProfile ? 'is-link' : '']">
                         Profile
                     </button>
                 </div>
@@ -178,8 +209,8 @@
                 <template v-else>
                     <div class="column has-text-right">
                         <div class="field" style="margin-top:0.5rem;">
-                            <input type="checkbox" id="switchTheme" name="switchTheme" class="switch" v-model="themeIsDark" v-on:change="saveTheme()">
-                            <label for="switchTheme">{{themeIsDark ? 'Dark' : 'Light'}}</label>
+                            <input type="checkbox" id="switchTheme2" name="switchTheme" class="switch" v-model="themeIsDark" v-on:change="saveTheme()">
+                            <label for="switchTheme2">{{themeIsDark ? 'Dark' : 'Light'}}</label>
                         </div>
                     </div>
                     <div class="column has-text-right">
@@ -199,9 +230,9 @@
                     <button class="button is-large" style="margin-left:4rem;" v-on:click="showUploadCollectionModal = true">Start by uploading your collection</button>
                 </div>
             </div>
-            <div v-if="currentPage === 'privateCollection'">
+            <div v-if="currentPage === pageCollection">
                 <div v-if="modelUser.collection.cards.length === 0 && isLoadingData('collectionGet') === false">
-                    <div class="hero is-primary hero2bg" v-on:click="currentPage = 'privateDashboardSummary'" style="cursor:pointer;">
+                    <div class="hero is-primary hero2bg" v-on:click="currentPage = pageDashboardSummary" style="cursor:pointer;">
                         <div class="hero-body" style="text-shadow: 1px 1px 20px #000000;">
                             <h4 class="title is-4">
                                 Optimize your deckbuilding experience :) &mdash; Never waste another wildcard
@@ -359,19 +390,19 @@
                                                     <span v-else>&nbsp;</span>
                                                 </td>
                                                 <td>
-                                                    <span v-if="h.wildcardsChange.Common > 0" class="tooltip is-tooltip-left" data-tooltip="Common wildcards">
+                                                    <span v-if="h.wildcardsChange.Common !== 0" class="tooltip is-tooltip-left" data-tooltip="Common wildcards">
                                                         {{numeral(h.wildcardsChange.Common).format('+0,0')}}
                                                         <img class="wc" src="/images/wcC.png" width="16" height="16" />
                                                     </span>
-                                                    <span v-if="h.wildcardsChange.Uncommon > 0" class="tooltip is-tooltip-left" data-tooltip="Uncommon wildcards">
+                                                    <span v-if="h.wildcardsChange.Uncommon !== 0" class="tooltip is-tooltip-left" data-tooltip="Uncommon wildcards">
                                                         {{numeral(h.wildcardsChange.Uncommon).format('+0,0')}}
                                                         <img class="wc" src="/images/wcU.png" width="16" height="16" />
                                                     </span>
-                                                    <span v-if="h.wildcardsChange.Rare > 0" class="tooltip is-tooltip-left" data-tooltip="Rare wildcards">
+                                                    <span v-if="h.wildcardsChange.Rare !== 0" class="tooltip is-tooltip-left" data-tooltip="Rare wildcards">
                                                         {{numeral(h.wildcardsChange.Rare).format('+0,0')}}
                                                         <img class="wc" src="/images/wcR.png" width="16" height="16" />
                                                     </span>
-                                                    <span v-if="h.wildcardsChange.Mythic > 0" class="tooltip is-tooltip-left" data-tooltip="Mythic wildcards">
+                                                    <span v-if="h.wildcardsChange.Mythic !== 0" class="tooltip is-tooltip-left" data-tooltip="Mythic wildcards">
                                                         {{numeral(h.wildcardsChange.Mythic).format('+0,0')}}
                                                         <img class="wc" src="/images/wcM.png" width="16" height="16" />
                                                     </span>
@@ -407,7 +438,7 @@
                     </div>
                 </div>
             </div>
-            <div v-else-if="currentPage === 'publicDecks'">
+            <div v-else-if="currentPage === pageDecks">
                 <h4 class="title is-4">
                     Track decks and view their details in relation to your collection
                 </h4>
@@ -452,7 +483,7 @@
                                                 <label class="label is-small">
                                                     Source
                                                     <span class="icon has-text-info tooltip" style="height:inherit; cursor:pointer;"
-                                                          data-tooltip="Go configure sources of decks" v-on:click="currentPageProfile = 'scrapers'; currentPage = 'privateUserProfile';">
+                                                          data-tooltip="Go configure sources of decks" v-on:click="currentPageProfile = 'scrapers'; currentPage = pageProfile;">
                                                         <i class="fas fa-info-circle"></i>
                                                     </span>
                                                 </label>
@@ -516,24 +547,36 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <h6 class="subtitle is-6" style="line-height:inherit;">
-                            Showing {{modelDecksFiltered.length}} deck<span v-if="modelDecksFiltered.length != 1">s</span> filtered
+                        <div>
+                            Showing {{paginatedDecks.length}} of {{modelDecksFiltered.decks.length}} deck<span v-if="modelDecksFiltered.decks.length != 1">s</span> filtered
+
                             <button class="button is-small is-warning tooltip" v-on:click="trackFilteredDecks(true)" data-tooltip="Add the filtered decks to your list of tracked decks"
                                     v-bind:class="getClassIsLoadingData('decks')" :disabled="isLoadingData('decks')">
-                                Track these decks
+                                Track these {{modelDecksFiltered.decks.length}} decks
                             </button>
                             <button class="button is-small is-warning tooltip" v-on:click="trackFilteredDecks(null)" data-tooltip="Make the filtered decks your list of tracked decks"
                                     v-bind:class="getClassIsLoadingData('decks')" :disabled="isLoadingData('decks')">
-                                Track *ONLY* these decks
+                                Track *ONLY* these {{modelDecksFiltered.decks.length}} decks
                             </button>
                             <button class="button is-small is-warning tooltip" v-on:click="trackFilteredDecks(false)" data-tooltip="Remove the filtered decks from your list of tracked decks"
                                     v-bind:class="getClassIsLoadingData('decks')" :disabled="isLoadingData('decks')">
-                                Untrack these decks
+                                Untrack these {{modelDecksFiltered.decks.length}} decks
                             </button>
                             <button v-if="decksAreFiltered()" v-on:click="clearFiltersDecks();" :disabled="isLoadingData('decks')" class="button is-danger is-small tooltip" data-tooltip="Reset the filters to show your tracked decks">
                                 Clear filters
                             </button>
-                        </h6>
+
+                            <nav v-if="getDecksPages().length > 1" class="pagination" role="navigation" aria-label="pagination">
+                                <ul class="pagination-list">
+                                    <li v-for="pageNumber in getDecksPages()">
+                                        <span v-if="pageNumber === '...'" class="pagination-ellipsis">&hellip;</span>
+                                        <a v-else class="pagination-link" v-bind:class="[ modelDecksFiltered.currentPage === pageNumber ? 'is-current' : '']"
+                                           v-on:click="setDecksPage(pageNumber)" v-bind:aria-label="'Go to page ' + pageNumber">{{ pageNumber + 1 }}</a>
+                                    </li>
+                                </ul>
+                            </nav>
+
+                        </div>
                         <span v-if="isLoadingData('decks')" class="button is-loading"></span>
                         <div v-else-if="getScrapersFlattened().length === 0">
                             <span class="button is-loading"></span>
@@ -561,7 +604,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="iDeck in modelDecksFiltered" v-on:click="getDeck(iDeck.id)" v-bind:class="[iDeck.id === modelDeckSelected.id ? 'is-selected' : '']">
+                                    <tr v-for="iDeck in paginatedDecks" v-on:click="getDeck(iDeck.id)" v-bind:class="[iDeck.id === modelDeckSelected.id ? 'is-selected' : '']">
                                         <td class="textCenter">
                                             <input type="text" v-model="iDeck.priorityFactor" size="1" v-on:change.stop="setDeckPriorityFactor(iDeck.id, iDeck.priorityFactor)" />
                                             <span v-if="iDeck.priorityFactor > 0" class="tooltip is-tooltip-right" data-tooltip="Stop tracking this deck">
@@ -644,11 +687,27 @@
                                                 </tbody>
                                             </table>
                                         </td>
-                                        <td class="has-text-right">{{numeral(iDeck.missingWeight).format('0,0')}}</td>
+                                        <td class="has-text-right">
+                                            {{numeral(iDeck.missingWeight).format('0,0')}}
+                                            <span v-if="iDeck.priorityFactor === 0">
+                                                (untracked)
+                                            </span>
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
+
+
+                        <nav v-if="getDecksPages().length > 1" class="pagination" role="navigation" aria-label="pagination">
+                            <ul class="pagination-list">
+                                <li v-for="pageNumber in getDecksPages()">
+                                    <span v-if="pageNumber === '...'" class="pagination-ellipsis">&hellip;</span>
+                                    <a v-else class="pagination-link" v-bind:class="[ modelDecksFiltered.currentPage === pageNumber ? 'is-current' : '']"
+                                       v-on:click="setDecksPage(pageNumber)" v-bind:aria-label="'Go to page ' + pageNumber">{{ pageNumber + 1 }}</a>
+                                </li>
+                            </ul>
+                        </nav>
                     </div>
                     <div class="column is-half">
                         <span v-if="modelDeckSelected.id === ''">
@@ -657,15 +716,21 @@
                         <span v-else-if="isLoadingData('deck')" class="button is-loading"></span>
                         <div v-else>
                             <h4 class="title is-4">
-                                {{vueApp.modelDeckSelected.name}}
-                                <span v-if="modelDeckSelected.scraperTypeId.startsWith('usercustomdeck-')">
+                                <template v-if="modelDeckSelected.scraperTypeId.startsWith('usercustomdeck-')">
+                                    {{vueApp.modelDeckSelected.name}}
                                     ({{formatScraperKey(modelDeckSelected.scraperTypeId, true)}})
-                                </span>
-                                <span v-else>
-                                    from
+                                </template>
+                                <template v-else>
                                     <a v-bind:href="modelDeckSelected.url" target="_blank">
+                                        {{vueApp.modelDeckSelected.name}}
+                                    </a>
+                                    from
+                                    <a v-bind:href="dictScraperUrl[modelDeckSelected.scraperTypeId]" target="_blank">
                                         {{formatScraperKey(modelDeckSelected.scraperTypeId, true)}}
                                     </a>
+                                </template>
+                                <span v-on:click="showModalShareDeck = true; vueApp.$nextTick(() => txtShareDeck.select());" style="cursor:pointer;" class="tooltip" data-tooltip="Share this deck">
+                                    <i class="fas fa-share-alt"></i>
                                 </span>
                             </h4>
                             <div class="columns">
@@ -782,7 +847,7 @@
                     </div>
                 </div>
             </div>
-            <div v-else-if="currentPage === 'privateDashboardSummary'">
+            <div v-else-if="currentPage === pageDashboardSummary">
                 <h4 v-if="modelDashboard.summary.length > 0" class="title is-4">
                     Consider opening
                     <span style="font-weight:bold;">{{formatSetToFullName(modelDashboard.summary[0].key)}}</span>
@@ -791,7 +856,7 @@
                 <h5 v-if="modelDashboard.summary.length > 0" class="subtitle is-5">
                     You are currently missing {{vueApp.modelDashboard.summary[0].value.reduce((a, b) => a += b.nbMissing, 0)}} cards from this set,
                     worth a total weight of {{numeral(vueApp.modelDashboard.summary[0].value.reduce((a, b) => a += b.missingWeight, 0)).format('0, 0')}}
-                    <span class="icon has-text-info tooltip" style="cursor:pointer;" data-tooltip="Weight?" v-on:click="currentPageProfile='weights';currentPage='privateUserProfile'"><i class="fas fa-info-circle"></i></span>
+                    <span class="icon has-text-info tooltip" style="cursor:pointer;" data-tooltip="Weight?" v-on:click="currentPageProfile='weights';currentPage=pageProfile"><i class="fas fa-info-circle"></i></span>
                 </h5>
                 <div class="notification">
                     Based on missing cards that are a part of the {{modelDecks.decks.filter((i) => i.priorityFactor > 0).length}} decks currently tracked.
@@ -854,11 +919,11 @@
                     Guilds of Ravnica (GRN) and Ravnica Allegiance (RNA) will be legal in Standard until Fall 2020.
                 </div>
             </div>
-            <div v-else-if="currentPage === 'privateDashboardDetails'">
+            <div v-else-if="currentPage === pageDashboardDetails">
                 <h4 class="title is-4">
                     Consider crafting these cards, according to their weight value
                     <span class="icon has-text-info tooltip" style="cursor:pointer;" data-tooltip="Weight?"
-                          v-on:click="currentPageProfile='weights';currentPage='privateUserProfile'">
+                          v-on:click="currentPageProfile='weights';currentPage=pageProfile">
                         <i class="fas fa-info-circle"></i>
                     </span>
                 </h4>
@@ -974,7 +1039,7 @@
                     </div>
                 </div>
             </div>
-            <div v-else-if="currentPage === 'privateUserProfile'">
+            <div v-else-if="currentPage === pageProfile">
                 <div class="columns">
                     <div class="column">
                         <h4 class="title is-4">
@@ -1026,7 +1091,7 @@
                         </button>
                     </div>
                     <div class="column">
-                        <button v-on:click="currentPageProfile = 'lands'"
+                        <button v-on:click="currentPageProfile = 'lands'; if (modelLands.length === 0) { getLands(); }"
                                 class="button is-fullwidth is-rounded" v-bind:class="[currentPageProfile === 'lands' ? 'is-info' : '']">
                             Lands
                         </button>
@@ -1068,7 +1133,6 @@
                                                 </tr>
                                             </tbody>
                                         </table>
-
                                         <template v-if="scraperType.type === 'streamdecker' || scraperType.type === 'aetherhub'">
                                             <span v-if="scraperType.type === 'streamdecker'">
                                                 Add your favorite users on <a href="https://www.streamdecker.com/" target="_blank">StreamDecker</a> to track their decks
@@ -1089,7 +1153,6 @@
                                                 Retrieving decks, results will come in a few moments.
                                             </div>
                                         </template>
-
                                         <table v-if="scraperType.byUser.length > 0" class="table is-narrow">
                                             <tbody>
                                                 <tr v-for="s in scraperType.byUser">
@@ -1267,12 +1330,33 @@
                     <h5 class="title is-5">
                         Basic lands preference when importing a deck
                     </h5>
-                    <div>
-                        Coming up
+                    <h5 class="subtitle is-5">
+                        Select your favorite lands and only those will appear in your decks to import into the game client
+                    </h5>
+                    <span v-if="modelLands.length === 0 || isLoadingData('getLands')" class="button is-loading"></span>
+                    <div v-else>
+                        <div class="columns">
+                            <div v-for="landType in modelLands" class="column">
+                                <button v-on:click="currentPageProfileLandsType = landType.type"
+                                        class="button is-fullwidth is-rounded" v-bind:class="[currentPageProfileLandsType === landType.type ? 'is-info' : '']">
+                                    {{landType.type}}
+                                </button>
+                            </div>
+                        </div>
+                        <div class="columns is-multiline">
+                            <div v-for="(land, index) in modelLands.filter((i) => { return i.type === currentPageProfileLandsType })[0].cards" class="column is-one-fifth has-text-centered" style="margin-bottom:1.5rem;">
+                                <div class="field" style="margin-bottom:0;">
+                                    <input type="checkbox" v-bind:id="'landPref' + currentPageProfileLandsType + index" v-bind:name="'landPref' + currentPageProfileLandsType + index"
+                                           class="switch" v-model="land.isSelected" v-on:change="saveLandsPreference()">
+                                    <label v-bind:for="'landPref' + currentPageProfileLandsType + index"></label>
+                                </div>
+                                <img v-bind:src="scryfallImagesPrefix + land.imageUrl" v-bind:title="land.name" style="width:100%; cursor:pointer;" v-on:click="toggleLand(land)" />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div v-else-if="currentPage === 'publicContact'">
+            <div v-else-if="currentPage === pageContact">
                 <h4 class="title is-4">Leave a message, feedback is appreciated</h4>
                 <h5 class="subtitle is-5">If you want a reply, be sure to include an email or some id (reddit, twitch, etc.)</h5>
                 <div class="field">
@@ -1291,7 +1375,7 @@
                     </div>
                 </div>
             </div>
-            <div v-else-if="currentPage === 'publicChangelog'">
+            <div v-else-if="currentPage === pageChangelog">
                 <h4 class="title is-4">Changelog</h4>
                 <ul class="menu-list">
                     <li v-for="v in modelChangelog">
@@ -1305,28 +1389,24 @@
                     </li>
                 </ul>
             </div>
-
             <div class="notification is-size-7" style="margin-top:1rem; padding:0.5rem 2.5rem 0.5rem 1.5rem;">
                 All art is property of their respective artists and/or Wizards of the Coast Inc.
                 This website is not produced, endorsed, supported, or affiliated with Wizards of the Coast.
                 MTGAHelper is unofficial Fan Content permitted under the Fan Content Policy.
             </div>
-
             <div id="divCardImg" v-if="modelCardSelectedUrl !== ''" style="position:absolute; top:0; left:0; width:244px; height:340px; background:#87a485;">
                 <img v-bind:src="modelCardSelectedUrl" />
             </div>
-
             <span id="iconChangelog" class="float tooltip is-tooltip-left" data-tooltip="Changelog" style="right:50px;"
-                  v-on:click="loadPage('publicChangelog')">
+                  v-on:click="loadPage(pageChangelog)">
                 <i class="fas fa-history my-float"></i>
             </span>
-            <span class="float tooltip is-tooltip-left" data-tooltip="Contact form" v-on:click="loadPage('publicContact')">
+            <span class="float tooltip is-tooltip-left" data-tooltip="Contact form" v-on:click="loadPage(pageContact)">
                 <i class="fas fa-envelope my-float"></i>
             </span>
             <div class="modal" v-bind:class="showLoginModal ? 'is-active' : ''">
                 <div class="modal-background" v-on:click="showLoginModal = false"></div>
                 <div class="modal-content box">
-
                     <div class="field is-grouped" style="justify-content: center;">
                         <span class="is-size-4" style="margin-right:1rem;">User id:</span>
                         <div class="field has-addons">
@@ -1337,9 +1417,18 @@
                             <div class="control"><button class="button is-link" v-on:click="tryToLoginWithUserId()">Go</button></div>
                         </div>
                     </div>
-
                 </div>
                 <button class="modal-close is-large" aria-label="close" v-on:click="showLoginModal = false"></button>
+            </div>
+            <div class="modal" v-bind:class="showModalShareDeck ? 'is-active' : ''">
+                <div class="modal-background" v-on:click="showModalShareDeck = false"></div>
+                <div class="modal-content box">
+                    <h6 class="title is-6">
+                        {{modelDeckSelected.name}}
+                    </h6>
+                    <input type="text" id="txtShareDeck" name="txtShareDeck" v-bind:value="'https://' + window.location.host + '/decks/' + modelDeckSelected.hash" style="width:100%;" />
+
+                </div>
             </div>
             <div class="modal" v-bind:class="showUploadCollectionModal ? 'is-active' : ''">
                 <div class="modal-background" v-on:click="showUploadCollectionModal = false"></div>
@@ -1388,6 +1477,7 @@
         <div class="pageloader" style="z-index:2147483647;"
              v-bind:class="[isAppLoaded === false || isLoadingData('collectionPost') || isLoadingData('collectionGet') || isLoadingLotsOfDecks() ? 'is-active' : '']">
             <span class="title">Please wait...</span>
+            <span id="msg" />
         </div>
     </div>
     <div id="divInitialLoader" class="pageloader is-active">
