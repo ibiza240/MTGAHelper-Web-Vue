@@ -19,6 +19,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js"></script>
     <style>
 
+
         .is-hoverable {
             cursor: pointer;
         }
@@ -372,19 +373,19 @@
                                                     <span v-else>&nbsp;</span>
                                                 </td>
                                                 <td>
-                                                    <span v-if="h.goldChange > 0">
+                                                    <span v-if="h.goldChange !== 0">
                                                         {{numeral(h.goldChange).format('+0,0')}}
                                                     </span>
                                                     <span v-else>&nbsp;</span>
                                                 </td>
                                                 <td>
-                                                    <span v-if="h.gemsChange > 0">
+                                                    <span v-if="h.gemsChange !== 0">
                                                         {{numeral(h.gemsChange).format('+0,0')}}
                                                     </span>
                                                     <span v-else>&nbsp;</span>
                                                 </td>
                                                 <td>
-                                                    <span v-if="h.vaultProgress > 0">
+                                                    <span v-if="h.vaultProgress !== 0">
                                                         {{numeral(h.vaultProgress).format('+0,0.0')}}%
                                                     </span>
                                                     <span v-else>&nbsp;</span>
@@ -565,7 +566,6 @@
                             <button v-if="decksAreFiltered()" v-on:click="clearFiltersDecks();" :disabled="isLoadingData('decks')" class="button is-danger is-small tooltip" data-tooltip="Reset the filters to show your tracked decks">
                                 Clear filters
                             </button>
-
                             <nav v-if="getDecksPages().length > 1" class="pagination" role="navigation" aria-label="pagination">
                                 <ul class="pagination-list">
                                     <li v-for="pageNumber in getDecksPages()">
@@ -575,7 +575,6 @@
                                     </li>
                                 </ul>
                             </nav>
-
                         </div>
                         <span v-if="isLoadingData('decks')" class="button is-loading"></span>
                         <div v-else-if="getScrapersFlattened().length === 0">
@@ -698,7 +697,6 @@
                             </table>
                         </div>
 
-
                         <nav v-if="getDecksPages().length > 1" class="pagination" role="navigation" aria-label="pagination">
                             <ul class="pagination-list">
                                 <li v-for="pageNumber in getDecksPages()">
@@ -809,7 +807,39 @@
                                 </div>
                                 <div class="column is-one-half">
                                     <h5 class="title is-5" style="margin-bottom:0.5rem;">Missing cards summary</h5>
-                                    <table class="table is-narrow">
+
+                                    <table class="table is-narrow" style="margin-bottom:0; width:14rem;">
+                                        <tbody>
+                                            <tr class="nohover">
+                                                <td class="nowrap">
+                                                    {{vueApp.modelDeckSelected.cardsMain.filter(i => i.rarity === 'Mythic').reduce(function(i, j) { return j.nbMissing + i; }, 0) + vueApp.modelDeckSelected.cardsSideboard.filter(i => i.rarity === 'Mythic').reduce(function(i, j) { return j.nbMissing + i; }, 0)}}
+                                                    <span class="tooltip" data-tooltip="Mythic">
+                                                        <img class="wc" src="/images/wcM.png" width="16" height="16" />
+                                                    </span>
+                                                </td>
+                                                <td class="nowrap">
+                                                    {{vueApp.modelDeckSelected.cardsMain.filter(i => i.rarity === 'Rare').reduce(function(i, j) { return j.nbMissing + i; }, 0) + vueApp.modelDeckSelected.cardsSideboard.filter(i => i.rarity === 'Rare').reduce(function(i, j) { return j.nbMissing + i; }, 0)}}
+                                                    <span class="tooltip" data-tooltip="Rare">
+                                                        <img class="wc" src="/images/wcR.png" width="16" height="16" />
+                                                    </span>
+                                                </td>
+                                                <td class="nowrap">
+                                                    {{vueApp.modelDeckSelected.cardsMain.filter(i => i.rarity === 'Uncommon').reduce(function(i, j) { return j.nbMissing + i; }, 0) + vueApp.modelDeckSelected.cardsSideboard.filter(i => i.rarity === 'Uncommon').reduce(function(i, j) { return j.nbMissing + i; }, 0)}}
+                                                    <span class="tooltip" data-tooltip="Uncommon">
+                                                        <img class="wc" src="/images/wcU.png" width="16" height="16" />
+                                                    </span>
+                                                </td>
+                                                <td class="nowrap">
+                                                    {{vueApp.modelDeckSelected.cardsMain.filter(i => i.rarity === 'Common').reduce(function(i, j) { return j.nbMissing + i; }, 0) + vueApp.modelDeckSelected.cardsSideboard.filter(i => i.rarity === 'Common').reduce(function(i, j) { return j.nbMissing + i; }, 0)}}
+                                                    <span class="tooltip" data-tooltip="Common">
+                                                        <img class="wc" src="/images/wcC.png" width="16" height="16" />
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                    <table class="table is-narrow" style="width:14rem;">
                                         <thead>
                                             <tr>
                                                 <th>Set</th>
@@ -1350,7 +1380,7 @@
                                            class="switch" v-model="land.isSelected" v-on:change="saveLandsPreference()">
                                     <label v-bind:for="'landPref' + currentPageProfileLandsType + index"></label>
                                 </div>
-                                <img v-bind:src="scryfallImagesPrefix + land.imageUrl" v-bind:title="land.name" style="width:100%; cursor:pointer;" v-on:click="toggleLand(land)" />
+                                <img v-bind:src="scryfallImagesPrefix + land.imageUrl" v-bind:title="land.name" style="width:100%; cursor:pointer;" v-on:click="toggleLand(land);saveLandsPreference();" />
                             </div>
                         </div>
                     </div>
@@ -1397,12 +1427,16 @@
             <div id="divCardImg" v-if="modelCardSelectedUrl !== ''" style="position:absolute; top:0; left:0; width:244px; height:340px; background:#87a485;">
                 <img v-bind:src="modelCardSelectedUrl" />
             </div>
-            <span id="iconChangelog" class="float tooltip is-tooltip-left" data-tooltip="Changelog" style="right:50px;"
-                  v-on:click="loadPage(pageChangelog)">
+            <span id="iconChangelog" class="float tooltip is-tooltip-left" data-tooltip="Changelog" style="right:100px;" v-on:click="loadPage(pageChangelog)">
                 <i class="fas fa-history my-float"></i>
             </span>
-            <span class="float tooltip is-tooltip-left" data-tooltip="Contact form" v-on:click="loadPage(pageContact)">
+            <span class="float tooltip is-tooltip-left" data-tooltip="Contact form" style="right:53px;" v-on:click="loadPage(pageContact)">
                 <i class="fas fa-envelope my-float"></i>
+            </span>
+            <span class="float tooltip is-tooltip-left" data-tooltip="Discord server" style="font-size: 1.4rem;">
+                <a href="https://discord.gg/GTd3RMd" target="_blank">
+                    <i class="fab fa-discord" style="margin-top:10px;"></i>
+                </a>
             </span>
             <div class="modal" v-bind:class="showLoginModal ? 'is-active' : ''">
                 <div class="modal-background" v-on:click="showLoginModal = false"></div>
@@ -1427,7 +1461,6 @@
                         {{modelDeckSelected.name}}
                     </h6>
                     <input type="text" id="txtShareDeck" name="txtShareDeck" v-bind:value="'https://' + window.location.host + '/decks/' + modelDeckSelected.hash" style="width:100%;" />
-
                 </div>
             </div>
             <div class="modal" v-bind:class="showUploadCollectionModal ? 'is-active' : ''">
