@@ -38,6 +38,7 @@ const pageDashboardDetails = 'dashboardDetails';
 const pageProfile = 'profile';
 const pageContact = 'contact';
 const pageChangelog = 'changelog';
+const pageShowSupport = 'showSupport';
 
 var vueApp = new Vue({
     el: '#vueApp',
@@ -60,7 +61,6 @@ var vueApp = new Vue({
         showUploadCollectionModal: false,
         showLoginModal: false,
         showModalShareDeck: false,
-        showMessageWait: true,
 
         loginUserId: '',
 
@@ -138,6 +138,18 @@ var vueApp = new Vue({
             notificationsInactive: []
         },
 
+        modelUserCollectionFiltered: {
+            filtered: [],
+
+            filters: {
+                sets: ['', 'XLN', 'RIX', 'DOM', 'M19', 'GRN', 'RNA'],
+                rarities: ['', 'Mythic', 'Rare', 'Uncommon', 'Common'],
+
+                set: '',
+                rarity: ''
+            }
+        },
+
         modelUserHistory: [],
         modelUserHistorySelected: {},
 
@@ -166,7 +178,8 @@ var vueApp = new Vue({
             decks: []
         },
 
-        modelLands: []
+        modelLands: [],
+        modelSets: {}
     },
     created: function () {
         let added = Object.keys(this.themes).map(name => {
@@ -181,30 +194,7 @@ var vueApp = new Vue({
     },
     mounted: function () {
         this.registerUser();
-
-        var urlParams = new URLSearchParams(window.location.search);
-        var p1 = urlParams.get('p1');
-        if (p1 !== null) {
-            // Avoid dynamic landing if a route is used
-            this.dynamicLanding = false;
-
-            this.currentPage = p1;
-            var p2 = urlParams.get('p2');
-            if (p2 !== null) {
-                switch (p1) {
-                    case pageProfile:
-                        this.getLands();
-                        this.currentPageProfile = p2;
-                        break;
-                    case pageDecks:
-                        this.getDeckByHash(p2);
-                        break;
-                }
-            }
-
-            history.pushState(null, '', '/');
-        }
-
+        this.getSets();
     },
     methods: {
         callForChangelogAttention() {
@@ -368,8 +358,6 @@ var vueApp = new Vue({
                 vueApp.modelUser.changesSinceLastLogin = data.changesSinceLastLogin;
                 vueApp.modelUser.notificationsInactive = data.notificationsInactive;
 
-                vueApp.refreshAll(true, vueApp.dynamicLanding);
-
                 sendAjaxGet('/api/User/Theme', function (statuscode, body) {
                     var data = JSON.parse(body);
                     if (statuscode === 200) {
@@ -388,9 +376,34 @@ var vueApp = new Vue({
                 if (vueApp.modelUser.changesSinceLastLogin) {
                     setTimeout(vueApp.callForChangelogAttention, 10000);
                 }
+
+                var urlParams = new URLSearchParams(window.location.search);
+                var p1 = urlParams.get('p1');
+                if (p1 !== null) {
+                    // Avoid dynamic landing if a route is used
+                    vueApp.dynamicLanding = false;
+
+                    vueApp.currentPage = p1;
+                    var p2 = urlParams.get('p2');
+                    if (p2 !== null) {
+                        switch (p1) {
+                            case pageProfile:
+                                vueApp.getLands();
+                                vueApp.currentPageProfile = p2;
+                                break;
+                            case pageDecks:
+                                vueApp.getDeckByHash(p2);
+                                break;
+                        }
+                    }
+
+                    history.pushState(null, '', '/');
+                }
+
+                vueApp.refreshAll(true);
             });
         },
-        refreshAll(refreshCollection, dynamicLanding) {
+        refreshAll(refreshCollection) {
             this.refreshDecks();
             this.refreshDashboard();
 
@@ -405,9 +418,10 @@ var vueApp = new Vue({
                         vueApp.calculateWeightsProposed();
                     }
 
-                    if (dynamicLanding && vueApp.modelUser.collection.cards.length === 0)
+                    if (vueApp.dynamicLanding && vueApp.modelUser.collection.cards.length === 0)
                         vueApp.currentPage = pageCollection;
 
+                    vueApp.filterCollection();
                     vueApp.refreshUserHistory();
                 });
             }
@@ -490,6 +504,38 @@ var vueApp = new Vue({
                 }
             });
         },
+        getSets() {
+            this.loadData('getSets', true);
+            sendAjaxGet('/api/Misc/Sets', (statuscode, body) => {
+                vueApp.loadData('getSets', false);
+                var data = JSON.parse(body);
+                if (statuscode === 200) {
+                    vueApp.modelSets = data.sets;
+                }
+                else {
+                    alert(data.error);
+                }
+            });
+        },
+        computeSets() {
+            var data = this.modelSets
+                .groupBy('name')
+                .map(function (i) { return { name: i.key, totalCards: i.values.reduce(function (a, b) { return a + b.totalCards; }, 0) }; });
+
+            var computed = data
+                .map(function (set) {
+                    return {
+                        name: set.name,
+                        nbOwned: vueApp.modelUser.collection.cards.filter(i => i.set === set.name).reduce(function (a, b) { return a + b.amount; }, 0),
+                        nbTotal: set.totalCards * 4,
+                        pct: vueApp.modelUser.collection.cards.filter(i => i.set === set.name).reduce(function (a, b) { return a + b.amount; }, 0) / (set.totalCards * 4)
+                    };
+                });
+
+            computed.sort(function (a, b) { return b.pct - a.pct; });
+
+            return computed;
+        },
         getLands() {
             this.loadData('getLands', true);
             sendAjaxGet('/api/Misc/Lands', (statuscode, body) => {
@@ -536,6 +582,33 @@ var vueApp = new Vue({
                 }
             });
         }, 3000),
+        filterCollection() {
+            var set = this.modelUserCollectionFiltered.filters.set;
+            var rarity = this.modelUserCollectionFiltered.filters.rarity;
+
+            var filtered = [];
+
+            this.modelUser.collection.cards
+                .forEach(i => {
+                    var f = true;
+                    f &= set === '' || i.set === set;
+                    f &= rarity === '' || i.rarity === rarity;
+
+                    if (f) filtered.push(i);
+                });
+
+            this.modelUserCollectionFiltered.filtered = filtered;
+            this.$forceUpdate();
+        },
+        collectionIsFiltered() {
+            return this.modelUserCollectionFiltered.filters.rarity !== ''
+                || this.modelUserCollectionFiltered.filters.set !== '';
+        },
+        clearFiltersCollection() {
+            this.modelUserCollectionFiltered.filters.rarity = '';
+            this.modelUserCollectionFiltered.filters.set = '';
+            this.filterCollection();
+        },
         filterDecks() {
             var scraperTypeId = this.modelDecks.filters.scraperTypeId;
             var name = this.modelDecks.filters.name.trim();
@@ -1108,14 +1181,11 @@ var vueApp = new Vue({
         'themeIsDark': function (themeIsDark) {
             vueApp.themeHelper.theme = themeIsDark ? 'dark' : 'light';
         },
-        'loading': function (loading) {
-            if (loading.count > 0 && this.showMessageWait) {
-                this.showMessageWait = false;
-                showText("#msg", "Hello, World!", 0, 500);
-            }
-            else if (loading.count === 0) {
-                this.showMessageWait = true;
-            }
+        'loading': function (newValue, oldValue) {
+            //if (this.modelUser.nbLogin >= 10 && oldValue.length === 0 && newValue.length === 1) {
+            //    document.getElementById('msg').innerHTML = '';
+            //    showText("msg", "Please wait...sorry for the inconvenience...If you like this service and would be happy to support it for better responsiveness, you can do so optionally (see at bottom right)...Thank you! :)", 0, 60);
+            //}
         }
     }
 });
