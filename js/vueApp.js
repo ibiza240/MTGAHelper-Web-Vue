@@ -31,14 +31,30 @@
     };
 };
 
-const pageCollection = 'collection';
+const sectionGeneral = 'general';
+const sectionMyData = 'myData';
+
+const pageHome = 'home';
+const pageNews = 'news';
+const pageStreams = 'streams';
+const pageMeta = 'meta';
 const pageDecks = 'decks';
+const pageDeckSelected = 'deckSelected';
+const pageCollection = 'collection';
+const pageHistory = 'history';
+const pageScrapers = 'scrapers';
+const pageDecksTracked = 'decksTracked';
 const pageDashboardSummary = 'dashboardSummary';
 const pageDashboardDetails = 'dashboardDetails';
 const pageProfile = 'profile';
+const pageCustomDecks = 'customDecks';
+const pageLands = 'lands';
 const pageContact = 'contact';
 const pageChangelog = 'changelog';
 const pageShowSupport = 'showSupport';
+
+const loadDeck = 'deck';
+const loadDeckTracked = 'deckTracked';
 
 var vueApp = new Vue({
     el: '#vueApp',
@@ -49,8 +65,8 @@ var vueApp = new Vue({
             dark: "css/bulma-dark.min.css"
         },
         themeHelper: new ThemeHelper(),
-        themeIsDark: false,
-        themeIsDarkInitial: false,
+        themeIsDark: true,
+        themeIsDarkInitial: true,
         dynamicLanding: true,
 
         scryfallImagesPrefix: 'https://img.scryfall.com/cards',
@@ -68,9 +84,8 @@ var vueApp = new Vue({
 
         //loginWithUserId: '',
 
-        currentPage: pageDecks,
-        currentPageCollection: 'currently',
-        currentPageProfile: 'scrapers',
+        currentSection: sectionGeneral,
+        currentPage: pageCollection,
         currentPageProfileLandsType: 'Plains',
 
         loading: [],
@@ -81,13 +96,37 @@ var vueApp = new Vue({
 
         modelChangelog: [],
 
+        // General Decks page
         modelDeckSelected: {
+            id: '',
+            cardsMain: [],
+            cardsSideboard: []
+            // ...
+        },
+
+        modelDecks: {
+            filters: {
+                scraperTypeId: '(All)',
+                name: '',
+                color: '',
+                date: ''
+            },
+            decks: []
+        },
+        modelDecksFiltered: {
+            perPage: 200,
+            currentPage: 0,
+            decks: []
+        },
+
+        // Tracked decks page
+        modelUserDeckSelected: {
             id: '',
             cardsMain: [],
             cardsSideboard: []
         },
 
-        modelDecks: {
+        modelUserDecks: {
             filters: {
                 scraperTypeId: '(All)',
                 name: '',
@@ -99,7 +138,7 @@ var vueApp = new Vue({
             decks: []
         },
         //Array of: { priorityFactor, wildcardsMissingMain, wildcardsMissingSideboard, ... }
-        modelDecksFiltered: {
+        modelUserDecksFiltered: {
             perPage: 100,
             currentPage: 0,
             decks: []
@@ -112,7 +151,14 @@ var vueApp = new Vue({
             collection: {
                 collectionDate: 'Unknown',
                 cards: [],
-                mtgaUserProfile: {}
+                mtgaUserProfile: {
+                    wildcards: {
+                        Common: 0,
+                        Uncommon: 0,
+                        Rare: 0,
+                        Mythic: 0,
+                    }
+                }
             },
             decks: [],
             scrapers: [
@@ -140,13 +186,15 @@ var vueApp = new Vue({
 
         modelUserCollectionFiltered: {
             filtered: [],
+            cardsMissing: [],
 
             filters: {
                 sets: ['', 'XLN', 'RIX', 'DOM', 'M19', 'GRN', 'RNA'],
                 rarities: ['', 'Mythic', 'Rare', 'Uncommon', 'Common'],
 
                 set: '',
-                rarity: ''
+                rarity: '',
+                showMissing: false
             }
         },
 
@@ -179,7 +227,8 @@ var vueApp = new Vue({
         },
 
         modelLands: [],
-        modelSets: {}
+        modelSets: [],
+        modelNews: []
     },
     created: function () {
         let added = Object.keys(this.themes).map(name => {
@@ -195,6 +244,7 @@ var vueApp = new Vue({
     mounted: function () {
         this.registerUser();
         this.getSets();
+        this.getNews();
     },
     methods: {
         callForChangelogAttention() {
@@ -229,6 +279,22 @@ var vueApp = new Vue({
                 return;
 
             this.currentPage = pageName;
+
+            if (pageName === pageNews ||
+                pageName === pageDecks ||
+                pageName === pageMeta ||
+                pageName === pageStreams) {
+                this.currentSection = sectionGeneral;
+            }
+            else if (pageName === pageDecksTracked ||
+                pageName === pageCollection ||
+                pageName === pageHistory ||
+                pageName === pageDecksTracked ||
+                pageName === pageScrapers ||
+                pageName === pageDashboardSummary ||
+                pageName === pageDashboardDetails) {
+                this.currentSection = sectionMyData;
+            }
         },
         loadData(key, isLoading) {
             var elems = [];
@@ -255,7 +321,7 @@ var vueApp = new Vue({
             return this.loading.indexOf(key) >= 0;
         },
         isLoadingLotsOfDecks() {
-            return this.modelDecks.decks.length >= this.lotsOfDecks && this.loading.indexOf('decks') >= 0;
+            return this.modelUserDecks.decks.length >= this.lotsOfDecks && this.loading.indexOf(pageDecksTracked) >= 0;
         },
         isNotificationActive(key) {
             return this.modelUser.notificationsInactive.indexOf(key) < 0;
@@ -265,46 +331,7 @@ var vueApp = new Vue({
                 this.modelCardSelectedUrl = '';
             }
             else {
-                ////this.modelCardSelectedUrl = 'https://img.scryfall.com/cards/normal/en/' + c.set.toLowerCase() + '/' + c.setId + '.jpg'
-
-                //if (name === 'Plains')
-                //    this.modelCardSelectedUrl = 'https://cdn1.mtggoldfish.com/images/gf/Plains%2B%255BRIX%255D.jpg';
-                //else if (name === 'Island')
-                //    this.modelCardSelectedUrl = 'https://cdn1.mtggoldfish.com/images/gf/Island%2B%255BRIX%255D.jpg';
-                //else if (name === 'Swamp')
-                //    this.modelCardSelectedUrl = 'https://cdn1.mtggoldfish.com/images/gf/Swamp%2B%255BRIX%255D.jpg';
-                //else if (name === 'Mountain')
-                //    this.modelCardSelectedUrl = 'https://cdn1.mtggoldfish.com/images/gf/Mountain%2B%255BRIX%255D.jpg';
-                //else if (name === 'Forest')
-                //    this.modelCardSelectedUrl = 'https://cdn1.mtggoldfish.com/images/gf/Forest%2B%255BRIX%255D.jpg';
-                //else {
-                //    if (name.endsWith('Guildgate (a)') || name.endsWith('Guildgate (b)')) {
-                //        name = name.replace('(a)', '%253C' + setId + '%253E').replace('(b)', '%253C' + setId + '%253E');
-                //    }
-                //    else if (name.endsWith('Guildgate')) {
-                //        name = name + ' ' + '%253C' + setId + '%253E';
-                //    }
-
-                //    this.modelCardSelectedUrl = 'https://cdn1.mtggoldfish.com/images/gf/' + name
-                //        .replace(/ /g, '%2B')
-                //        .replace(/'/g, '%2527')
-                //        .replace(/,/g, '%252C')
-                //        .replace(/\//g, '%252F')
-                //        + '%2B%255B' + set + '%255D.jpg';
-                //}
-
-                //this.$nextTick(/*debounce(*/function () {
-                //    var div = document.getElementById('divCardImg');
-                //    var l = (vueApp.mouseX - 333);
-                //    if (l < 0) l += 500;
-                //    if (div !== null) {
-                //        div.style.left = l + 'px';
-                //        div.style.top = (vueApp.mouseY - 160) + 'px';
-                //    }
-                //}/*, 200)*/);
-
                 this.modelCardSelectedUrl = this.scryfallImagesPrefix + imageUrl;
-
                 this.$nextTick(function () {
                     var div = document.getElementById('divCardImg');
                     var l = (vueApp.mouseX - 333);
@@ -338,7 +365,6 @@ var vueApp = new Vue({
             return totalWildcards;
         },
         calculateWeightsProposed() {
-            // Calculate weightsProposed
             var divider = 840;
             var totalWildcards = this.getTotalWildcards();
             var weightsProposed = {
@@ -383,15 +409,15 @@ var vueApp = new Vue({
                     // Avoid dynamic landing if a route is used
                     vueApp.dynamicLanding = false;
 
-                    vueApp.currentPage = p1;
+                    vueApp.loadPage(p1);
                     var p2 = urlParams.get('p2');
                     if (p2 !== null) {
                         switch (p1) {
-                            case pageProfile:
-                                vueApp.getLands();
-                                vueApp.currentPageProfile = p2;
-                                break;
-                            case pageDecks:
+                            //case pageProfile:
+                            //    vueApp.getLands();
+                            //    vueApp.currentPageProfile = p2;
+                            //    break;
+                            case pageDecksTracked:
                                 vueApp.getDeckByHash(p2);
                                 break;
                         }
@@ -405,6 +431,7 @@ var vueApp = new Vue({
         },
         refreshAll(refreshCollection) {
             this.refreshDecks();
+            this.refreshDecksTracked();
             this.refreshDashboard();
 
             if (refreshCollection) {
@@ -418,14 +445,20 @@ var vueApp = new Vue({
                         vueApp.calculateWeightsProposed();
                     }
 
-                    if (vueApp.dynamicLanding && vueApp.modelUser.collection.cards.length === 0)
-                        vueApp.currentPage = pageCollection;
+                    if (vueApp.dynamicLanding && vueApp.modelUser.collection.cards.length > 0)
+                        vueApp.currentSection = sectionMyData;
 
                     vueApp.filterCollection();
                     vueApp.refreshUserHistory();
                 });
+                this.loadData('collectionMissingGet', true);
+                sendAjaxGet('/api/User/Collection/Missing', (statuscode, body) => {
+                    vueApp.loadData('collectionMissingGet', false);
+                    vueApp.modelUserCollectionFiltered.cardsMissing = JSON.parse(body).cardsMissing;
+                });
             }
 
+            this.filterCollection();
             this.refreshUserDecks();
             this.refreshUserScrapers();
             this.refreshUserWeights();
@@ -438,11 +471,19 @@ var vueApp = new Vue({
             });
         },
         refreshDecks: debounce(function () {
-            this.loadData('decks', true);
+            this.loadData(pageDecks, true);
             sendAjaxGet('/api/Decks', (statuscode, body) => {
                 vueApp.modelDecks.decks = JSON.parse(body).decks;
-                vueApp.filterDecks();
-                vueApp.loadData('decks', false);
+                vueApp.filterDecks(false);
+                vueApp.loadData(pageDecks, false);
+            });
+        }),
+        refreshDecksTracked: debounce(function () {
+            this.loadData(pageDecksTracked, true);
+            sendAjaxGet('/api/User/Decks', (statuscode, body) => {
+                vueApp.modelUserDecks.decks = JSON.parse(body).decks;
+                vueApp.filterDecks(true);
+                vueApp.loadData(pageDecksTracked, false);
             });
         }),
         refreshUserDecks() {
@@ -511,6 +552,19 @@ var vueApp = new Vue({
                 var data = JSON.parse(body);
                 if (statuscode === 200) {
                     vueApp.modelSets = data.sets;
+                }
+                else {
+                    alert(data.error);
+                }
+            });
+        },
+        getNews() {
+            this.loadData('getNews', true);
+            sendAjaxGet('/api/Misc/News', (statuscode, body) => {
+                vueApp.loadData('getNews', false);
+                var data = JSON.parse(body);
+                if (statuscode === 200) {
+                    vueApp.modelNews = data;
                 }
                 else {
                     alert(data.error);
@@ -588,34 +642,50 @@ var vueApp = new Vue({
 
             var filtered = [];
 
-            this.modelUser.collection.cards
-                .forEach(i => {
-                    var f = true;
-                    f &= set === '' || i.set === set;
-                    f &= rarity === '' || i.rarity === rarity;
+            var source = this.modelUserCollectionFiltered.filters.showMissing ? this.modelUserCollectionFiltered.cardsMissing : this.modelUser.collection.cards;
 
-                    if (f) filtered.push(i);
-                });
+            source.forEach(i => {
+                var f = true;
+                f &= set === '' || i.set === set;
+                f &= rarity === '' || i.rarity === rarity;
+
+                if (f) filtered.push(i);
+            });
 
             this.modelUserCollectionFiltered.filtered = filtered;
             this.$forceUpdate();
         },
         collectionIsFiltered() {
             return this.modelUserCollectionFiltered.filters.rarity !== ''
-                || this.modelUserCollectionFiltered.filters.set !== '';
+                || this.modelUserCollectionFiltered.filters.set !== ''
+                || this.modelUserCollectionFiltered.filters.showMissing;
         },
         clearFiltersCollection() {
             this.modelUserCollectionFiltered.filters.rarity = '';
             this.modelUserCollectionFiltered.filters.set = '';
+            this.modelUserCollectionFiltered.filters.showMissing = false;
             this.filterCollection();
         },
-        filterDecks() {
+        filterDecks(tracked) {
+            // default value
+            if (typeof tracked === 'undefined') tracked = true;
+
             var scraperTypeId = this.modelDecks.filters.scraperTypeId;
             var name = this.modelDecks.filters.name.trim();
             var color = this.modelDecks.filters.color.trim().toUpperCase();
             var date = this.modelDecks.filters.date.trim();
-            var weight = this.modelDecks.filters.missingWeight;
-            var showUntracked = this.modelDecks.filters.showUntracked;
+            // tracked only
+            var weight = this.modelUserDecks.filters.missingWeight;
+            var showUntracked = this.modelUserDecks.filters.showUntracked;
+
+            if (tracked) {
+                scraperTypeId = this.modelUserDecks.filters.scraperTypeId;
+                name = this.modelUserDecks.filters.name.trim();
+                color = this.modelUserDecks.filters.color.trim().toUpperCase();
+                date = this.modelUserDecks.filters.date.trim();
+                //weight = this.modelUserDecks.filters.missingWeight;
+                //showUntracked = this.modelUserDecks.filters.showUntracked;
+            }
 
             var filtered = [];
 
@@ -637,62 +707,94 @@ var vueApp = new Vue({
                 return false;
             }
 
-            this.modelDecks.decks
-                .forEach(i => {
-                    var f = true;
+            var decks = tracked ? this.modelUserDecks.decks : this.modelDecks.decks;
+            decks.forEach(i => {
+                var f = true;
 
-                    var fSourceFound = i.scraperTypeId !== null && scraperTypeId !== null && i.scraperTypeId.toLowerCase().indexOf(scraperTypeId.toLowerCase()) >= 0;
-                    var fSourceUnknown = scraperTypeId !== '' || i.scraperTypeId === '';
-                    var fSourceNull = i.scraperTypeId === null && scraperTypeId === null;
-                    f &= scraperTypeId === '(All)' || (fSourceFound && fSourceUnknown) || fSourceNull;
+                var fSourceFound = i.scraperTypeId !== null && scraperTypeId !== null && i.scraperTypeId.toLowerCase().indexOf(scraperTypeId.toLowerCase()) >= 0;
+                var fSourceUnknown = scraperTypeId !== '' || i.scraperTypeId === '';
+                var fSourceNull = i.scraperTypeId === null && scraperTypeId === null;
+                f &= scraperTypeId === '(All)' || (fSourceFound && fSourceUnknown) || fSourceNull;
 
-                    f &= name === '' || i.name.toLowerCase().indexOf(name.toLowerCase()) >= 0;
-                    f &= color === '' || i.color === color;
-                    f &= date === '' || i.dateCreated.substring(0, 10) === date || isDateInRange(i.dateCreated);
+                f &= name === '' || i.name.toLowerCase().indexOf(name.toLowerCase()) >= 0;
+                f &= color === '' || i.color === color;
+                f &= date === '' || i.dateCreated.substring(0, 10) === date || isDateInRange(i.dateCreated);
+
+                if (tracked) {
                     f &= weight === '' || isWeightInRange(i.missingWeight);
                     f &= i.priorityFactor > 0 || showUntracked;
+                }
 
-                    if (f) filtered.push(clone(i));
-                });
+                if (f) filtered.push(clone(i));
+            });
 
-            this.modelDecksFiltered = {
-                decks: filtered,
-                perPage: 100,
-                currentPage: 0,
-            };
+            if (tracked) {
+                this.modelUserDecksFiltered = {
+                    decks: filtered,
+                    perPage: 100,
+                    currentPage: 0,
+                };
+            }
+            else {
+                this.modelDecksFiltered = {
+                    decks: filtered,
+                    perPage: 200,
+                    currentPage: 0,
+                };
+            }
         },
-        setDecksPage: function (pageNumber) {
-            this.modelDecksFiltered.currentPage = pageNumber;
+        decksAreFiltered(tracked) {
+            // default value
+            if (typeof tracked === 'undefined') tracked = true;
+
+            if (tracked) {
+                return this.modelUserDecks.filters.scraperTypeId !== '(All)'
+                    || this.modelUserDecks.filters.name !== ''
+                    || this.modelUserDecks.filters.color !== ''
+                    || this.modelUserDecks.filters.date !== ''
+                    || this.modelUserDecks.filters.missingWeight !== ''
+                    || this.modelUserDecks.filters.showUntracked;
+            }
+            else {
+                return this.modelDecks.filters.scraperTypeId !== '(All)'
+                    || this.modelDecks.filters.name !== ''
+                    || this.modelDecks.filters.color !== ''
+                    || this.modelDecks.filters.date !== '';
+            }
         },
-        decksAreFiltered() {
-            return this.modelDecks.filters.scraperTypeId !== '(All)'
-                || this.modelDecks.filters.name !== ''
-                || this.modelDecks.filters.color !== ''
-                || this.modelDecks.filters.date !== ''
-                || this.modelDecks.filters.missingWeight !== ''
-                || this.modelDecks.filters.showUntracked;
+        clearFiltersDecks(tracked) {
+            // default value
+            if (typeof tracked === 'undefined') tracked = true;
+
+            if (tracked) {
+                this.modelUserDecks.filters.scraperTypeId = '(All)';
+                this.modelUserDecks.filters.name = '';
+                this.modelUserDecks.filters.color = '';
+                this.modelUserDecks.filters.date = '';
+                this.modelUserDecks.filters.missingWeight = '';
+                this.modelUserDecks.filters.showUntracked = false;
+            }
+            else {
+                this.modelDecks.filters.scraperTypeId = '(All)';
+                this.modelDecks.filters.name = '';
+                this.modelDecks.filters.color = '';
+                this.modelDecks.filters.date = '';
+            }
+
+            this.filterDecks(tracked);
         },
-        clearFiltersDecks() {
-            this.modelDecks.filters.scraperTypeId = '(All)';
-            this.modelDecks.filters.name = '';
-            this.modelDecks.filters.color = '';
-            this.modelDecks.filters.date = '';
-            this.modelDecks.filters.missingWeight = '';
-            this.modelDecks.filters.showUntracked = false;
-            this.filterDecks();
-        },
-        displayTotalCards(isSideboard) {
+        displayTotalCards(cards, isSideboard) {
             var nb = 0;
             if (isSideboard) {
-                if (typeof (this.modelDeckSelected.cardsSideboard) !== 'undefined') {
-                    nb = this.modelDeckSelected.cardsSideboard.reduce((a, b) => a += b.amount, 0);
+                if (typeof (cards) !== 'undefined') {
+                    nb = cards.reduce((a, b) => a += b.amount, 0);
                 }
 
                 return 'Sideboard (' + nb + ' cards)';
             }
             else {
-                nb = this.modelDeckSelected.cardsMain.reduce((a, b) => a += b.amount, 0);
-                var nbLands = this.modelDeckSelected.cardsMain
+                nb = cards.reduce((a, b) => a += b.amount, 0);
+                var nbLands = cards
                     .filter((i) => i.type === 'Land')
                     .reduce((a, b) => a += b.amount, 0);
                 return 'Main (' + nb + ' cards, ' + nbLands + ' lands)';
@@ -710,9 +812,9 @@ var vueApp = new Vue({
                 return;
             }
 
-            var idxFiltered = findWithAttr(this.modelDecksFiltered.decks, 'id', deckId);
-            this.$set(this.modelDecksFiltered.decks[idxFiltered], 'priorityFactor', p);
-            this.$set(this.modelDecksFiltered.decks[idxFiltered], 'missingWeight', this.modelDecksFiltered.decks[idxFiltered].missingWeightBase * this.modelDecksFiltered.decks[idxFiltered].priorityFactor);
+            var idxFiltered = findWithAttr(this.modelUserDecksFiltered.decks, 'id', deckId);
+            this.$set(this.modelUserDecksFiltered.decks[idxFiltered], 'priorityFactor', p);
+            this.$set(this.modelUserDecksFiltered.decks[idxFiltered], 'missingWeight', this.modelUserDecksFiltered.decks[idxFiltered].missingWeightBase * this.modelUserDecksFiltered.decks[idxFiltered].priorityFactor);
 
             this.loadData('dashboard', true);
             sendAjaxPatch('/api/User/DeckPriorityFactor', { DeckId: deckId, Value: p }, null, (statuscode, body) => {
@@ -720,24 +822,24 @@ var vueApp = new Vue({
             });
         },
         stopTracking(deckId) {
-            var idx = findWithAttr(this.modelDecks.decks, 'id', deckId);
-            this.modelDecks.decks[idx].priorityFactor = 0;
+            var idx = findWithAttr(this.modelUserDecks.decks, 'id', deckId);
+            this.modelUserDecks.decks[idx].priorityFactor = 0;
 
-            var idxFiltered = findWithAttr(this.modelDecksFiltered.decks, 'id', deckId);
-            this.$set(this.modelDecksFiltered.decks[idxFiltered], 'priorityFactor', 0);
+            var idxFiltered = findWithAttr(this.modelUserDecksFiltered.decks, 'id', deckId);
+            this.$set(this.modelUserDecksFiltered.decks[idxFiltered], 'priorityFactor', 0);
 
             this.loadData('dashboard', true);
             sendAjaxPatch('/api/User/DeckPriorityFactor', { DeckId: deckId, Value: 0 }, null, (statuscode, body) => {
                 vueApp.refreshDashboard();
             });
 
-            if (this.modelDecks.filters.showUntracked) {
+            if (this.modelUserDecks.filters.showUntracked) {
                 // Still preserve item in filtered list for display
             }
             else {
-                this.modelDecksFiltered.decks.splice(idxFiltered, 1);
+                this.modelUserDecksFiltered.decks.splice(idxFiltered, 1);
 
-                if (this.modelDeckSelected.id === deckId) {
+                if (this.modelUserDeckSelected.id === deckId) {
                     this.clearSelectedDeck();
                 }
                 //else {
@@ -746,44 +848,69 @@ var vueApp = new Vue({
             }
         },
         resetDecksPriorityFactor(value) {
-            this.loadData('decks', true);
+            this.loadData(pageDecksTracked, true);
             this.loadData('dashboard', true);
             sendAjaxPatch('/api/User/DeckPriorityFactor/ResetAll', { Value: value }, null, (statuscode, body) => {
-                vueApp.refreshDecks();
+                vueApp.refreshDecksTracked();
                 vueApp.refreshDashboard();
             });
         },
         trackFilteredDecks(doTrack) {
-            this.loadData('decks', true);
+            this.loadData(pageDecksTracked, true);
             this.loadData('dashboard', true);
-            var decks = this.modelDecksFiltered.decks.map((d) => d.id);
+            var decks = this.modelUserDecksFiltered.decks.map((d) => d.id);
             sendAjaxPatch('/api/User/DeckPriorityFactor/FilteredDecks', { DoTrack: doTrack, Decks: decks }, null, (statuscode, body) => {
-                vueApp.refreshDecks();
+                vueApp.refreshDecksTracked();
                 vueApp.refreshDashboard();
             });
         },
-        getDecksPages() {
-            var arr = Array.from(Array(this.decksTotalPages).keys());
-            var arr2 = arr.map(i => Math.abs(i - this.modelDecksFiltered.currentPage) < 2 || i === this.decksTotalPages - 1 || i === 0 ? i : '...');
+        getDecksPages(tracked) {
+            // default value
+            if (typeof tracked === 'undefined') tracked = true;
+            var currentPage = tracked ? this.modelUserDecksFiltered.currentPage : this.modelDecksFiltered.currentPage;
 
-            var arr3 = []
+            var totalPages = tracked ? this.decksTrackedTotalPages : this.decksTotalPages;
+            var arr = Array.from(Array(totalPages).keys());
+            var arr2 = arr.map(i => Math.abs(i - currentPage) < 2 || i === totalPages - 1 || i === 0 ? i : '...');
+
+            var arr3 = [];
             var last = '';
             arr2.forEach(i => { if (i !== last) arr3.push(i); last = i; });
 
             return arr3;
         },
         getDeck(deckId) {
+            vueApp.currentPage = pageDeckSelected;
+
             if (this.modelDeckSelected.id === deckId)
                 return;
 
             this.modelDeckSelected.id = deckId;
-            this.loadData('deck', true);
+            this.loadData(loadDeck, true);
 
             sendAjaxGet('/api/Decks/' + deckId, function (statuscode, body) {
                 var data = JSON.parse(body);
                 if (statuscode === 200) {
                     vueApp.modelDeckSelected = data.deck;
-                    vueApp.loadData('deck', false);
+                    vueApp.loadData(loadDeck, false);
+                }
+                else {
+                    alert(data.error);
+                }
+            });
+        },
+        getDeckTracked(deckId) {
+            if (this.modelUserDeckSelected.id === deckId)
+                return;
+
+            this.modelUserDeckSelected.id = deckId;
+            this.loadData(loadDeckTracked, true);
+
+            sendAjaxGet('/api/Decks/' + deckId, function (statuscode, body) {
+                var data = JSON.parse(body);
+                if (statuscode === 200) {
+                    vueApp.modelUserDeckSelected = data.deck;
+                    vueApp.loadData(loadDeckTracked, false);
                 }
                 else {
                     alert(data.error);
@@ -796,7 +923,7 @@ var vueApp = new Vue({
             sendAjaxGet('/api/Decks/ByHash/' + hash, function (statuscode, body) {
                 var data = JSON.parse(body);
                 if (statuscode === 200) {
-                    vueApp.modelDeckSelected = data.deck;
+                    vueApp.modelUserDeckSelected = data.deck;
                     vueApp.loadData('deck', false);
                 }
                 else {
@@ -805,7 +932,7 @@ var vueApp = new Vue({
             });
         },
         clearSelectedDeck() {
-            this.modelDeckSelected = {
+            this.modelUserDeckSelected = {
                 id: '',
                 cardsMain: [],
                 cardsSideboard: []
@@ -857,16 +984,16 @@ var vueApp = new Vue({
 
             this.filterDashboardDetails();
 
-            this.currentPage = pageDashboardDetails;
+            this.loadPage(pageDashboardDetails);
         },
         goToDeck(deckId, deckName) {
             this.clearFiltersDecks();
-            this.modelDecks.filters.name = deckName;
-            this.modelDecks.filters.showUntracked = true;
+            this.modelUserDecks.filters.name = deckName;
+            this.modelUserDecks.filters.showUntracked = true;
             this.filterDecks();
 
-            this.currentPage = pageDecks;
-            this.getDeck(deckId);
+            this.loadPage(pageDecksTracked);
+            this.getDeckTracked(deckId);
         },
         getDeckFromUrl() {
             var url = this.modelUserDeck.url.toLowerCase();
@@ -904,7 +1031,7 @@ var vueApp = new Vue({
                     vueApp.modelUserDeck.url = '';
                     vueApp.modelUserDeck.mtgaFormat = '';
 
-                    vueApp.refreshDecks();
+                    vueApp.refreshDecksTracked();
                     vueApp.refreshUserDecks();
                     vueApp.refreshDashboard();
                 }
@@ -916,10 +1043,10 @@ var vueApp = new Vue({
         },
         deleteUserDeck(deckId) {
             sendAjaxDelete('/api/User/CustomDecks/' + deckId, null, null, (statuscode, body) => {
-                if (vueApp.modelDeckSelected.id === deckId) {
+                if (vueApp.modelUserDeckSelected.id === deckId) {
                     vueApp.clearSelectedDeck();
                 }
-                vueApp.refreshDecks();
+                vueApp.refreshDecksTracked();
                 vueApp.refreshUserDecks();
                 vueApp.refreshDashboard();
             });
@@ -949,7 +1076,7 @@ var vueApp = new Vue({
                 this.loadData('userScraperAsync', false);
                 if (statuscode === 200) {
                     vueApp.scraperIdLoading = '';
-                    vueApp.refreshDecks();
+                    vueApp.refreshDecksTracked();
                     vueApp.refreshUserScrapers();
                     vueApp.refreshDashboard();
                 }
@@ -965,11 +1092,11 @@ var vueApp = new Vue({
         saveUserScrapers: debounce(function () {
             //var idx = findWithAttr(this.modelUser.scrapers, 'id', scraperId);
             //var scraperInfo = this.modelUser.scrapers[idx];
-            //var nbDecksAfter = this.modelDecks.decks.length + scraperInfo.nbDecks;
+            //var nbDecksAfter = this.modelUserDecks.decks.length + scraperInfo.nbDecks;
             var mergedActive = vueApp.getScrapersFlattened().filter(i => i.isActivated);
 
             var nbDecksAfter = mergedActive.reduce((a, b) => a += b.nbDecks, 0);
-            if (/*activate &&*/ nbDecksAfter > vueApp.modelDecks.decks.length && nbDecksAfter >= vueApp.lotsOfDecks) {
+            if (/*activate &&*/ nbDecksAfter > vueApp.modelUserDecks.decks.length && nbDecksAfter >= vueApp.lotsOfDecks) {
                 if (confirm('Monitoring a large amount of decks might cause the app to slow down. Are you sure?') === false) {
                     // User cancelled: Revert the value and don't call the server
                     //this.$set(scraperInfo, 'isActivated', false);
@@ -987,7 +1114,7 @@ var vueApp = new Vue({
             var scrapersActive = mergedActive.map(i => i.id);
             sendAjaxPut('/api/User/Scrapers', { ScrapersActive: scrapersActive }, null, (statuscode, body) => {
                 if (statuscode === 200) {
-                    vueApp.refreshDecks();
+                    vueApp.refreshDecksTracked();
                     vueApp.refreshDashboard();
                 }
                 else {
@@ -1018,6 +1145,10 @@ var vueApp = new Vue({
             else if (name === 'instantdecktech') name = 'Instant Deck Tech';
             else if (name === 'budgetmagic') name = 'Budget Magic';
             else if (name === 'goldfishgladiators') name = 'Goldfish Gladiators';
+            else if (name === 'budgetarena') name = 'Budget Arena';
+            else if (name === 'fishfiveo') name = 'Fish Five-0';
+            else if (name === 'muchabrew') name = 'Much Abrew About Nothing';
+            else if (name === 'streamhighlights') name = 'Stream Highlights';
             else if (name === 'tier1') name = 'Tier 1';
             else if (name.startsWith('user_')) name = name.substring(5, name.length);
 
@@ -1061,7 +1192,7 @@ var vueApp = new Vue({
             sendAjaxPut('/api/User/Weights', { weights: this.modelUser.weights }, null, (statuscode, body) => {
                 vueApp.loadData('setWeights', false);
                 if (statuscode === 200) {
-                    vueApp.refreshDecks();
+                    vueApp.refreshDecksTracked();
                     vueApp.refreshDashboard();
                 }
                 else {
@@ -1075,7 +1206,7 @@ var vueApp = new Vue({
             sendAjaxPut('/api/User/Weights', { weights: null }, null, (statuscode, body) => {
                 vueApp.loadData('setWeights', false);
                 if (statuscode === 200) {
-                    vueApp.refreshDecks();
+                    vueApp.refreshDecksTracked();
                     vueApp.refreshDashboard();
                     vueApp.refreshUserWeights();
                 }
@@ -1159,7 +1290,10 @@ var vueApp = new Vue({
     },
     computed: {
         decksTotalPages: function () {
-            return Math.ceil(this.modelDecksFiltered.decks.length / this.modelDecksFiltered.perPage)
+            return Math.ceil(this.modelDecksFiltered.decks.length / this.modelDecksFiltered.perPage);
+        },
+        decksTrackedTotalPages: function () {
+            return Math.ceil(this.modelUserDecksFiltered.decks.length / this.modelUserDecksFiltered.perPage);
         },
         paginatedDecks: function () {
             var list = this.modelDecksFiltered.decks;
@@ -1170,11 +1304,28 @@ var vueApp = new Vue({
             var index = this.modelDecksFiltered.currentPage * this.modelDecksFiltered.perPage;
             return list.slice(index, index + this.modelDecksFiltered.perPage);
         },
+        paginatedDecksTracked: function () {
+            var list = this.modelUserDecksFiltered.decks;
+
+            if (this.modelUserDecksFiltered.currentPage >= this.decksTrackedTotalPages) {
+                this.modelUserDecksFiltered.currentPage = this.decksTrackedTotalPages - 1;
+            }
+            var index = this.modelUserDecksFiltered.currentPage * this.modelUserDecksFiltered.perPage;
+            return list.slice(index, index + this.modelUserDecksFiltered.perPage);
+        },
         dictScraperUrl: function () {
             var info = vueApp.modelUser.scrapers
                 .map(i => i.bySection.map(j => { return { id: j.id, url: j.url } }).concat(i.byUser.map(j => { return { id: j.id, url: j.url } })));
 
             return info.reduce((a, b) => a.concat(b), []).reduce((a, b) => { a[b.id] = b.url; return a; }, {});
+        },
+        isPagePublic: function () {
+            return this.currentPage === pageNews ||
+                this.currentPage === pageStreams ||
+                this.currentPage === pageMeta ||
+                this.currentPage === pageDecks ||
+                this.currentPage === pageDeckSelected ||
+                this.currentPage === pageLands;
         }
     },
     watch: {
@@ -1182,10 +1333,10 @@ var vueApp = new Vue({
             vueApp.themeHelper.theme = themeIsDark ? 'dark' : 'light';
         },
         'loading': function (newValue, oldValue) {
-            //if (this.modelUser.nbLogin >= 10 && oldValue.length === 0 && newValue.length === 1) {
-            //    document.getElementById('msg').innerHTML = '';
-            //    showText("msg", "Please wait...sorry for the inconvenience...If you like this service and would be happy to support it for better responsiveness, you can do so optionally (see at bottom right)...Thank you! :)", 0, 60);
-            //}
+            if (this.modelUser.nbLogin >= 20 && oldValue.length === 0 && newValue.length === 1) {
+                document.getElementById('msg').innerHTML = '';
+                showText("msg", "Please wait...we're gathering your data. If you've been enjoying MTGAHelper and wish to support the project, see how you can do so by clicking on the button on the bottom right...Thanks!", 0, 60);
+            }
         }
     }
 });
