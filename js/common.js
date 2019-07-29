@@ -1,7 +1,7 @@
 ﻿Array.prototype.groupBy = function (key) {
     return this.reduce(function (rv, x) {
         let v = key instanceof Function ? key(x) : x[key];
-        let el = rv.find((r) => r && r.key === v);
+        let el = rv.find(function (r) { return r && r.key === v; });
         if (el) {
             el.values.push(x);
         } else {

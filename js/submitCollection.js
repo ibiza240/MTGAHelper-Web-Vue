@@ -9,14 +9,14 @@
     var file = fileInput.files[0];
 
     if (file.name.endsWith(".txt")) {
-        alert('The file to upload must be a .zip file (not the output_log.txt file directly) and be less than 10 MB.');
+        alert('The file to upload must be a .zip file (not the output_log.txt file directly) and be less than 20 MB.');
         return;
     }
     else if (file.name.endsWith(".zip") === false) {
-        alert('The file to upload must be a .zip file (not another extension or compression method like rar) and be less than 10 MB.');
+        alert('The file to upload must be a .zip file (not another extension or compression method like rar) and be less than 20 MB.');
         return;
     }
-    else if (file.size > 10485760) {
+    else if (file.size > 20971520) {
         alert('Your file is too big. Try deleting the output_log.txt file, reopen the MTG Arena game, go browse your collection and close the game. This will generate a very small valid output_log.txt that you can ZIP and send here.');
         return;
     }
@@ -42,6 +42,12 @@
                 vueApp.refreshAll(false);
                 vueApp.calculateWeightsProposed();
 
+                if (vueApp.modelUserDeckSelected.id !== '') {
+                    var id = vueApp.modelUserDeckSelected.id;
+                    vueApp.modelUserDeckSelected = {};
+                    vueApp.getDeckTracked(id);
+                }
+
                 vueApp.currentSection = sectionMyData;
                 vueApp.loadPage(pageCollection);
             }
@@ -49,7 +55,7 @@
                 alert(response.error);
             }
         } catch (e) {
-            alert('There was a problem with your file. Check that it\'s the text log file ZIPPED and that the file size is less than 10 MB.');
+            alert('There was a problem with your file. Check that it\'s the text log file ZIPPED and that the file size is less than 20 MB.');
         }
     });
 }

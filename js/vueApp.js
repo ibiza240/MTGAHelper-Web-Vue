@@ -36,6 +36,8 @@ const sectionMyData = 'myData';
 
 const pageHome = 'home';
 const pageNews = 'news';
+const pageArticles = 'articles';
+const pageArticleSelected = 'articleSelected';
 const pageStreams = 'streams';
 const pageMeta = 'meta';
 const pageDecks = 'decks';
@@ -51,10 +53,24 @@ const pageCustomDecks = 'customDecks';
 const pageLands = 'lands';
 const pageContact = 'contact';
 const pageChangelog = 'changelog';
-const pageShowSupport = 'showSupport';
+const pagePrivacy = 'privacy';
+const pageAbout = 'about';
+
+const pageHistoryCards = 'cards';
+const pageHistoryMatches = 'matches';
 
 const loadDeck = 'deck';
 const loadDeckTracked = 'deckTracked';
+
+var routes = [
+    { pageName: pageCollection, route: 'my/collection' },
+    { pageName: pageHistory, route: 'my/history' },
+    { pageName: pageDecksTracked, route: 'my/trackedDecks' },
+    { pageName: pageDashboardSummary, route: 'my/missingCardsSummary' },
+    { pageName: pageDashboardDetails, route: 'my/missingCardsDetails' },
+    { pageName: pageScrapers, route: 'my/sources' },
+    { pageName: pageCustomDecks, route: 'my/decks' }
+];
 
 var vueApp = new Vue({
     el: '#vueApp',
@@ -72,11 +88,22 @@ var vueApp = new Vue({
         scryfallImagesPrefix: 'https://img.scryfall.com/cards',
         iconLand: 'https://c-4tvylwolbz88x24nhtlwlkphx2ejbyzljkux2ejvt.g00.gamepedia.com/g00/3_c-4tan.nhtlwlkph.jvt_/c-4TVYLWOLBZ88x24oaawzx3ax2fx2fnhtlwlkph.jbyzljku.jvtx2ftanzhschapvu_nhtlwlkphx2f0x2f04x2fShuk_zftivs.zcnx3fclyzpvux3dj4691m071m4544409k709i17hj9k41j1x26p87j.thyrx3dpthnl_$/$/$/$/$',
 
+        iconMana: {
+            W: 'https://vignette.wikia.nocookie.net/mtg/images/d/da/Mana_W.png',
+            U: 'https://vignette.wikia.nocookie.net/mtg/images/a/a8/Mana_U.png',
+            B: 'https://vignette.wikia.nocookie.net/mtg/images/a/a6/Mana_B.png',
+            R: 'https://vignette.wikia.nocookie.net/mtg/images/c/ce/Mana_R.png',
+            G: 'https://vignette.wikia.nocookie.net/mtg/images/f/f7/Mana_G.png',
+            C: 'https://vignette.wikia.nocookie.net/mtg/images/1/18/Mana_C.png'
+        },
+
         mouseX: 0,
         mouseY: 0,
         showUploadCollectionModal: false,
         showLoginModal: false,
         showModalShareDeck: false,
+        showModalDonate: false,
+        deckToShare: {},
 
         loginUserId: '',
 
@@ -84,8 +111,10 @@ var vueApp = new Vue({
 
         //loginWithUserId: '',
 
+        navbarBurgerActive: false,
         currentSection: sectionGeneral,
         currentPage: pageCollection,
+        currentPageHistory: pageHistoryCards,
         currentPageProfileLandsType: 'Plains',
 
         loading: [],
@@ -93,6 +122,13 @@ var vueApp = new Vue({
 
         modelCardSelectedUrl: '',
         contactMessage: '',
+
+        wildcardsOrder: {
+            'C': 0,
+            'U': 1,
+            'R': 2,
+            'M': 3
+        },
 
         modelChangelog: [],
 
@@ -109,8 +145,10 @@ var vueApp = new Vue({
                 scraperTypeId: '(All)',
                 name: '',
                 color: '',
-                date: ''
+                date: '',
+                card: ''
             },
+            totalDecks: 0,
             decks: []
         },
         modelDecksFiltered: {
@@ -132,9 +170,11 @@ var vueApp = new Vue({
                 name: '',
                 color: '',
                 date: '',
+                card: '',
                 missingWeight: '',
                 showUntracked: false
             },
+            totalDecks: 0,
             decks: []
         },
         //Array of: { priorityFactor, wildcardsMissingMain, wildcardsMissingSideboard, ... }
@@ -147,7 +187,7 @@ var vueApp = new Vue({
         modelUser: {
             id: '',
             nbLogin: 0,
-            changesSinceLastLogin: false,
+            //changesSinceLastLogin: false,
             collection: {
                 collectionDate: 'Unknown',
                 cards: [],
@@ -189,7 +229,7 @@ var vueApp = new Vue({
             cardsMissing: [],
 
             filters: {
-                sets: ['', 'XLN', 'RIX', 'DOM', 'M19', 'GRN', 'RNA'],
+                sets: ['', 'XLN', 'RIX', 'DOM', 'M19', 'GRN', 'RNA', 'WAR', 'M20'],
                 rarities: ['', 'Mythic', 'Rare', 'Uncommon', 'Common'],
 
                 set: '',
@@ -200,6 +240,7 @@ var vueApp = new Vue({
 
         modelUserHistory: [],
         modelUserHistorySelected: {},
+        modelUserHistoryMatchSelected: {},
 
         modelUserDeck: {
             name: '',
@@ -213,7 +254,7 @@ var vueApp = new Vue({
             detailsFiltered: [],
 
             detailsFilters: {
-                sets: ['', 'XLN', 'RIX', 'DOM', 'M19', 'GRN', 'RNA'],
+                sets: ['', 'XLN', 'RIX', 'DOM', 'M19', 'GRN', 'RNA', 'WAR', 'M20'],
                 rarities: ['', 'Mythic', 'RareLand', 'RareNonLand', 'Uncommon', 'Common'],
 
                 set: '',
@@ -228,7 +269,9 @@ var vueApp = new Vue({
 
         modelLands: [],
         modelSets: [],
-        modelNews: []
+        modelNews: [],
+        modelArticles: [],
+        modelArticleSelected: {}
     },
     created: function () {
         let added = Object.keys(this.themes).map(name => {
@@ -240,24 +283,34 @@ var vueApp = new Vue({
             this.themeHelper.theme = this.themeIsDark ? 'dark' : 'light';
             document.getElementById("divInitialLoader").classList.remove("is-active");
         });
+
+        addEventListener('popstate', this.loadPageFromBackButton, false);
+    },
+    beforeDestroy() {
+        removeEventListener('popstate', this.loadPageFromBackButton);
     },
     mounted: function () {
         this.registerUser();
         this.getSets();
         this.getNews();
+        this.getArticles();
     },
     methods: {
-        callForChangelogAttention() {
-            var element = document.getElementById('iconChangelog');
-            element.classList.remove('start-now');
-            element.classList.add('pulse');
-            setTimeout(function () {
-                //element.offsetWidth = element.offsetWidth;
-                element.classList.add('start-now');
-            }, 10);
-        },
+        //callForChangelogAttention() {
+        //    var element = document.getElementById('iconChangelog');
+        //    element.classList.remove('start-now');
+        //    element.classList.add('pulse');
+        //    setTimeout(function () {
+        //        //element.offsetWidth = element.offsetWidth;
+        //        element.classList.add('start-now');
+        //    }, 10);
+        //},
         formatSetToFullName(set) {
             switch (set) {
+                case 'M20':
+                    return 'Core Set 2020';
+                case 'WAR':
+                    return 'War of the Spark';
                 case 'RNA':
                     return 'Ravnica Allegiance';
                 case 'GRN':
@@ -274,7 +327,12 @@ var vueApp = new Vue({
 
             return set;
         },
-        loadPage(pageName) {
+        loadPage(pageName, doPushState, prm) {
+            if (typeof doPushState === 'undefined')
+                doPushState = true;
+
+            this.navbarBurgerActive = false;
+
             if (this.currentPage === pageName)
                 return;
 
@@ -295,6 +353,23 @@ var vueApp = new Vue({
                 pageName === pageDashboardDetails) {
                 this.currentSection = sectionMyData;
             }
+
+            var route = pageName;
+
+            if (pageName === pageDeckSelected) {
+                route = pageDecks + '/' + prm;
+            }
+            else if (pageName === pageArticleSelected) {
+                route = pageArticles + '/' + prm;
+            }
+            else {
+                var idx = findWithAttr(routes, 'pageName', pageName);
+                if (idx !== -1)
+                    route = routes[idx].route;
+            }
+
+            if (doPushState)
+                history.pushState({ route: route }, '', '/' + route);
         },
         loadData(key, isLoading) {
             var elems = [];
@@ -331,7 +406,7 @@ var vueApp = new Vue({
                 this.modelCardSelectedUrl = '';
             }
             else {
-                this.modelCardSelectedUrl = this.scryfallImagesPrefix + imageUrl;
+                this.modelCardSelectedUrl = imageUrl.startsWith('http') ? imageUrl : this.scryfallImagesPrefix + imageUrl;
                 this.$nextTick(function () {
                     var div = document.getElementById('divCardImg');
                     var l = (vueApp.mouseX - 333);
@@ -344,8 +419,10 @@ var vueApp = new Vue({
             }
         },
         tryToLoginWithUserId() {
+            vueApp.loadData('tryToLoginWithUserId', true);
             sendAjaxGet('/api/User/FromUserId?id=' + this.loginUserId, function (statuscode, body) {
                 var data = JSON.parse(body);
+                vueApp.loadData('tryToLoginWithUserId', false);
 
                 if (statuscode === 200) {
                     vueApp.showLoginModal = false;
@@ -381,7 +458,7 @@ var vueApp = new Vue({
                 var data = JSON.parse(body);
                 vueApp.modelUser.id = data.userId;
                 vueApp.modelUser.nbLogin = data.nbLogin;
-                vueApp.modelUser.changesSinceLastLogin = data.changesSinceLastLogin;
+                //vueApp.modelUser.changesSinceLastLogin = data.changesSinceLastLogin;
                 vueApp.modelUser.notificationsInactive = data.notificationsInactive;
 
                 sendAjaxGet('/api/User/Theme', function (statuscode, body) {
@@ -399,35 +476,52 @@ var vueApp = new Vue({
                     vueApp.modelChangelog = JSON.parse(body);
                 });
 
-                if (vueApp.modelUser.changesSinceLastLogin) {
-                    setTimeout(vueApp.callForChangelogAttention, 10000);
-                }
+                //if (vueApp.modelUser.changesSinceLastLogin) {
+                //    setTimeout(vueApp.callForChangelogAttention, 10000);
+                //}
 
                 var urlParams = new URLSearchParams(window.location.search);
-                var p1 = urlParams.get('p1');
-                if (p1 !== null) {
-                    // Avoid dynamic landing if a route is used
-                    vueApp.dynamicLanding = false;
-
-                    vueApp.loadPage(p1);
-                    var p2 = urlParams.get('p2');
-                    if (p2 !== null) {
-                        switch (p1) {
-                            //case pageProfile:
-                            //    vueApp.getLands();
-                            //    vueApp.currentPageProfile = p2;
-                            //    break;
-                            case pageDecksTracked:
-                                vueApp.getDeckByHash(p2);
-                                break;
-                        }
-                    }
-
-                    history.pushState(null, '', '/');
-                }
+                vueApp.loadPageFromUrl(urlParams.get('r'), true);
 
                 vueApp.refreshAll(true);
             });
+        },
+        loadPageFromBackButton(e) {
+            this.loadPageFromUrl(history.state === null ? null : history.state.route, false);
+            e.preventDefault();
+        },
+        loadPageFromUrl(route, doPushState) {
+            if (route !== null) {
+                // Avoid dynamic landing if a route is used
+                this.dynamicLanding = false;
+
+                var routeParts = route.split('/');
+                var pageName = routeParts[0];
+                var prm = null;
+
+                if (pageName === 'my')
+                    pageName = routes[findWithAttr(routes, 'route', route)].pageName;
+
+                if (pageName === pageLands)
+                    this.getLands();
+
+                if (routeParts[0] !== 'my' && routeParts.length > 1) {
+                    prm = routeParts[1];
+                    switch (pageName) {
+                        case pageDecks:
+                            pageName = pageDeckSelected;
+                            var hash = prm.split('-').pop();    // pop gets the last item
+                            this.getDeckByHash(hash);
+                            break;
+                        case pageArticles:
+                            pageName = pageArticleSelected;
+                            this.modelArticleSelected = this.modelArticles[findWithAttr(this.modelArticles, 'id', prm)];
+                            break;
+                    }
+                }
+
+                this.loadPage(pageName, doPushState, prm);
+            }
         },
         refreshAll(refreshCollection) {
             this.refreshDecks();
@@ -465,24 +559,39 @@ var vueApp = new Vue({
         },
         refreshUserHistory() {
             this.loadData('userHistory', true);
-            sendAjaxGet('/api/User/History/NewCards', (statuscode, body) => {
+            sendAjaxGet('/api/User/History', (statuscode, body) => {
                 vueApp.modelUserHistory = JSON.parse(body).history;
+                vueApp.modelUserHistorySelected = {};
+                vueApp.modelUserHistoryMatchSelected = {};
                 vueApp.loadData('userHistory', false);
+            });
+        },
+        refreshUserHistoryForDate(date) {
+            this.loadData('userHistoryForDate', true);
+            sendAjaxGet('/api/User/History/' + moment(date).format('YYYYMMDD'), (statuscode, body) => {
+                vueApp.modelUserHistorySelected = JSON.parse(body).history;
+                vueApp.modelUserHistoryMatchSelected = {};
+                vueApp.loadData('userHistoryForDate', false);
             });
         },
         refreshDecks: debounce(function () {
             this.loadData(pageDecks, true);
-            sendAjaxGet('/api/Decks', (statuscode, body) => {
-                vueApp.modelDecks.decks = JSON.parse(body).decks;
-                vueApp.filterDecks(false);
+            sendAjaxGet('/api/Decks?card=' + this.modelDecks.filters.card, (statuscode, body) => {
+                var data = JSON.parse(body);
+                vueApp.modelDecks.decks = data.decks;
+                vueApp.modelDecks.totalDecks = data.totalDecks;
+                vueApp.filterDecks(false, false);
                 vueApp.loadData(pageDecks, false);
             });
         }),
         refreshDecksTracked: debounce(function () {
+
             this.loadData(pageDecksTracked, true);
-            sendAjaxGet('/api/User/Decks', (statuscode, body) => {
-                vueApp.modelUserDecks.decks = JSON.parse(body).decks;
-                vueApp.filterDecks(true);
+            sendAjaxGet('/api/User/Decks?card=' + this.modelUserDecks.filters.card, (statuscode, body) => {
+                var data = JSON.parse(body);
+                vueApp.modelUserDecks.decks = data.decks;
+                vueApp.modelUserDecks.totalDecks = data.totalDecks;
+                vueApp.filterDecks(true, false);
                 vueApp.loadData(pageDecksTracked, false);
             });
         }),
@@ -571,6 +680,19 @@ var vueApp = new Vue({
                 }
             });
         },
+        getArticles() {
+            this.loadData('getArticles', true);
+            sendAjaxGet('/api/Misc/Articles', (statuscode, body) => {
+                vueApp.loadData('getArticles', false);
+                var data = JSON.parse(body);
+                if (statuscode === 200) {
+                    vueApp.modelArticles = data;
+                }
+                else {
+                    alert(data.error);
+                }
+            });
+        },
         computeSets() {
             var data = this.modelSets
                 .groupBy('name')
@@ -580,9 +702,9 @@ var vueApp = new Vue({
                 .map(function (set) {
                     return {
                         name: set.name,
-                        nbOwned: vueApp.modelUser.collection.cards.filter(i => i.set === set.name).reduce(function (a, b) { return a + b.amount; }, 0),
+                        nbOwned: vueApp.modelUser.collection.cards.filter(i => i.set === set.name && i.craftedOnly === false).reduce(function (a, b) { return a + b.amount; }, 0),
                         nbTotal: set.totalCards * 4,
-                        pct: vueApp.modelUser.collection.cards.filter(i => i.set === set.name).reduce(function (a, b) { return a + b.amount; }, 0) / (set.totalCards * 4)
+                        pct: vueApp.modelUser.collection.cards.filter(i => i.set === set.name && i.craftedOnly === false).reduce(function (a, b) { return a + b.amount; }, 0) / (set.totalCards * 4)
                     };
                 });
 
@@ -666,14 +788,16 @@ var vueApp = new Vue({
             this.modelUserCollectionFiltered.filters.showMissing = false;
             this.filterCollection();
         },
-        filterDecks(tracked) {
-            // default value
+        filterDecks(tracked, reloadDecksIfRequired) {
+            // default values
             if (typeof tracked === 'undefined') tracked = true;
+            if (typeof reloadDecksIfRequired === 'undefined') reloadDecksIfRequired = true;
 
             var scraperTypeId = this.modelDecks.filters.scraperTypeId;
             var name = this.modelDecks.filters.name.trim();
             var color = this.modelDecks.filters.color.trim().toUpperCase();
             var date = this.modelDecks.filters.date.trim();
+            var card = this.modelDecks.filters.card.trim();
             // tracked only
             var weight = this.modelUserDecks.filters.missingWeight;
             var showUntracked = this.modelUserDecks.filters.showUntracked;
@@ -683,8 +807,14 @@ var vueApp = new Vue({
                 name = this.modelUserDecks.filters.name.trim();
                 color = this.modelUserDecks.filters.color.trim().toUpperCase();
                 date = this.modelUserDecks.filters.date.trim();
+                card = this.modelUserDecks.filters.card.trim();
                 //weight = this.modelUserDecks.filters.missingWeight;
                 //showUntracked = this.modelUserDecks.filters.showUntracked;
+            }
+
+            if (reloadDecksIfRequired && card !== '') {
+                tracked ? this.refreshDecksTracked() : this.refreshDecks();
+                return;
             }
 
             var filtered = [];
@@ -752,6 +882,7 @@ var vueApp = new Vue({
                     || this.modelUserDecks.filters.name !== ''
                     || this.modelUserDecks.filters.color !== ''
                     || this.modelUserDecks.filters.date !== ''
+                    || this.modelUserDecks.filters.card !== ''
                     || this.modelUserDecks.filters.missingWeight !== ''
                     || this.modelUserDecks.filters.showUntracked;
             }
@@ -759,6 +890,7 @@ var vueApp = new Vue({
                 return this.modelDecks.filters.scraperTypeId !== '(All)'
                     || this.modelDecks.filters.name !== ''
                     || this.modelDecks.filters.color !== ''
+                    || this.modelDecks.filters.card !== ''
                     || this.modelDecks.filters.date !== '';
             }
         },
@@ -766,22 +898,33 @@ var vueApp = new Vue({
             // default value
             if (typeof tracked === 'undefined') tracked = true;
 
+            var cardWasFiltered = false;
+
             if (tracked) {
+                cardWasFiltered = this.modelUserDecks.filters.card !== '';
                 this.modelUserDecks.filters.scraperTypeId = '(All)';
                 this.modelUserDecks.filters.name = '';
                 this.modelUserDecks.filters.color = '';
                 this.modelUserDecks.filters.date = '';
+                this.modelUserDecks.filters.card = '';
                 this.modelUserDecks.filters.missingWeight = '';
                 this.modelUserDecks.filters.showUntracked = false;
             }
             else {
+                cardWasFiltered = this.modelDecks.filters.card !== '';
                 this.modelDecks.filters.scraperTypeId = '(All)';
                 this.modelDecks.filters.name = '';
                 this.modelDecks.filters.color = '';
+                this.modelDecks.filters.card = '';
                 this.modelDecks.filters.date = '';
             }
 
-            this.filterDecks(tracked);
+            if (cardWasFiltered) {
+                tracked ? this.refreshDecksTracked() : this.refreshDecks();
+            }
+            else {
+                this.filterDecks(tracked);
+            }
         },
         displayTotalCards(cards, isSideboard) {
             var nb = 0;
@@ -879,16 +1022,16 @@ var vueApp = new Vue({
 
             return arr3;
         },
-        getDeck(deckId) {
-            vueApp.currentPage = pageDeckSelected;
-
-            if (this.modelDeckSelected.id === deckId)
+        getDeck(deck) {
+            if (this.modelDeckSelected.id === deck.id)
                 return;
 
-            this.modelDeckSelected.id = deckId;
+            this.modelDeckSelected = deck;
             this.loadData(loadDeck, true);
 
-            sendAjaxGet('/api/Decks/' + deckId, function (statuscode, body) {
+            this.loadPage(pageDeckSelected, true, this.getDeckUrl(deck, false));
+
+            sendAjaxGet('/api/Decks/' + deck.id, function (statuscode, body) {
                 var data = JSON.parse(body);
                 if (statuscode === 200) {
                     vueApp.modelDeckSelected = data.deck;
@@ -923,7 +1066,7 @@ var vueApp = new Vue({
             sendAjaxGet('/api/Decks/ByHash/' + hash, function (statuscode, body) {
                 var data = JSON.parse(body);
                 if (statuscode === 200) {
-                    vueApp.modelUserDeckSelected = data.deck;
+                    vueApp.modelDeckSelected = data.deck;
                     vueApp.loadData('deck', false);
                 }
                 else {
@@ -1024,6 +1167,7 @@ var vueApp = new Vue({
                 mtgaFormat: this.modelUserDeck.mtgaFormat.trim()
             };
 
+            vueApp.loadData('postCustomDeck', true);
             sendAjaxPost('/api/User/CustomDecks', body, null, (statuscode, body) => {
                 var data = JSON.parse(body);
                 if (statuscode === 200) {
@@ -1038,7 +1182,7 @@ var vueApp = new Vue({
                 else {
                     alert(data.error);
                 }
-                var a = JSON.parse(body);
+                vueApp.loadData('postCustomDeck', false);
             });
         },
         deleteUserDeck(deckId) {
@@ -1150,6 +1294,7 @@ var vueApp = new Vue({
             else if (name === 'muchabrew') name = 'Much Abrew About Nothing';
             else if (name === 'streamhighlights') name = 'Stream Highlights';
             else if (name === 'tier1') name = 'Tier 1';
+            else if (name === 'deckstobeat') name = 'Decks to beat';
             else if (name.startsWith('user_')) name = name.substring(5, name.length);
 
             if (key.indexOf('-arenastandard') >= 0) name = name + ' (Arena)';
@@ -1167,6 +1312,7 @@ var vueApp = new Vue({
             else if (type === 'streamdecker') type = 'StreamDecker';
             else if (type === 'mtggoldfish') type = 'MtgGoldfish';
             else if (type === 'mtgdecks') type = 'MtgDecks';
+            else if (type === 'mtgtop8') type = 'MtgTop8';
 
             return type;
         },
@@ -1269,23 +1415,19 @@ var vueApp = new Vue({
                 }
             });
         },
-        formatUserHistoryDetailsTitle() {
-            var a = this.modelUserHistorySelected.newCards.reduce((prev, curr) => {
-                if (curr.rarity === 'Mythic') prev.m += curr.amount;
-                else if (curr.rarity === 'Rare') prev.r += curr.amount;
-                else if (curr.rarity === 'Uncommon') prev.u += curr.amount;
-                else if (curr.rarity === 'Common') prev.c += curr.amount;
-                return prev;
-            }, { m: 0, r: 0, u: 0, c: 0 });
+        getDeckUrl(deck, fullUrl) {
+            if (typeof deck.name === 'undefined') return '';
 
-            return [
-                a.c + '<span class="tooltip" data-tooltip="Common"><img class="wc" src="/images/wcC.png" width="16" height="16" /></span>',
-                a.u + '<span class="tooltip" data-tooltip="Uncommon"><img class="wc" src="/images/wcU.png" width="16" height="16" /></span>',
-                a.r + '<span class="tooltip" data-tooltip="Rare"><img class="wc" src="/images/wcR.png" width="16" height="16" /></span>',
-                a.m + '<span class="tooltip" data-tooltip="Mythic"><img class="wc" src="/images/wcM.png" width="16" height="16" /></span>'
-            ]
-                .filter(i => parseInt(i[0]) > 0)
-                .join(', ');
+            if (typeof fullUrl === 'undefined') fullUrl = true;
+
+            var nameSanitized = deck.name.toLowerCase().replace(/[^a-zA-Z\d]{3}/g, ' ').replace(/ /g, '-').replace(/[^a-zA-Z0-9-]+/gi, '');
+
+            var prm = nameSanitized + '-' + deck.hash;
+
+            if (fullUrl)
+                prm = 'https://' + window.location.host + '/decks/' + prm;
+
+            return prm;
         }
     },
     computed: {
@@ -1320,12 +1462,14 @@ var vueApp = new Vue({
             return info.reduce((a, b) => a.concat(b), []).reduce((a, b) => { a[b.id] = b.url; return a; }, {});
         },
         isPagePublic: function () {
-            return this.currentPage === pageNews ||
-                this.currentPage === pageStreams ||
-                this.currentPage === pageMeta ||
-                this.currentPage === pageDecks ||
-                this.currentPage === pageDeckSelected ||
-                this.currentPage === pageLands;
+            return this.currentPage !== pageCollection &&
+                this.currentPage !== pageHistory &&
+                this.currentPage !== pageScrapers &&
+                this.currentPage !== pageDecksTracked &&
+                this.currentPage !== pageDashboardSummary &&
+                this.currentPage !== pageDashboardDetails &&
+                this.currentPage !== pageCustomDecks &&
+                this.currentPage !== pageProfile;
         }
     },
     watch: {
@@ -1335,7 +1479,7 @@ var vueApp = new Vue({
         'loading': function (newValue, oldValue) {
             if (this.modelUser.nbLogin >= 20 && oldValue.length === 0 && newValue.length === 1) {
                 document.getElementById('msg').innerHTML = '';
-                showText("msg", "Please wait...we're gathering your data. If you've been enjoying MTGAHelper and wish to support the project, see how you can do so by clicking on the button on the bottom right...Thanks!", 0, 60);
+                showText("msg", "We're gathering your data, sorry for the slow speed. This waiting time can be greatly reduced with enough support, see how you can help by clicking on the button on the bottom right. Thanks!", 0, 60);
             }
         }
     }
