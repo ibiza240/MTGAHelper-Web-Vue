@@ -1,0 +1,82 @@
+﻿<!DOCTYPE html>
+<html style="min-height:100%;">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link rel="icon" type="image/png" href="/images/wcC.png" />
+
+    <script src="js/ajax.js"></script>
+    <link rel="stylesheet" href="css/bulma.min.css" />
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
+
+    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/pivottable/2.23.0/c3_renderers.min.js" integrity="sha256-GIyyiy+0j73PbyD21LcRsf19KmBZ5TKOTOCDV3yKq9o=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pivottable/2.23.0/d3_renderers.min.js" integrity="sha256-gVrbfhLEqr91w7k4clTjpfaNQPOLUYSE+1MXUKEJSNA=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pivottable/2.23.0/export_renderers.min.js" integrity="sha256-K66VL6j9TG3WhJRh0yu56xEiYTgbxSxgOgTgaodbD3o=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pivottable/2.23.0/gchart_renderers.min.js" integrity="sha256-Ve5qXDsBeNuaKKg22jpTMlWThC0OWupW9JtFrXxdy1Q=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pivottable/2.23.0/pivot_spec.min.js" integrity="sha256-+jrpqe89NAFbLIqJM4ukIGUro4a+FwjEWc0uvv34K3U=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pivottable/2.23.0/plotly_renderers.min.js" integrity="sha256-Y0EYqPg/MEAxRVq5Baq0iNEUDPE8d3KpJ0nk95EqbRQ=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pivottable/2.23.0/pivot.cs.min.js" integrity="sha256-beRnVs5vqoqj3iD0oDqfpBcQCOXWYwyfmDUaHwnBZmE=" crossorigin="anonymous"></script>-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pivottable/2.23.0/pivot.min.js" integrity="sha256-/btBGbvOvx2h/NcXVS+JPFhnoUGbZXDX0O2v6AaABLU=" crossorigin="anonymous"></script>
+
+    <script src="https://cdn.plot.ly/plotly-basic-latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pivottable/2.23.0/plotly_renderers.min.js" integrity="sha256-Y0EYqPg/MEAxRVq5Baq0iNEUDPE8d3KpJ0nk95EqbRQ=" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pivottable/2.23.0/pivot.min.css" integrity="sha256-nn3M6N8S2BjPirPhvCF61ZCcgcppdLtnaNOLhiwro7E=" crossorigin="anonymous" />
+</head>
+<body style="background-color:#e3e2df; min-height:100vh;">
+    <script type="text/javascript">
+
+        var scryfallImagesPrefix = 'https://img.scryfall.com/cards';
+
+        $(function () {
+            var renderers = $.extend($.pivotUtilities.renderers,
+                $.pivotUtilities.plotly_renderers);
+
+            var urlParams = new URLSearchParams(window.location.search);
+            sendAjaxGet('/api/User/MtgaDeckAnalysis?deckId=' + urlParams.get('deckId'), function (statuscode, body) {
+                var data = JSON.parse(body);
+                if (statuscode === 200) {
+                    $('#deckName').html(data.analysis.deckName);
+                    $('#deckImage').prop('src', scryfallImagesPrefix + data.analysis.deckImage)
+                    $('#deckImage').prop('alt', data.analysis.deckName)
+
+                    $("#output").pivotUI(data.analysis.matchesInfo,
+                        {
+                            renderers: renderers,
+                            rows: ['eventName', 'firstTurn'],
+                            cols: ["outcome"],
+                            aggregator: $.pivotUtilities.aggregators["Count as Fraction of Rows"],
+                            aggregatorName: 'Count as Fraction of Rows',
+                            exclusions: { outcome: ["Unknown"] }
+                        }
+                    );
+                }
+                else {
+                    alert(data.error);
+                }
+            });
+
+        });
+    </script>
+    <h2 class="title is-2">
+        MTGAHelper Deck Analysis
+    </h2>
+    <div class="columns is-vcentered">
+        <div class="column is-narrow">
+            <img id="deckImage" style="height:64px; margin-left:1rem;" />
+        </div>
+        <div class="column" style="padding-left:0; padding-top:0;">
+            <h3 id="deckName" class="title is-3"></h3>
+        </div>
+    </div>
+    <div id="output"></div>
+    <div style="margin-top:1rem;">
+        <h7 class="title is-7">
+            Use this like a Pivot Table in Excel. Drag and drop labels to the row or column areas to segment and display your data as you want.
+        </h7>
+    </div>
+</body>
+</html>

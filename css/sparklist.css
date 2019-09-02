@@ -1,0 +1,89 @@
+﻿.sparklist {
+    overflow: visible;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+    .sparklist li {
+        list-style: none;
+        margin-right: 35px;
+    }
+
+        .sparklist li .index {
+            cursor: pointer;
+        }
+
+            /*.sparklist li:hover .sparkline, .sparklist li:focus .sparkline {
+            transform: translate(200px) scale(6);
+        }*/
+
+            .sparklist li .index .count:hover {
+                background-color: #0074d9;
+            }
+
+            .sparklist li .index .selected {
+                background-color: #0074d9;
+            }
+
+.sparklineChart {
+    height: 10em;
+}
+
+    .sparklineChart .index {
+        height: 10em;
+    }
+
+.sparkline {
+    display: inline-block;
+    margin: 0 0.5em;
+    /*transition: all 0.5s ease;*/
+}
+
+    .sparkline .index {
+        position: relative;
+        float: left;
+        width: 1rem;
+    }
+
+        .sparkline .index .count {
+            display: block;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 0;
+            background: #AAA;
+            font: 0/0 a;
+            text-shadow: none;
+            color: transparent;
+        }
+
+figcaption {
+    /*margin-top: 40px;*/
+}
+
+/* LAYOUT STYLES */
+/*html, body {
+    height: 100%;
+}
+
+body {
+    font-family: "fira-sans-2", sans-serif;
+    font-weight: bold;
+    -webkit-font-smoothing: antialiased;
+    max-width: 600px;
+    padding: 20px;
+}
+
+a {
+    font-size: 15px;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: #aaa;
+    transition: color 0.3s ease;
+}
+
+    a:hover, a:focus {
+        color: #333;
+    }*/

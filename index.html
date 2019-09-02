@@ -1,7 +1,12 @@
 ﻿<!DOCTYPE html>
 <head>
     <meta charset="utf-8" />
-    <title>MTGAHelper - The ultimate collection tracker for Magic: The Gathering Arena</title>
+    <title>MTGAHelper - The ultimate collection tracker for Magic: The Gathering Arena. Get your Magic Arena decks here</title>
+    <meta name="description" content="MTGA Tracker for your Magic Arena collection. Get your Magic Arena decks, draft pick ratings, keep up with the Arena meta and a lot more.">
+    <meta name="og:title" property="og:title" content="MTGAHelper - The ultimate collection tracker for Magic: The Gathering Arena. Get your Magic decks here">
+    <meta name="og:description" property="og:description" content="MTGA Tracker for your Magic Arena collection. Get your Magic Arena decks, draft pick ratings, keep up with the Arena meta and a lot more.">
+    <meta property="og:image" content="https://www.mtgahelper.com/images/wcC.png" />
+
     <link rel="icon" type="image/png" href="/images/wcC.png" />
     <script src="js/common.js"></script>
     <script src="js/util.js"></script>
@@ -11,6 +16,7 @@
     <link rel="stylesheet" href="css/bulma-tooltip.min.css" />
     <link rel="stylesheet" href="css/bulma-switch.min.css" />
     <link rel="stylesheet" href="css/bulma-checkradio.min.css" />
+    <link rel="stylesheet" href="css/sparklist.css" />
     <!--<link rel="stylesheet" href="css/bulma-accordion.min.css" />
     <script type="text/javascript" src="/js/bulma-accordion.min.js"></script>-->
     <link rel="stylesheet" href="css/floating-icons.css" />
@@ -48,6 +54,12 @@
         img.iconMana {
             width: 1rem;
             height: 1rem;
+            margin: 0 0.1rem;
+        }
+
+        img.iconManaHeading {
+            width: 1.5rem;
+            height: 1.5rem;
             margin: 0 0.1rem;
         }
 
@@ -187,6 +199,28 @@
         .paginator a.last::before {
             content: '...'
         }
+
+        table.deck img {
+            vertical-align: middle;
+        }
+
+        table.deck h5 {
+            margin-bottom: 0;
+        }
+
+        table.deck td {
+            /*padding: 0 !important;*/
+            border: none !important;
+            vertical-align: middle !important;
+        }
+
+            table.deck td.spacer {
+                padding-top: 0.9rem !important;
+            }
+
+            table.deck td.wildcardsRequired {
+                padding: 0 .25rem !important;
+            }
     </style>
 </head>
 <body>
@@ -196,6 +230,73 @@
                 <div class="navbar-brand" style="min-height:unset;">
                     <!--v-on:click="loadPage(pageHome);"-->
                     <img src="/images/wcC.png">
+
+                    <!--<a class="navbar-item" v-bind:class="currentSection === sectionGeneral ? 'bold' : ''" @click.prevent="currentSection = sectionGeneral">
+                        <i class="fas fa-bullhorn is-size-5" style="margin-right:0.2rem;"></i>
+                        General
+                    </a>-->
+                    <!--<template v-if="currentSection === sectionGeneral">-->
+                    <a href="/news" class="navbar-item tooltip is-tooltip-right" v-bind:class="currentPage === pageNews ? 'bold' : ''" @click.prevent="loadPage(pageNews);" data-tooltip="Latest MTGA information">
+                        News
+                    </a>
+                    <!--<a href="/articles" class="navbar-item tooltip is-tooltip-right" v-bind:class="currentPage === pageArticles ? 'bold' : ''" @click.prevent="loadPage(pageArticles);" data-tooltip="Useful reading material">
+                        Articles
+                    </a>-->
+                    <!--<a class="navbar-item" v-bind:class="currentPage === pageStreams ? 'bold' : ''" @click.prevent="loadPage(pageStreams);">
+                        Streams
+                    </a>-->
+                    <a href="/meta" class="navbar-item tooltip is-tooltip-right" v-bind:class="currentPage === pageMeta ? 'bold' : ''" @click.prevent="loadPage(pageMeta);" data-tooltip="Be competitive">
+                        Meta
+                    </a>
+                    <a href="/decks" class="navbar-item tooltip is-tooltip-right" v-bind:class="currentPage === pageDecks ? 'bold' : ''" @click.prevent="loadPage(pageDecks);" data-tooltip="Browse all decks">
+                        Decks
+                    </a>
+                    <!--</template>-->
+
+                    <div v-if="modelUser.collection.cards.length > 0" class="loot is-hidden-desktop">
+                        <span v-if="modelUser.collection.constructedRank.class === null">&nbsp;</span>
+                        <span v-else class="tooltip is-tooltip-left" v-bind:data-tooltip="'Constructed Ranking: ' + modelUser.collection.constructedRank.class + ' ' + modelUser.collection.constructedRank.level">
+                            <img style="margin-top:0.8rem; height:32px;" v-bind:src="'/images/ranks/constructed/' + modelUser.collection.constructedRank.class + '_' + modelUser.collection.constructedRank.level + '.png'" />
+                        </span>
+                        <span v-if="modelUser.collection.constructedRank.class === null">&nbsp;</span>
+                        <span v-else class="tooltip is-tooltip-left" v-bind:data-tooltip="'Limited Ranking: ' + modelUser.collection.limitedRank.class + ' ' + modelUser.collection.limitedRank.level">
+                            <img style="height:32px;" v-bind:src="'/images/ranks/limited/' + modelUser.collection.limitedRank.class + '_' + modelUser.collection.limitedRank.level + '.png'" />
+                        </span>
+                        <span style="top:-0.8rem;" class="tooltip is-tooltip-left" data-tooltip="Common wildcards">
+                            {{modelUser.collection.mtgaUserProfile.wildcards.Common}}
+                            <img class="wc" src="/images/wcC.png" />
+                        </span>
+                        <span style="top:-0.8rem;" class="tooltip is-tooltip-left" data-tooltip="Uncommon wildcards">
+                            {{modelUser.collection.mtgaUserProfile.wildcards.Uncommon}}
+                            <img class="wc" src="/images/wcU.png" />
+                        </span>
+                        <span style="top:-0.8rem;" class="tooltip is-tooltip-left" data-tooltip="Rare wildcards">
+                            {{modelUser.collection.mtgaUserProfile.wildcards.Rare}}
+                            <img class="wc" src="/images/wcR.png" />
+                        </span>
+                        <span style="top:-0.8rem;" class="tooltip is-tooltip-left" data-tooltip="Mythic wildcards">
+                            {{modelUser.collection.mtgaUserProfile.wildcards.Mythic}}
+                            <img class="wc" src="/images/wcM.png" />
+                        </span>
+                        <span style="top:-0.8rem;" class="tooltip is-tooltip-left" data-tooltip="Gold">
+                            {{numeral(modelUser.collection.mtgaUserProfile.gold).format('0,0')}}
+                            <img class="wc" src="/images/inventory_gold.png" />
+                        </span>
+                        <span style="top:-0.8rem;" class="tooltip is-tooltip-left" data-tooltip="Gems">
+                            {{numeral(modelUser.collection.mtgaUserProfile.gems).format('0,0')}}
+                            <img class="wc" src="/images/inventory_gem.png" />
+                        </span>
+                        <span style="top:-0.8rem;" class="tooltip is-tooltip-left" data-tooltip="Vault progress">
+                            {{numeral(modelUser.collection.mtgaUserProfile.vaultProgress).format('0.0')}} %
+                            <img class="wc" src="/images/vault.png" />
+                        </span>
+                    </div>
+                    <div v-else class="loot is-hidden-desktop">
+                        <a class="button" v-on:click="showLoginModal = true; $nextTick(() => txtLoginId.focus());" style="margin:0.5rem;">
+                            Login with a user id
+                        </a>
+                    </div>
+
                     <a role="button" class="navbar-burger burger" data-target="navbarTop" style="height:unset;" v-on:click="navbarBurgerActive = !navbarBurgerActive" v-bind:class="navbarBurgerActive ? 'is-active' : ''">
                         <span aria-hidden="true"></span>
                         <span aria-hidden="true"></span>
@@ -203,29 +304,6 @@
                     </a>
                 </div>
                 <div id="navbarTop" class="navbar-menu" v-bind:class="navbarBurgerActive ? 'is-active' : ''">
-                    <div class="navbar-start">
-                        <!--<a class="navbar-item" v-bind:class="currentSection === sectionGeneral ? 'bold' : ''" @click.prevent="currentSection = sectionGeneral">
-                            <i class="fas fa-bullhorn is-size-5" style="margin-right:0.2rem;"></i>
-                            General
-                        </a>-->
-                        <!--<template v-if="currentSection === sectionGeneral">-->
-                        <a href="/news" class="navbar-item tooltip is-tooltip-right" v-bind:class="currentPage === pageNews ? 'bold' : ''" @click.prevent="loadPage(pageNews);" data-tooltip="Latest MTGA information">
-                            News
-                        </a>
-                        <!--<a href="/articles" class="navbar-item tooltip is-tooltip-right" v-bind:class="currentPage === pageArticles ? 'bold' : ''" @click.prevent="loadPage(pageArticles);" data-tooltip="Useful reading material">
-                            Articles
-                        </a>-->
-                        <!--<a class="navbar-item" v-bind:class="currentPage === pageStreams ? 'bold' : ''" @click.prevent="loadPage(pageStreams);">
-                            Streams
-                        </a>-->
-                        <a href="/meta" class="navbar-item tooltip is-tooltip-right" v-bind:class="currentPage === pageMeta ? 'bold' : ''" @click.prevent="loadPage(pageMeta);" data-tooltip="Be competitive">
-                            Meta
-                        </a>
-                        <a href="/decks" class="navbar-item tooltip is-tooltip-right" v-bind:class="currentPage === pageDecks ? 'bold' : ''" @click.prevent="loadPage(pageDecks);" data-tooltip="Browse all decks">
-                            Decks
-                        </a>
-                        <!--</template>-->
-                    </div>
                     <div class="navbar-end">
                         <!--<template v-if="currentSection === sectionMyData">
                             <a class="navbar-item" v-bind:class="currentPage === pageCollection ? 'bold' : ''" @click.prevent="loadPage(pageCollection);">
@@ -247,7 +325,10 @@
                                 Missing cards Details
                             </a>
                         </template>-->
-                        <div class="navbar-item">
+                        <div class="navbar-item is-hidden-touch">
+                            <a v-if="modelUser.collection.cards.length > 0" href="https://github.com/ibiza240/MTGAHelper-Windows-Client" target="_blank" style="font-size:0.8rem;">How to install the tracker</a>
+                        </div>
+                        <div class="navbar-item is-hidden-touch">
                             <div class="buttons">
                                 <a class="button" v-bind:class="[modelUser.collection.cards.length === 0 ? 'is-primary' : '']"
                                    v-on:click="showUploadCollectionModal = true">
@@ -264,6 +345,9 @@
                             <div class="navbar-dropdown">
                                 <a href="/my/collection" class="navbar-item" v-bind:class="currentPage === pageCollection ? 'bold' : ''" @click.prevent="loadPage(pageCollection);">
                                     Collection
+                                </a>
+                                <a href="/my/mtgadecks" class="navbar-item" v-bind:class="currentPage === pageMtgaDecks ? 'bold' : ''" @click.prevent="loadPage(pageMtgaDecks);">
+                                    MTGA Decks
                                 </a>
                                 <a href="/my/history" class="navbar-item" v-bind:class="currentPage === pageHistory ? 'bold' : ''" @click.prevent="loadPage(pageHistory);">
                                     History
@@ -300,7 +384,7 @@
                                 </a>
                             </div>
                         </div>
-                        <div v-if="modelUser.collection.cards.length > 0" class="loot navbar-item">
+                        <div v-if="modelUser.collection.cards.length > 0" class="loot navbar-item is-hidden-touch">
                             <span v-if="modelUser.collection.constructedRank.class === null">&nbsp;</span>
                             <span v-else class="tooltip is-tooltip-left" v-bind:data-tooltip="'Constructed Ranking: ' + modelUser.collection.constructedRank.class + ' ' + modelUser.collection.constructedRank.level">
                                 <img v-bind:src="'/images/ranks/constructed/' + modelUser.collection.constructedRank.class + '_' + modelUser.collection.constructedRank.level + '.png'" />
@@ -338,7 +422,7 @@
                                 <img class="wc" src="/images/vault.png" />
                             </span>
                         </div>
-                        <div v-else class="navbar-item">
+                        <div v-else class="navbar-item is-hidden-touch">
                             <div class="buttons">
                                 <a class="button" v-on:click="showLoginModal = true; $nextTick(() => txtLoginId.focus());">
                                     Login with a user id
@@ -348,6 +432,12 @@
                     </div>
                 </div>
             </nav>
+            <!--<nav class="navbar is-fixed-top" role="navigation" aria-label="Secondary navigation">
+                <div class="navbar-brand">
+                    Test
+                </div>
+
+            </nav>-->
             <div style="margin-top:3.5rem;">
                 <template v-if="modelUser.collection.cards.length === 0 && isLoadingData('collectionGet') === false && isPagePublic === false">
                     <div class="hero herobg1 is-info">
@@ -355,7 +445,13 @@
                             <h2 class="title is-2" style="text-shadow: 4px 4px 10px #000000;">
                                 MTGAHelper &mdash; The ultimate collection tracker for Magic: The Gathering Arena
                             </h2>
-                            <button class="button is-large" style="margin-left:4rem;" v-on:click="showUploadCollectionModal = true">Start by uploading your collection</button>
+                            <div style="margin-left:4rem;">
+                                <button class="button is-large" v-on:click="window.open('https://github.com/ibiza240/MTGAHelper-Windows-Client', '_blank');">Start by installing the Tracker</button>
+                                <br />
+                                <span style="text-shadow: 4px 4px 10px #000000;">
+                                    or upload your file manually by using the button in the navigation bar at the top
+                                </span>
+                            </div>
                         </div>
                     </div>
                     <div class="hero is-primary hero2bg" style="margin-bottom:1rem;">
@@ -385,7 +481,10 @@
                 </template>
                 <div v-if="currentPage === pageHome">
                     <h4 class="title is-4">
-                        Welcome to MTGAHelper &mdash; The most complete resource hub for Magic: The Gathering Arena
+                        Welcome to MTGAHelper &mdash; The most complete resource hub for Magic: The Gathering Arena!
+                    </h4>
+                    <h4 class="title is-4">
+                        Get your Magic Arena decks ideas here.
                     </h4>
                     <p>
                         You will find here all the most important resources and information about Magic: The Gathering Arena, curated and grouped in one place.
@@ -400,6 +499,9 @@
                                     <li>Know which cards to craft to progress the most towards the completion of your tracked decks</li>
                                     <li>Identify which decks you are closest to complete</li>
                                 </ul>
+                            </li>
+                            <li>
+                                Discover all the Magic Arena decks you can play
                             </li>
                             <li>
                                 Always know about the latest meta
@@ -640,6 +742,9 @@
                     </nav>
                 </div>
                 <div v-else-if="currentPage === pageDeckSelected">
+                    <div style="margin-bottom:1rem;">
+                        <button class="button is-small" v-on:click="currentPage = pageDecks">Back to list</button>
+                    </div>
                     <span v-if="isLoadingData(loadDeck)" class="button is-loading"></span>
                     <div v-else>
                         <h4 class="title is-4">
@@ -650,67 +755,120 @@
                             <a v-bind:href="dictScraperUrl[modelDeckSelected.scraperTypeId]" target="_blank">
                                 {{formatScraperKey(modelDeckSelected.scraperTypeId, true)}}
                             </a>
-                            <span v-on:click="deckToShare = modelDeckSelected; showModalShareDeck = true; $nextTick(() => txtShareDeck.select());" style="cursor:pointer;" class="tooltip" data-tooltip="Share this deck">
+                            <span v-on:click="deckToShare = modelDeckSelected; showModalShareDeck = true; $nextTick(() => txtShareDeck.select());" style="cursor:pointer; margin-left:0.5rem;" class="tooltip" data-tooltip="Share this deck">
                                 <i class="fas fa-share-alt"></i>
                             </span>
+                            <button class="button is-info is-hidden-touch" style="margin-left:0.5rem;" v-on:click="displayModalExportDeck(modelDeckSelected.mtgaImportFormat)">
+                                Export to Arena
+                            </button>
                         </h4>
-                        <div class="columns">
-                            <div class="column is-one-half">
-                                <h5 class="title is-5" style="margin-bottom:0.5rem;">
-                                    {{displayTotalCards(modelDeckSelected.cardsMain, false)}}
-                                </h5>
+                        <div class="columns is-multiline">
+                            <div class="column is-narrow">
+                                <h4 class="title is-4" style="margin-bottom:0.5rem;">
+                                    Main ({{displayTotalCards(modelDeckSelected.cardsMain)}} cards)
+                                </h4>
                                 <!--<table class="table is-narrow cardFrame">-->
-                                <table class="table is-narrow">
-                                    <tr v-for="c in modelDeckSelected.cardsMain">
-                                        <td>
-                                            <!--<div v-bind:style="'background-size:100% 100%;background-image:url(\'images/frame' + c.color[0] + '.jpg\');'">-->
-                                            <div>
-                                                <span v-on:mouseleave="showCard(null)"
-                                                      v-on:mouseover="showCard(c.imageCardUrl)" class="cardHover">
+                                <table class="table is-narrow deck">
+                                    <tbody v-for="t in modelDeckSelected.cardsMain.groupBy('type')">
+                                        <tr>
+                                            <td class="spacer" colspan="3">
+                                                <h5 class="title is-5">
+                                                    {{t.key}} ({{displayTotalCards(t.values)}})
+                                                </h5>
+                                            </td>
+                                        </tr>
+                                        <tr v-for="c in t.values">
+                                            <td v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageCardUrl)" style="padding-left:3rem;">
+                                                <!--<div v-bind:style="'background-size:100% 100%;background-image:url(\'images/frame' + c.color[0] + '.jpg\');'">-->
+                                                <img width="24" height="24" v-bind:alt="c.name" v-bind:src="c.imageThumbnail" />
+                                                <span class="cardHover">
                                                     {{c.amount}}x {{c.name}}
                                                 </span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <!--<div v-bind:style="'background-size:100% 100%;background-image:url(\'images/frame' + c.color[0] + '.jpg\');'">-->
-                                            <div>
-                                                {{c.type}}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </table>
-                                <h5 class="title is-5" style="margin-bottom:0.5rem;">
-                                    {{displayTotalCards(modelDeckSelected.cardsSideboard, true)}}
-                                </h5>
-                                <table class="table is-narrow" v-if="modelDeckSelected.cardsSideboard.length > 0">
-                                    <tr v-for="c in modelDeckSelected.cardsSideboard">
-                                        <td>
-                                            <span v-on:mouseleave="showCard(null)"
-                                                  v-on:mouseover="showCard(c.imageCardUrl)" class="cardHover">
-                                                {{c.amount}}x {{c.name}}
-                                            </span>
-                                        </td>
-                                        <td>{{c.type}}</td>
-                                    </tr>
+                                            </td>
+                                            <td>
+                                                <img v-for="mana in parseManaCost(c.manaCost)" v-bind:src="'/images/manaIcons/' + mana + '.png'" />
+                                            </td>
+                                            <td>
+                                                {{c.set}}
+                                            </td>
+                                        </tr>
+                                    </tbody>
                                 </table>
                             </div>
-                            <div class="column is-one-half">
-                                <h5 class="title is-5" style="margin-bottom:0.5rem;">
-                                    Export to Arena
-                                </h5>
-                                <div v-if="isNotificationActive('tipBo1')" class="notification">
-                                    <button class="delete" v-on:click="stopNotification('tipBo1')"></button>
-                                    <span class="icon has-text-info"><i class="fas fa-info-circle"></i></span>
-                                    You can select only the first part if you prefer Bo1
+                            <div class="column is-narrow">
+                                <h4 class="title is-4" style="margin-bottom:0.5rem;">
+                                    Sideboard ({{displayTotalCards(modelDeckSelected.cardsSideboard)}} cards)
+                                </h4>
+                                <table class="table is-narrow deck" v-if="modelDeckSelected.cardsSideboard.length > 0">
+                                    <tbody v-for="t in modelDeckSelected.cardsSideboard.groupBy('type')">
+                                        <tr>
+                                            <td class="spacer" colspan="3">
+                                                <h5 class="title is-5">
+                                                    {{t.key}} ({{displayTotalCards(t.values)}})
+                                                </h5>
+                                            </td>
+                                        </tr>
+                                        <tr v-for="c in t.values">
+                                            <td v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageCardUrl)" style="padding-left:3rem;">
+                                                <img width="24" height="24" v-bind:alt="c.name" v-bind:src="c.imageThumbnail" />
+                                                <span v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageCardUrl)" class="cardHover">
+                                                    {{c.amount}}x {{c.name}}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <img v-for="mana in parseManaCost(c.manaCost)" v-bind:src="'/images/manaIcons/' + mana + '.png'" />
+                                            </td>
+                                            <td>
+                                                {{c.set}}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="column is-one-quarter-desktop is-full-touch">
+                                <figure>
+                                    <figcaption>Main deck mana curve<br />(Click for details)</figcaption>
+                                    <ul class="sparklist">
+                                        <li>
+                                            <span class="sparkline sparklineChart">
+                                                <span v-for="m in modelDeckSelected.manaCurve"
+                                                      class="index tooltip is-tooltip-top"
+                                                      v-on:click="showCardsForManaCurve(modelDeckSelected.cardsMain, m.manaCost)"
+                                                      v-bind:data-tooltip="m.nbCards + ' cards costing ' + m.manaCost + ' mana' + (m.manaCost === 7 ? ' or more' : '')">
+                                                    <span class="count" v-bind:class="m.manaCost === modelDeckSelectedManaCurveCostSelected ? 'selected' : ''"
+                                                          v-bind:style="'height:'+m.pctHeight+'%;'">{{m.nbCards}}</span>
+                                                </span>
+                                            </span>
+                                        </li>
+                                        <li>
+                                            <span class="sparkline">
+                                                <span class="index">0</span>
+                                                <span class="index">1</span>
+                                                <span class="index">2</span>
+                                                <span class="index">3</span>
+                                                <span class="index">4</span>
+                                                <span class="index">5</span>
+                                                <span class="index">6</span>
+                                                <span class="index">7+</span>
+                                            </span>
+                                        </li>
+                                    </ul>
+                                </figure>
+                                <div class="has-text-centered">
+                                    <h5 class="title is-5" v-if="modelDeckSelectedManaCurveCostSelected !== -1">
+                                        {{modelDeckSelectedCardsForManaCurve.reduce((a, b) => a + b.amount, 0)}} cards costing
+                                        {{modelDeckSelectedManaCurveCostSelected}} mana
+                                        <span v-if="modelDeckSelectedManaCurveCostSelected === 7">or more</span>
+                                    </h5>
+                                    <div class="columns is-multiline is-centered">
+                                        <div v-for="c in modelDeckSelectedCardsForManaCurve" class="column has-text-centered" style="padding:0;">
+                                            {{c.amount}}x<br />
+                                            <span v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageCardUrl)" class="cardHover">
+                                                <img v-bind:src="scryfallImagesPrefix + c.imageCardUrl" style="width:8rem;" />
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <textarea cols="50" rows="40">{{modelDeckSelected.mtgaImportFormat}}</textarea>
-                                <p v-if="modelUser.collection.cards.length > 0">
-                                    <span class="icon has-text-info"><i class="fas fa-info-circle"></i></span>
-                                    <strong>No more wildcards wasted!</strong>
-                                    <br />
-                                    Only your collection cards are considered above
-                                    (e.g. so you don't craft those Opts unwillingly)
-                                </p>
                             </div>
                         </div>
                     </div>
@@ -741,7 +899,7 @@
                                                     <img v-bind:src="'/images/' + set.name + '-' + rarity.substring(0,1) + '.png'" class="wc" />
                                                     {{numeral(modelUser.collection.cards.filter(i => i.craftedOnly === false && i.set === set.name && i.rarity === rarity).reduce(function(a, b) { return a + b.amount; }, 0) / (modelSets.filter(function(i) { return i.name === set.name && i.rarity === rarity.toLowerCase(); }).reduce(function(a, b) { return a + b.totalCards; }, 0) * 4)).format('0%')}}
                                                 </td>
-                                                <td class="is-hidden-touch is-hidden-desktop-only">
+                                                <td class="is-hidden-touch">
                                                     {{modelUser.collection.cards.filter(i => i.craftedOnly === false && i.set === set.name && i.rarity === rarity).reduce(function(a, b) { return a + b.amount; }, 0) }}
                                                     /
                                                     {{modelSets.filter(function(i) { return i.name === set.name && i.rarity === rarity.toLowerCase(); }).reduce(function(a, b) { return a + b.totalCards; }, 0) * 4}}
@@ -829,111 +987,282 @@
                         </div>
                     </div>
                 </div>
-                <div v-else-if="currentPage === pageHistory">
-                    <h4 class="title is-4">History</h4>
+                <div v-if="currentPage === pageMtgaDecks">
                     <div class="columns">
-                        <div class="column">
-                            <span v-if="isLoadingData('userHistory')" class="button is-loading"></span>
-                            <strong v-else-if="modelUserHistory.length === 0">No activity</strong>
+                        <div class="column is-half-desktop" v-bind:class="[modelMtgaDeckSelected.deckId === '' ? '' : 'is-hidden-touch', ]">
+                            <h4 class="title is-4">MTGA Decks</h4>
+                            <div v-if="modelMtgaDecksSummary.length === 0">
+                                No decks to display
+                            </div>
                             <table v-else class="table is-narrow is-hoverable">
+                                <thead>
+                                    <tr>
+                                        <th>&nbsp;</th>
+                                        <th>Deck name</th>
+                                        <th>Color</th>
+                                        <th>Most played format</th>
+                                        <th class="has-text-centered">Win rate</th>
+                                        <th class="has-text-centered">Matches played</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="s in modelMtgaDecksSummary" v-on:click="getMtgaDeck(s)" v-bind:class="[s.deckId === modelMtgaDeckSelected.deckId ? 'is-selected' : '']">
+                                        <td>
+                                            <img v-if="s.deckImage !== ''" v-bind:src="s.deckImage" wi v-bind:alt="s.deckName" />
+                                        </td>
+                                        <td>
+                                            {{s.deckName}}
+                                        </td>
+                                        <td>
+                                            <img v-for="c in s.deckColor.split('')" v-bind:src="iconMana[c]" class="iconMana" />
+                                        </td>
+                                        <td>
+                                            {{s.winRateFormat}}
+                                        </td>
+                                        <td class="nowrap has-text-centered">
+                                            {{numeral(s.winRate).format('0.0')}} %
+                                        </td>
+                                        <td class="has-text-centered">
+                                            {{s.winRateNbMatches}}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="column" v-if="modelMtgaDeckSelected.deckId !== ''" v-bind:class="modelMtgaDeckSelected.deckId === '' ? 'is-hidden-touch' : ''">
+                            <div class="is-hidden-desktop" style="margin-bottom:1rem;">
+                                <button class="button is-small" v-on:click="modelMtgaDeckSelected.deckId = ''">Back to list</button>
+                            </div>
+                            <h3 class="title is-3">
+                                Deck stats for: {{modelMtgaDeckSelected.deckName}}
+                                <img v-for="c in modelMtgaDeckSelected.deckColor.split('')" v-bind:src="iconMana[c]" class="iconManaHeading" />
+                            </h3>
+                            <div class="columns">
+                                <div class="column is-narrow">
+                                    <img v-if="modelMtgaDeckSelected.deckImage !== ''" v-bind:src="scryfallImagesPrefix + modelMtgaDeckSelected.deckImage" v-bind:alt="modelMtgaDeckSelected.deckName" style="height:200px;" />
+                                </div>
+                                <div class="column">
+                                    <table class="table is-narrow">
+                                        <thead>
+                                            <tr>
+                                                <th>
+                                                    Format
+                                                </th>
+                                                <th class="has-text-centered">
+                                                    Matches played
+                                                </th>
+                                                <th class="has-text-centered">
+                                                    Wins
+                                                </th>
+                                                <th class="has-text-centered">
+                                                    Losses
+                                                </th>
+                                                <th class="has-text-centered">
+                                                    Win rate
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="f in modelMtgaDeckSelected.matches.groupBy('eventName')">
+                                                <td>
+                                                    {{f.key}}
+                                                </td>
+                                                <td class="has-text-centered">
+                                                    {{f.values.length}}
+                                                </td>
+                                                <td class="has-text-centered">
+                                                    {{f.values.reduce((a, b) => a + (b.outcome === 'Victory' ? 1 : 0), 0)}}
+                                                </td>
+                                                <td class="has-text-centered">
+                                                    {{f.values.reduce((a, b) => a + (b.outcome === 'Defeat' ? 1 : 0), 0)}}
+                                                </td>
+                                                <td class="nowrap has-text-centered">
+                                                    {{numeral(f.values.reduce((a, b) => a + (b.outcome === 'Victory' ? 1 : 0), 0) * 100 / f.values.length).format('0.0')}} %
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <a v-bind:href="'/mtgaDeckAnalysis.html?deckId=' + modelMtgaDeckSelected.deckId" target="_blank">
+                                        Advanced stats
+                                    </a>
+                                </div>
+                            </div>
+                            <h4 class="title is-4">
+                                Matches played
+                            </h4>
+                            <table class="table is-hoverable">
                                 <thead>
                                     <tr>
                                         <th>
                                             Date
                                         </th>
                                         <th>
-                                            Cards
+                                            Event
                                         </th>
                                         <th>
-                                            Gold
+                                            VS
+                                        </th>
+                                        <th class="has-text-centered">
+                                            Outcome
                                         </th>
                                         <th>
-                                            Gems
+                                            First turn
                                         </th>
-                                        <th>
-                                            Vault
-                                        </th>
-                                        <th>
-                                            Wildcards
-                                        </th>
-                                        <th>
-                                            Games (W-L)
-                                        </th>
-                                        <th>
-                                            Rank
+                                        <th class="has-text-centered">
+                                            Length
                                         </th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="h in modelUserHistory" v-bind:class="[modelUserHistorySelected.date === h.date ? 'is-selected' : '']" v-on:click="refreshUserHistoryForDate(h.date)">
+                                    <tr v-for="m in modelMtgaDeckSelected.matches" v-on:click="loadMatchDetails(m.matchId, m.startDateTime)">
                                         <td>
-                                            {{moment(h.date).format('YYYY-MM-DD')}}
+                                            {{moment(m.startDateTime).format('YYYY-MM-DD')}}
                                         </td>
                                         <td>
-                                            <span v-if="h.newCardsCount > 0">
-                                                {{numeral(h.newCardsCount).format('+0,0')}}
-                                            </span>
-                                            <span v-else>&nbsp;</span>
+                                            {{m.eventName}}
                                         </td>
                                         <td>
-                                            <span v-if="h.goldChange !== 0">
-                                                {{numeral(h.goldChange).format('+0,0')}}
-                                                <img class="wc" src="/images/inventory_gold.png" />
+                                            {{m.opponentName}}
+                                            <span class="tooltip is-tooltip-left" v-bind:data-tooltip="m.opponentRank.replace('_', ' ')">
+                                                <img v-bind:src="'/images/ranks/constructed/' + m.opponentRank + '.png'" class="wc" />
                                             </span>
-                                            <span v-else>&nbsp;</span>
+                                            <br />
+                                            <img v-for="c in m.opponentDeckColors.split('')" v-bind:src="iconMana[c]" class="iconMana" />
                                         </td>
-                                        <td>
-                                            <span v-if="h.gemsChange !== 0">
-                                                {{numeral(h.gemsChange).format('+0,0')}}
-                                                <img class="wc" src="/images/inventory_gem.png" />
-                                            </span>
-                                            <span v-else>&nbsp;</span>
+                                        <td class="has-text-centered">
+                                            {{m.outcome}}
                                         </td>
-                                        <td>
-                                            <span v-if="h.vaultProgressChange !== 0">
-                                                {{numeral(h.vaultProgressChange).format('+0,0.0')}}%
-                                                <img class="wc" src="/images/vault.png" />
-                                            </span>
-                                            <span v-else>&nbsp;</span>
+                                        <td class="has-text-centered">
+                                            {{m.firstTurn}}
                                         </td>
-                                        <td>
-                                            <span v-if="h.wildcardsChange.Common !== 0" class="tooltip is-tooltip-left" data-tooltip="Common wildcards">
-                                                {{numeral(h.wildcardsChange.Common).format('+0,0')}}
-                                                <img class="wc" src="/images/wcC.png" />
-                                            </span>
-                                            <span v-if="h.wildcardsChange.Uncommon !== 0" class="tooltip is-tooltip-left" data-tooltip="Uncommon wildcards">
-                                                {{numeral(h.wildcardsChange.Uncommon).format('+0,0')}}
-                                                <img class="wc" src="/images/wcU.png" />
-                                            </span>
-                                            <span v-if="h.wildcardsChange.Rare !== 0" class="tooltip is-tooltip-left" data-tooltip="Rare wildcards">
-                                                {{numeral(h.wildcardsChange.Rare).format('+0,0')}}
-                                                <img class="wc" src="/images/wcR.png" />
-                                            </span>
-                                            <span v-if="h.wildcardsChange.Mythic !== 0" class="tooltip is-tooltip-left" data-tooltip="Mythic wildcards">
-                                                {{numeral(h.wildcardsChange.Mythic).format('+0,0')}}
-                                                <img class="wc" src="/images/wcM.png" />
-                                            </span>
-                                        </td>
-                                        <td>
-                                            {{h.wins}}
-                                            -
-                                            {{h.losses}}
-                                        </td>
-                                        <td>
-                                            <span v-if="h.constructedRank === 'N/A'">&nbsp;</span>
-                                            <span v-else class="tooltip is-tooltip-left" v-bind:data-tooltip="'Constructed ' + h.constructedRank.split('_').slice(0,2).join(' ')">
-                                                <img v-bind:src="'/images/ranks/constructed/' + h.constructedRank.split('_').slice(0,2).join('_') + '.png'" class="wc" />
-                                            </span>
-                                            <span v-if="h.limitedRank === 'N/A'">&nbsp;</span>
-                                            <span v-else class="tooltip is-tooltip-left" v-bind:data-tooltip="'Limited ' + h.limitedRank.split('_').slice(0,2).join(' ')">
-                                                <img v-bind:src="'/images/ranks/limited/' + h.limitedRank.split('_').slice(0,2).join('_') + '.png'" class="wc" />
-                                            </span>
+                                        <td class="has-text-centered">
+                                            {{moment.utc(m.secondsCount * 1000).format('HH:mm:ss')}}
                                         </td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
-                        <div class="column" v-if="modelUserHistory.length > 0">
+                    </div>
+                </div>
+                <div v-else-if="currentPage === pageHistory">
+                    <h4 class="title is-4">History</h4>
+                    <div class="columns">
+                        <div class="column" v-bind:class="typeof modelUserHistorySelected.date === 'undefined' ? '' : 'is-hidden-touch'">
+                            <span v-if="isLoadingData('userHistory')" class="button is-loading"></span>
+                            <strong v-else-if="modelUserHistory.length === 0">No activity</strong>
+                            <div v-else>
+                                <nav v-if="getUserHistoryPages().length > 1" class="pagination" role="navigation" aria-label="pagination">
+                                    <ul class="pagination-list">
+                                        <li v-for="pageNumber in getUserHistoryPages()" style="list-style-type: none;">
+                                            <span v-if="pageNumber === '...'" class="pagination-ellipsis">&hellip;</span>
+                                            <a v-else class="pagination-link" v-bind:class="[ modelUserHistory.currentPage === pageNumber ? 'is-current' : '']"
+                                               v-on:click="modelUserHistory.currentPage = pageNumber" v-bind:aria-label="'Go to page ' + pageNumber">{{ pageNumber + 1 }}</a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                                <table class="table is-narrow is-hoverable">
+                                    <thead>
+                                        <tr>
+                                            <th>
+                                                Date
+                                            </th>
+                                            <th>
+                                                Cards
+                                            </th>
+                                            <th class="has-text-centered">
+                                                Gold
+                                            </th>
+                                            <th class="has-text-centered">
+                                                Gems
+                                            </th>
+                                            <th class="has-text-centered">
+                                                Vault
+                                            </th>
+                                            <th>
+                                                Wildcards
+                                            </th>
+                                            <th class="has-text-centered">
+                                                Games (W-L)
+                                            </th>
+                                            <th>
+                                                Rank
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="h in paginatedHistory" v-bind:class="[modelUserHistorySelected.date === h.date ? 'is-selected' : '']" v-on:click="refreshUserHistoryForDate(h.date)">
+                                            <td>
+                                                {{moment(h.date).format('YYYY-MM-DD')}}
+                                            </td>
+                                            <td>
+                                                <span v-if="h.newCardsCount > 0">
+                                                    {{numeral(h.newCardsCount).format('+0,0')}}
+                                                </span>
+                                                <span v-else>&nbsp;</span>
+                                            </td>
+                                            <td class="has-text-right">
+                                                <span v-if="h.goldChange !== 0">
+                                                    {{numeral(h.goldChange).format('+0,0')}}
+                                                    <img class="wc" src="/images/inventory_gold.png" />
+                                                </span>
+                                                <span v-else>&nbsp;</span>
+                                            </td>
+                                            <td class="has-text-right">
+                                                <span v-if="h.gemsChange !== 0">
+                                                    {{numeral(h.gemsChange).format('+0,0')}}
+                                                    <img class="wc" src="/images/inventory_gem.png" />
+                                                </span>
+                                                <span v-else>&nbsp;</span>
+                                            </td>
+                                            <td class="has-text-right">
+                                                <span v-if="h.vaultProgressChange !== 0">
+                                                    {{numeral(h.vaultProgressChange).format('+0,0.0')}}%
+                                                    <img class="wc" src="/images/vault.png" />
+                                                </span>
+                                                <span v-else>&nbsp;</span>
+                                            </td>
+                                            <td>
+                                                <span v-if="h.wildcardsChange.Common !== 0" class="tooltip is-tooltip-left" data-tooltip="Common wildcards">
+                                                    {{numeral(h.wildcardsChange.Common).format('+0,0')}}
+                                                    <img class="wc" src="/images/wcC.png" />
+                                                </span>
+                                                <span v-if="h.wildcardsChange.Uncommon !== 0" class="tooltip is-tooltip-left" data-tooltip="Uncommon wildcards">
+                                                    {{numeral(h.wildcardsChange.Uncommon).format('+0,0')}}
+                                                    <img class="wc" src="/images/wcU.png" />
+                                                </span>
+                                                <span v-if="h.wildcardsChange.Rare !== 0" class="tooltip is-tooltip-left" data-tooltip="Rare wildcards">
+                                                    {{numeral(h.wildcardsChange.Rare).format('+0,0')}}
+                                                    <img class="wc" src="/images/wcR.png" />
+                                                </span>
+                                                <span v-if="h.wildcardsChange.Mythic !== 0" class="tooltip is-tooltip-left" data-tooltip="Mythic wildcards">
+                                                    {{numeral(h.wildcardsChange.Mythic).format('+0,0')}}
+                                                    <img class="wc" src="/images/wcM.png" />
+                                                </span>
+                                            </td>
+                                            <td class="has-text-centered">
+                                                {{h.wins}}
+                                                -
+                                                {{h.losses}}
+                                            </td>
+                                            <td>
+                                                <span v-if="h.constructedRank === 'N/A'">&nbsp;</span>
+                                                <span v-else class="tooltip is-tooltip-left" v-bind:data-tooltip="'Constructed ' + h.constructedRank.split('_').slice(0,2).join(' ')">
+                                                    <img v-bind:src="'/images/ranks/constructed/' + h.constructedRank.split('_').slice(0,2).join('_') + '.png'" class="wc" />
+                                                </span>
+                                                <span v-if="h.limitedRank === 'N/A'">&nbsp;</span>
+                                                <span v-else class="tooltip is-tooltip-left" v-bind:data-tooltip="'Limited ' + h.limitedRank.split('_').slice(0,2).join(' ')">
+                                                    <img v-bind:src="'/images/ranks/limited/' + h.limitedRank.split('_').slice(0,2).join('_') + '.png'" class="wc" />
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="column" v-if="modelUserHistory.history.length > 0" v-bind:class="typeof modelUserHistorySelected.date === 'undefined' ? 'is-hidden-touch' : ''">
+                            <div class="is-hidden-desktop" style="margin-bottom:1rem;">
+                                <button class="button is-small" v-on:click="modelUserHistorySelected = {}">Back to list</button>
+                            </div>
                             <span v-if="isLoadingData('userHistoryForDate')" class="button is-loading"></span>
                             <template v-else>
                                 <div class="columns">
@@ -1020,6 +1349,9 @@
                                             {{modelUserHistorySelected.info.matches.length}} matches played
                                             on {{moment(modelUserHistorySelected.date).format('YYYY-MM-DD')}}
                                         </h5>
+                                        <div>
+                                            Select a match to view its game details
+                                        </div>
                                         <table class="table is-narrow is-hoverable">
                                             <thead>
                                                 <tr>
@@ -1038,6 +1370,9 @@
                                                     <th class="has-text-centered">
                                                         Outcome
                                                     </th>
+                                                    <th>
+                                                        First turn
+                                                    </th>
                                                     <th class="has-text-centered">
                                                         Start
                                                     </th>
@@ -1047,7 +1382,7 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr v-for="(m, idx) in modelUserHistorySelected.info.matches" v-bind:class="[modelUserHistoryMatchSelected === m ? 'is-selected' : '']" v-on:click="modelUserHistoryMatchSelected = m">
+                                                <tr v-for="(m, idx) in modelUserHistorySelected.info.matches" v-bind:class="[modelUserHistoryMatchSelected === m ? 'is-selected' : '']" v-on:click="viewMatchDetails(m);">
                                                     <td>
                                                         {{idx+1}}
                                                     </td>
@@ -1070,6 +1405,9 @@
                                                     <td class="has-text-centered">
                                                         {{m.outcome}}
                                                     </td>
+                                                    <td>
+                                                        {{m.firstTurn}}
+                                                    </td>
                                                     <td class="has-text-centered">
                                                         {{moment(m.startDateTime).format('HH:mm:ss')}}
                                                     </td>
@@ -1079,72 +1417,108 @@
                                                 </tr>
                                             </tbody>
                                         </table>
-                                        <div v-if="typeof modelUserHistoryMatchSelected.startDateTime === 'undefined'">
-                                            Select a match to view its game details
-                                        </div>
-                                        <div v-else>
-                                            <div v-for="(g, idx) in modelUserHistoryMatchSelected.games" class="box">
-                                                <h5 class="title is-5">
-                                                    {{moment(g.startDateTime).format('HH:mm:ss')}} - Game #{{idx+1}} -
-                                                    On the {{g.firstTurn}} - {{g.outcome}} in {{moment.utc(g.secondsCount * 1000).format('HH:mm:ss')}}
-                                                </h5>
-                                                <div v-if="g.opponentCardsSeen.length === 0">
-                                                    <h5 class="title is-5">No opponent cards seen</h5>
-                                                </div>
-                                                <template v-else>
-                                                    <h5 class="title is-5">{{g.opponentCardsSeen.reduce((a, b) => a += b.amount, 0)}} cards seen from the opponent</h5>
-                                                    <div class="columns is-multiline">
-                                                        <div v-for="c in g.opponentCardsSeen" class="column has-text-centered" style="padding:0;">
-                                                            {{c.amount}}x<br />
-                                                            <span v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageCardUrl)" class="cardHover">
-                                                                <img v-bind:src="scryfallImagesPrefix + c.imageCardUrl" style="width:8rem;" />
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                </template>
-                                                <hr />
-                                                <div>
-                                                    <h5 class="title is-5">Starting hand</h5>
-                                                    You mulliganed {{g.mulliganCount}} times
-                                                    <div v-for="hand in g.startingHands">
-                                                        <!--<div class="columns is-multiline">
-                                                            <div v-for="c in hand" class="column">
-                                                                <span v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageCardUrl)" class="cardHover">
-                                                                    <img v-bind:src="scryfallImagesPrefix + c.imageCardUrl" style="height:8rem;" />
-                                                                </span>
-                                                            </div>
-                                                        </div>-->
-                                                        <span v-for="c in hand" v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageCardUrl)" class="cardHover">
-                                                            <img v-bind:src="scryfallImagesPrefix + c.imageCardUrl" style="height:8rem;" />
-                                                        </span>
-                                                    </div>
-                                                    Opponent mulliganed {{g.mulliganCountOpponent}} times
-                                                </div>
-                                                <hr />
-                                                <div>
-                                                    <h5 class="title is-5">By turn</h5>
-
-                                                    <div class="columns is-multiline" style="margin-top:1rem;">
-                                                        <div class="column is-half" v-for="t in g.cardTransfers.groupBy('turn')">
-                                                            <div class="box">
-                                                                <h6 class="title is-6" style="margin-bottom:0.2rem;">Turn {{t.key}}</h6>
-                                                                <div v-for="cardTurn in t.values">
-                                                                    {{cardTurn.player == 1 ? 'You' : 'Opponent'}} {{cardTurn.action.toLowerCase()}}
-                                                                    <span v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(cardTurn.card.imageCardUrl)" class="cardHover" style="list-style-type: none;">
-                                                                        {{cardTurn.card.name}}
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
                                     </template>
                                 </div>
                             </template>
                         </div>
                     </div>
+                </div>
+                <div v-else-if="currentPage === pageMatchDetails">
+                    <!--<div v-if="typeof modelUserHistoryMatchSelected.startDateTime === 'undefined'">
+                        Select a match to view its game details
+                    </div>
+                    <div v-else>-->
+                    <div class="columns is-gapless" style="margin-bottom:0;">
+                        <div class="column has-text-centered">
+                            <div>
+                                <template v-if="modelUserHistoryMatchSelected.deckUsed.deckImage === null">
+                                    <h4 class="title is-4">
+                                        {{modelUserHistoryMatchSelected.deckUsed.name}}
+                                        <img v-for="c in modelUserHistoryMatchSelected.deckUsed.colors.split('')" v-bind:src="iconMana[c]" class="iconManaHeading" />
+                                    </h4>
+                                </template>
+                                <template v-else>
+                                    <img v-bind:src="scryfallImagesPrefix + modelUserHistoryMatchSelected.deckUsed.deckImage"
+                                         v-bind:alt="modelUserHistoryMatchSelected.deckUsed.name" style="height:3rem; display:inline;" />
+
+                                    <h4 class="title is-4" style="display: inline; position:relative; top:-1.2rem;">
+                                        {{modelUserHistoryMatchSelected.deckUsed.name}}
+                                        <img v-for="c in modelUserHistoryMatchSelected.deckUsed.colors.split('')" v-bind:src="iconMana[c]" class="iconManaHeading" />
+                                    </h4>
+                                </template>
+                            </div>
+                        </div>
+                        <div class="column has-text-centered">
+                            <h4 class="title is-4" style="margin-top:0.5rem;">VS</h4>
+                        </div>
+                        <div class="column has-text-centered">
+                            <h4 class="title is-4" style="margin-top:0.5rem;">
+                                <span class="tooltip is-tooltip-left" v-bind:data-tooltip="modelUserHistoryMatchSelected.opponentRank.replace('_', ' ')">
+                                    <img v-bind:src="'/images/ranks/constructed/' + modelUserHistoryMatchSelected.opponentRank + '.png'" style="height:1.5rem;" />
+                                </span>
+                                {{modelUserHistoryMatchSelected.opponentName}}
+                                <img v-for="c in modelUserHistoryMatchSelected.opponentDeckColors.split('')" v-bind:src="iconMana[c]" class="iconManaHeading" />
+                            </h4>
+                        </div>
+                    </div>
+                    <div v-for="(g, idx) in modelUserHistoryMatchSelected.games" class="box">
+                        <h5 class="title is-5">
+                            {{moment(g.startDateTime).format('HH:mm:ss')}} - Game #{{idx+1}} -
+                            On the {{g.firstTurn}} - {{g.outcome}} in {{moment.utc(g.secondsCount * 1000).format('HH:mm:ss')}}
+                        </h5>
+                        <div v-if="g.opponentCardsSeen.length === 0">
+                            <h5 class="title is-5">No opponent cards seen</h5>
+                        </div>
+                        <template v-else>
+                            <h5 class="title is-5">{{g.opponentCardsSeen.reduce((a, b) => a += b.amount, 0)}} cards seen from the opponent</h5>
+                            <div class="columns is-multiline">
+                                <div v-for="c in g.opponentCardsSeen" class="column has-text-centered" style="padding:0;">
+                                    {{c.amount}}x<br />
+                                    <span v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageCardUrl)" class="cardHover">
+                                        <img v-bind:src="scryfallImagesPrefix + c.imageCardUrl" style="width:8rem;" />
+                                    </span>
+                                </div>
+                            </div>
+                        </template>
+                        <hr />
+                        <div>
+                            <h5 class="title is-5">Starting hand</h5>
+                            You mulliganed {{g.mulliganCount}} times
+                            <div v-for="hand in g.startingHands">
+                                <!--<div class="columns is-multiline">
+                                    <div v-for="c in hand" class="column">
+                                        <span v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageCardUrl)" class="cardHover">
+                                            <img v-bind:src="scryfallImagesPrefix + c.imageCardUrl" style="height:8rem;" />
+                                        </span>
+                                    </div>
+                                </div>-->
+                                <span v-for="c in hand" v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageCardUrl)" class="cardHover">
+                                    <img v-bind:src="scryfallImagesPrefix + c.imageCardUrl" style="height:8rem;" />
+                                </span>
+                            </div>
+                            Opponent mulliganed {{g.mulliganCountOpponent}} times
+                        </div>
+                        <hr />
+                        <div>
+                            <h5 class="title is-5">By turn</h5>
+
+                            <div class="columns is-multiline" style="margin-top:1rem;">
+                                <div class="column is-half" v-for="t in g.cardTransfers.groupBy('turn')">
+                                    <div class="box">
+                                        <h6 class="title is-6" style="margin-bottom:0.2rem;">Turn {{t.key}}</h6>
+                                        <div v-for="cardTurn in t.values">
+                                            {{cardTurn.player == 1 ? 'You' : 'Opponent'}} {{cardTurn.action.toLowerCase()}}
+                                            <span v-if="cardTurn.action !== 'Conceded'" v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(cardTurn.card.imageCardUrl)" class="cardHover" style="list-style-type: none;">
+                                                {{cardTurn.card.name}}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!--</div>-->
                 </div>
                 <div v-else-if="currentPage === pageDecksTracked">
                     <h4 class="title is-4">
@@ -1158,7 +1532,7 @@
                         </p>
                     </div>
                     <div class="columns">
-                        <div class="column">
+                        <div class="column" v-bind:class="modelUserDeckSelected.id === '' ? '' : 'is-hidden-touch'">
                             <div style="margin-bottom:1rem;">
                                 <h6 class="title is-6" style="line-height:inherit;">
                                     {{modelUserDecks.decks.filter((i) => i.priorityFactor > 0).length}} decks tracked / {{modelUserDecks.totalDecks}} total
@@ -1292,12 +1666,12 @@
                                 </nav>
                             </div>
                             <span v-if="isLoadingData(pageDecksTracked)" class="button is-loading"></span>
-                            <div v-else-if="getScrapersFlattened().length === 0">
+                            <!--<div v-else-if="getScrapersFlattened().length === 0">
                                 <span class="button is-loading"></span>
                                 <span class="is-size-5">
                                     (...Initializing...Please refresh in 1 minute...)
                                 </span>
-                            </div>
+                            </div>-->
                             <div v-else class="wrapper-tablescroll">
                                 <table class="table is-narrow is-hoverable">
                                     <thead>
@@ -1423,12 +1797,15 @@
                                 </ul>
                             </nav>
                         </div>
-                        <div class="column is-half">
+                        <div class="column" v-bind:class="modelUserDeckSelected.id === '' ? 'is-hidden-touch' : ''">
                             <span v-if="modelUserDeckSelected.id === ''">
                                 Select a deck to see its details
                             </span>
                             <span v-else-if="isLoadingData(loadDeckTracked)" class="button is-loading"></span>
                             <div v-else>
+                                <div class="is-hidden-desktop" style="margin-bottom:1rem;">
+                                    <button class="button is-small" v-on:click="modelUserDeckSelected.id = ''">Back to list</button>
+                                </div>
                                 <h4 class="title is-4">
                                     <template v-if="modelUserDeckSelected.scraperTypeId.startsWith('usercustomdeck-')">
                                         {{modelUserDeckSelected.name}}
@@ -1442,88 +1819,114 @@
                                         <a v-bind:href="dictScraperUrl[modelUserDeckSelected.scraperTypeId]" target="_blank">
                                             {{formatScraperKey(modelUserDeckSelected.scraperTypeId, true)}}
                                         </a>
-                                        <span v-on:click="deckToShare = modelUserDeckSelected; showModalShareDeck = true; $nextTick(() => txtShareDeck.select());" style="cursor:pointer;" class="tooltip" data-tooltip="Share this deck">
+                                        <span v-on:click="deckToShare = modelUserDeckSelected; showModalShareDeck = true; $nextTick(() => txtShareDeck.select());" style="cursor:pointer; margin-left:0.5rem;" class="tooltip" data-tooltip="Share this deck">
                                             <i class="fas fa-share-alt"></i>
                                         </span>
+                                        <button class="button is-info is-hidden-touch" style="margin-left:0.5rem;" v-on:click="displayModalExportDeck(modelUserDeckSelected.mtgaImportFormat)">
+                                            Export to Arena
+                                        </button>
                                     </template>
                                 </h4>
                                 <div class="columns">
-                                    <div class="column is-one-half">
-                                        <h5 class="title is-5" style="margin-bottom:0.5rem;">
-                                            {{displayTotalCards(this.modelUserDeckSelected.cardsMain, false)}}
-                                        </h5>
-                                        <div v-if="isNotificationActive('tipDualLands')" class="notification" style="margin-top:1em;">
-                                            <button class="delete" v-on:click="stopNotification('tipDualLands')"></button>
-                                            <span class="icon has-text-info"><i class="fas fa-info-circle"></i></span>
-                                            <span>
-                                                You can easily replace the rare dual lands with common dual lands if you don't want to craft them yet.
-                                            </span>
-                                        </div>
-                                        <table class="table is-narrow">
-                                            <tr v-for="c in modelUserDeckSelected.cardsMain">
-                                                <td class="nowrap">
-                                                    <span v-if="c.nbMissing > 0">
-                                                        {{c.nbMissing}}
-                                                        <span v-if="c.rarity === 'Mythic'" class="tooltip" data-tooltip="Mythic">
-                                                            <img class="wc" src="/images/wcM.png" />
+                                    <div class="column">
+                                        <h4 class="title is-4" style="margin-bottom:0.5rem;">
+                                            Main ({{displayTotalCards(modelUserDeckSelected.cardsMain)}} cards)
+                                        </h4>
+                                        <!--<table class="table is-narrow cardFrame">-->
+                                        <table class="table is-narrow deck">
+                                            <tbody v-for="t in modelUserDeckSelected.cardsMain.groupBy('type')">
+                                                <tr>
+                                                    <td class="spacer" colspan="4">
+                                                        <h5 class="title is-5">
+                                                            {{t.key}} ({{displayTotalCards(t.values)}})
+                                                        </h5>
+                                                    </td>
+                                                </tr>
+                                                <tr v-for="c in t.values">
+                                                    <td class="nowrap">
+                                                        <span v-if="c.nbMissing > 0">
+                                                            {{c.nbMissing}}
+                                                            <span v-if="c.rarity === 'Mythic'" class="tooltip" data-tooltip="Mythic">
+                                                                <img class="wc" style="top:0;" src="/images/wcM.png" />
+                                                            </span>
+                                                            <span v-else-if="c.rarity === 'Rare'" class="tooltip" data-tooltip="Rare">
+                                                                <img class="wc" style="top:0;" src="/images/wcR.png" />
+                                                            </span>
+                                                            <span v-else-if="c.rarity === 'Uncommon'" class="tooltip" data-tooltip="Uncommon">
+                                                                <img class="wc" style="top:0;" src="/images/wcU.png" />
+                                                            </span>
+                                                            <span v-else-if="c.rarity === 'Common'" class="tooltip" data-tooltip="Common">
+                                                                <img class="wc" style="top:0;" src="/images/wcC.png" />
+                                                            </span>
                                                         </span>
-                                                        <span v-else-if="c.rarity === 'Rare'" class="tooltip" data-tooltip="Rare">
-                                                            <img class="wc" src="/images/wcR.png" />
+                                                        <span v-else>&nbsp;</span>
+                                                    </td>
+                                                    <td v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageCardUrl)">
+                                                        <!--<div v-bind:style="'background-size:100% 100%;background-image:url(\'images/frame' + c.color[0] + '.jpg\');'">-->
+                                                        <img width="24" height="24" v-bind:alt="c.name" v-bind:src="c.imageThumbnail" />
+                                                        <span class="cardHover">
+                                                            {{c.amount}}x {{c.name}}
                                                         </span>
-                                                        <span v-else-if="c.rarity === 'Uncommon'" class="tooltip" data-tooltip="Uncommon">
-                                                            <img class="wc" src="/images/wcU.png" />
-                                                        </span>
-                                                        <span v-else-if="c.rarity === 'Common'" class="tooltip" data-tooltip="Common">
-                                                            <img class="wc" src="/images/wcC.png" />
-                                                        </span>
-                                                    </span>
-                                                    <span v-else>&nbsp;</span>
-                                                </td>
-                                                <td>
-                                                    <span v-on:mouseleave="showCard(null)"
-                                                          v-on:mouseover="showCard(c.imageCardUrl)" class="cardHover">
-                                                        {{c.amount}}x {{c.name}}
-                                                    </span>
-                                                </td>
-                                                <td>{{c.type}}</td>
-                                            </tr>
-                                        </table>
-                                        <h5 class="title is-5" style="margin-bottom:0.5rem;">
-                                            {{displayTotalCards(this.modelUserDeckSelected.cardsSideboard, true)}}
-                                        </h5>
-                                        <table class="table is-narrow" v-if="modelUserDeckSelected.cardsSideboard.length > 0">
-                                            <tr v-for="c in modelUserDeckSelected.cardsSideboard">
-                                                <td class="nowrap">
-                                                    <span v-if="c.nbMissing > 0">
-                                                        {{c.nbMissing}}
-                                                        <span v-if="c.rarity === 'Mythic'" class="tooltip" data-tooltip="Mythic">
-                                                            <img class="wc" src="/images/wcM.png" />
-                                                        </span>
-                                                        <span v-else-if="c.rarity === 'Rare'" class="tooltip" data-tooltip="Rare">
-                                                            <img class="wc" src="/images/wcR.png" />
-                                                        </span>
-                                                        <span v-else-if="c.rarity === 'Uncommon'" class="tooltip" data-tooltip="Uncommon">
-                                                            <img class="wc" src="/images/wcU.png" />
-                                                        </span>
-                                                        <span v-else-if="c.rarity === 'Common'" class="tooltip" data-tooltip="Common">
-                                                            <img class="wc" src="/images/wcC.png" />
-                                                        </span>
-                                                    </span>
-                                                    <span v-else>&nbsp;</span>
-                                                </td>
-                                                <td>
-                                                    <span v-on:mouseleave="showCard(null)"
-                                                          v-on:mouseover="showCard(c.imageCardUrl)" class="cardHover">
-                                                        {{c.amount}}x {{c.name}}
-                                                    </span>
-                                                </td>
-                                                <td>{{c.type}}</td>
-                                            </tr>
+                                                    </td>
+                                                    <td>
+                                                        <img v-for="mana in parseManaCost(c.manaCost)" v-bind:src="'/images/manaIcons/' + mana + '.png'" />
+                                                    </td>
+                                                    <td>
+                                                        {{c.set}}
+                                                    </td>
+                                                </tr>
+                                            </tbody>
                                         </table>
                                     </div>
-                                    <div class="column is-one-half">
+                                    <div class="column">
+                                        <h4 class="title is-4" style="margin-bottom:0.5rem;">
+                                            Sideboard ({{displayTotalCards(modelUserDeckSelected.cardsSideboard)}} cards)
+                                        </h4>
+                                        <table class="table is-narrow deck" v-if="modelUserDeckSelected.cardsSideboard.length > 0">
+                                            <tbody v-for="t in modelUserDeckSelected.cardsSideboard.groupBy('type')">
+                                                <tr>
+                                                    <td class="spacer" colspan="4">
+                                                        <h5 class="title is-5">
+                                                            {{t.key}} ({{displayTotalCards(t.values)}})
+                                                        </h5>
+                                                    </td>
+                                                </tr>
+                                                <tr v-for="c in t.values">
+                                                    <td class="nowrap">
+                                                        <span v-if="c.nbMissing > 0">
+                                                            {{c.nbMissing}}
+                                                            <span v-if="c.rarity === 'Mythic'" class="tooltip" data-tooltip="Mythic">
+                                                                <img class="wc" style="top:0;" src="/images/wcM.png" />
+                                                            </span>
+                                                            <span v-else-if="c.rarity === 'Rare'" class="tooltip" data-tooltip="Rare">
+                                                                <img class="wc" style="top:0;" src="/images/wcR.png" />
+                                                            </span>
+                                                            <span v-else-if="c.rarity === 'Uncommon'" class="tooltip" data-tooltip="Uncommon">
+                                                                <img class="wc" style="top:0;" src="/images/wcU.png" />
+                                                            </span>
+                                                            <span v-else-if="c.rarity === 'Common'" class="tooltip" data-tooltip="Common">
+                                                                <img class="wc" style="top:0;" src="/images/wcC.png" />
+                                                            </span>
+                                                        </span>
+                                                        <span v-else>&nbsp;</span>
+                                                    </td>
+                                                    <td v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageCardUrl)">
+                                                        <img width="24" height="24" v-bind:alt="c.name" v-bind:src="c.imageThumbnail" />
+                                                        <span v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageCardUrl)" class="cardHover">
+                                                            {{c.amount}}x {{c.name}}
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <img v-for="mana in parseManaCost(c.manaCost)" v-bind:src="'/images/manaIcons/' + mana + '.png'" />
+                                                    </td>
+                                                    <td>
+                                                        {{c.set}}
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
                                         <h5 class="title is-5" style="margin-bottom:0.5rem;">Missing cards summary</h5>
-                                        <table class="table is-narrow" style="margin-bottom:0; width:14rem;">
+                                        <table class="table is-narrow" style=" margin:0 auto; width:14rem;">
                                             <tbody>
                                                 <tr class="nohover">
                                                     <td class="nowrap">
@@ -1553,7 +1956,7 @@
                                                 </tr>
                                             </tbody>
                                         </table>
-                                        <table v-if="modelUserDeckSelected.compareResults.length > 0" class="table is-narrow" style="width:14rem;">
+                                        <table v-if="modelUserDeckSelected.compareResults.length > 0" class="table is-narrow" style="width:14rem; margin:0 auto;">
                                             <thead>
                                                 <tr>
                                                     <th>Set</th>
@@ -1569,22 +1972,51 @@
                                                 </tr>
                                             </tbody>
                                         </table>
-                                        <h5 class="title is-5" style="margin-bottom:0.5rem;">
-                                            Export to Arena
-                                        </h5>
-                                        <div v-if="isNotificationActive('tipBo1')" class="notification">
-                                            <button class="delete" v-on:click="stopNotification('tipBo1')"></button>
-                                            <span class="icon has-text-info"><i class="fas fa-info-circle"></i></span>
-                                            You can select only the first part if you prefer Bo1
+                                        <div style="margin-top:2rem;">
+                                            <figure>
+                                                <figcaption>Main deck mana curve<br />(Click for details)</figcaption>
+                                                <ul class="sparklist">
+                                                    <li>
+                                                        <span class="sparkline sparklineChart">
+                                                            <span v-for="m in modelUserDeckSelected.manaCurve"
+                                                                  class="index tooltip is-tooltip-top"
+                                                                  v-on:click="showCardsForManaCurve(modelUserDeckSelected.cardsMain, m.manaCost)"
+                                                                  v-bind:data-tooltip="m.nbCards + ' cards costing ' + m.manaCost + ' mana' + (m.manaCost === 7 ? ' or more' : '')">
+                                                                <span class="count" v-bind:class="m.manaCost === modelDeckSelectedManaCurveCostSelected ? 'selected' : ''"
+                                                                      v-bind:style="'height:'+m.pctHeight+'%;'">{{m.nbCards}}</span>
+                                                            </span>
+                                                        </span>
+                                                    </li>
+                                                    <li>
+                                                        <span class="sparkline">
+                                                            <span class="index">0</span>
+                                                            <span class="index">1</span>
+                                                            <span class="index">2</span>
+                                                            <span class="index">3</span>
+                                                            <span class="index">4</span>
+                                                            <span class="index">5</span>
+                                                            <span class="index">6</span>
+                                                            <span class="index">7+</span>
+                                                        </span>
+                                                    </li>
+                                                </ul>
+                                            </figure>
+                                            <div class="has-text-centered">
+                                                <h5 class="title is-5" v-if="modelDeckSelectedManaCurveCostSelected !== -1">
+                                                    {{modelDeckSelectedCardsForManaCurve.reduce((a, b) => a + b.amount, 0)}} cards costing
+                                                    {{modelDeckSelectedManaCurveCostSelected}} mana
+                                                    <span v-if="modelDeckSelectedManaCurveCostSelected === 7">or more</span>
+                                                </h5>
+                                                <div class="columns is-multiline is-centered">
+                                                    <div v-for="c in modelDeckSelectedCardsForManaCurve" class="column has-text-centered" style="padding:0;">
+                                                        {{c.amount}}x<br />
+                                                        <span v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageCardUrl)" class="cardHover">
+                                                            <img v-bind:src="scryfallImagesPrefix + c.imageCardUrl" style="width:8rem;" />
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <textarea cols="50" rows="40">{{modelUserDeckSelected.mtgaImportFormat}}</textarea>
-                                        <p>
-                                            <span class="icon has-text-info"><i class="fas fa-info-circle"></i></span>
-                                            <strong>No more wildcards wasted!</strong>
-                                            <br />
-                                            Only your collection cards are considered above
-                                            (e.g. so you don't craft those Opts unwillingly)
-                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -1633,7 +2065,7 @@
                                                 <img v-if="c.rarity === 'RareLand'" class="wc" style="filter: invert(100%);" v-bind:src="iconLand" />
                                                 <img v-bind:src="'/images/' + set.key + '-' + c.rarity.substring(0,1) + '.png'" class="wc" />
                                             </td>
-                                            <td class="has-text-right is-hidden-touch is-hidden-desktop-only">
+                                            <td class="has-text-right is-hidden-touch">
                                                 {{numeral(c.missingWeight).format('0,0')}}
                                             </td>
                                         </tr>
@@ -1641,7 +2073,7 @@
                                     <tfoot>
                                         <tr>
                                             <th class="tooltip" v-bind:class="idx === 0 ? ' is-tooltip-right' : idx === modelDashboard.summary.filter(i => modelSets.map(x => x.name).indexOf(i.key) >= 0).length - 1 ? 'is-tooltip-left' : ''" v-bind:data-tooltip="'Missing ' + set.value.reduce((a, b) => a + b.nbMissing, 0) + '  cards weighting a total of ' + numeral(set.value.reduce((a, b) => a += b.missingWeight, 0)).format('0,0')">{{set.value.reduce((a, b) => a += b.nbMissing, 0)}}</th>
-                                            <th class="is-hidden-touch has-text-right is-hidden-desktop-only">
+                                            <th class="is-hidden-touch has-text-right">
                                                 {{numeral(set.value.reduce((a, b) => a += b.missingWeight, 0)).format('0,0')}}
                                             </th>
                                         </tr>
@@ -1662,50 +2094,50 @@
                         You must track decks first
                     </h4>
                     <template v-else>
-                        <h4 class="title is-4">
-                            Consider crafting these cards, according to their weight value
-                            <span class="icon has-text-info tooltip" style="cursor:pointer;" data-tooltip="Weight?"
-                                  v-on:click="currentPage=pageProfile">
-                                <i class="fas fa-info-circle"></i>
-                            </span>
-                        </h4>
-                        <div class="notification">
-                            Based on missing cards that are a part of the {{modelUserDecks.decks.filter((i) => i.priorityFactor > 0).length}} decks currently tracked.
-                        </div>
-                        <table class="table is-narrow" style="width:unset;">
-                            <thead>
-                                <tr>
-                                    <th colspan="2">Filters</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <label>Set</label>
-                                        <select v-model="modelDashboard.detailsFilters.set" v-on:change="filterDashboardDetails();">
-                                            <option v-for="set in modelDashboard.detailsFilters.sets" v-bind:value="set">
-                                                {{ set == '' ? '(All)' : set }}
-                                            </option>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <label>Rarity</label>
-                                        <select v-model="modelDashboard.detailsFilters.rarity" v-on:change="filterDashboardDetails();">
-                                            <option v-for="r in modelDashboard.detailsFilters.rarities" v-bind:value="r">
-                                                {{ r == '' ? '(All)' : r.startsWith('Rare') ? (r.indexOf('NonLand') >= 0 ? 'Rare (Non-land)' : 'Rare (Land)' ) : r }}
-                                            </option>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <button v-if="dashboardDetailsAreFiltered()" v-on:click="clearFiltersDashboardDetails();" class="button is-danger is-small">
-                                            Clear filters
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
                         <div class="columns">
-                            <div class="column">
+                            <div class="column" v-bind:class="modelDetailsCardSelected.card === '' ? '' : 'is-hidden-touch'">
+                                <h4 class="title is-4">
+                                    Consider crafting these cards, according to their weight value
+                                    <span class="icon has-text-info tooltip" style="cursor:pointer;" data-tooltip="Weight?"
+                                          v-on:click="currentPage=pageProfile">
+                                        <i class="fas fa-info-circle"></i>
+                                    </span>
+                                </h4>
+                                <div class="notification">
+                                    Based on missing cards that are a part of the {{modelUserDecks.decks.filter((i) => i.priorityFactor > 0).length}} decks currently tracked.
+                                </div>
+                                <table class="table is-narrow" style="width:unset;">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="3">Filters</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <label>Set</label>
+                                                <select v-model="modelDashboard.detailsFilters.set" v-on:change="filterDashboardDetails();">
+                                                    <option v-for="set in modelDashboard.detailsFilters.sets" v-bind:value="set">
+                                                        {{ set == '' ? '(All)' : set }}
+                                                    </option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <label>Rarity</label>
+                                                <select v-model="modelDashboard.detailsFilters.rarity" v-on:change="filterDashboardDetails();">
+                                                    <option v-for="r in modelDashboard.detailsFilters.rarities" v-bind:value="r">
+                                                        {{ r == '' ? '(All)' : r.startsWith('Rare') ? (r.indexOf('NonLand') >= 0 ? 'Rare (Non-land)' : 'Rare (Land)' ) : r }}
+                                                    </option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <button v-if="dashboardDetailsAreFiltered()" v-on:click="clearFiltersDashboardDetails();" class="button is-danger is-small">
+                                                    Clear filters
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                                 <span v-if="isLoadingData('dashboard')" class="button is-loading"></span>
                                 <div v-else class="wrapper-tablescroll">
                                     <table class="table is-narrow is-bordered is-striped is-hoverable">
@@ -1725,7 +2157,7 @@
                                                 <th class="has-text-centered">Card</th>
                                                 <th class="has-text-centered">Set</th>
                                                 <th class="has-text-centered">Rarity</th>
-                                                <th class="has-text-centered">Type</th>
+                                                <!--<th class="has-text-centered">Type</th>-->
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -1748,13 +2180,17 @@
                                                     </span>
                                                 </td>
                                                 <td>{{c.rarity.startsWith('Rare') ? 'Rare' : c.rarity}}</td>
-                                                <td>{{c.type}}</td>
+                                                <!--<td>{{c.type}}</td>-->
+                                                </
                                             </tr>
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
-                            <div class="column is-one-quarter">
+                            <div class="column" v-bind:class="modelDetailsCardSelected.card === '' ? 'is-hidden-touch' : ''">
+                                <div class="is-hidden-desktop" style="margin-bottom:1rem;">
+                                    <button class="button is-small" v-on:click="modelDetailsCardSelected.card = ''">Back to list</button>
+                                </div>
                                 <span v-if="modelDetailsCardSelected.card === ''">
                                     Select a card to see in which decks it is used
                                 </span>
@@ -1770,13 +2206,25 @@
                                         <thead>
                                             <tr>
                                                 <th>Deck</th>
+                                                <th>Source</th>
+                                                <th>Color</th>
+                                                <th>Date</th>
                                                 <th class="tooltip" data-tooltip="Main">M</th>
                                                 <th class="tooltip" data-tooltip="Sideboard">S</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr v-for="d in modelDetailsCardSelected.decks" v-on:click="goToDeck(d.deckId, d.deckName)">
-                                                <td>{{d.deckName}}</td>
+                                                <td>
+                                                    {{d.deckName}}
+                                                </td>
+                                                <td>
+                                                    {{formatScraperKey(d.deckScraperTypeId, true)}}
+                                                </td>
+                                                <td>
+                                                    <img v-for="c in d.deckColor.split('')" v-bind:src="iconMana[c]" class="iconMana" />
+                                                </td>
+                                                <td class="nowrap">{{moment(d.deckDateCreated).format('YYYY-MM-DD')}}</td>
                                                 <td>{{d.nbMain}}x</td>
                                                 <td>{{d.nbSideboard == 0 ? '&nbsp;' : d.nbSideboard + 'x'}}</td>
                                             </tr>
@@ -2126,15 +2574,15 @@
                         <p>
                             So it happens I'm a programmer at heart and I got addicted to Magic: The Gathering Arena.
                             <br />
-                            Then I started writing programs to help me analyze data like my collection, decks over all the web and such &mdash; and it culminated into the MTGAHelper tool.
+                            I started writing programs to help me analyze data about my collection and the decks over all the web. It outgrew all my estimations and is now what is called MTGAHelper.
                         </p>
                         <p>
-                            I wanted to share it with all others MTGA enthusiasts out there. I hope you enjoy it!
+                            I wanted to share my work with all others MTGA enthusiasts out there. I hope you enjoy it!
                         </p>
                         <p>
-                            If you appreciate the tools being provided, see how you can
-                            <a v-on:click="showModalDonate = true;">help support the project</a>.
-                            Thanks!
+                            If you appreciate the tools being provided, see how you can help
+                            <a v-on:click="showModalDonate = true;">support the project</a>.
+                            and improve the servers responsiveness. Thanks!
                         </p>
                     </div>
                 </div>
@@ -2226,6 +2674,7 @@
                         <a v-on:click="loadPage(pagePrivacy)">Privacy policy</a>
                         <a v-on:click="loadPage(pageContact)">Contact us</a>
                         <a v-on:click="loadPage(pageAbout)">About</a>
+                        <a href="https://github.com/ibiza240/MTGAHelper-Windows-Client" target="_blank">How to install the tracker</a>
                     </p>
                     <p>
                         All art is property of their respective artists and/or Wizards of the Coast Inc.
@@ -2274,6 +2723,27 @@
                             {{deckToShare.name}}
                         </h6>
                         <input type="text" id="txtShareDeck" name="txtShareDeck" v-bind:value="getDeckUrl(deckToShare)" style="width:100%;" />
+                    </div>
+                </div>
+                <div class="modal" v-bind:class="showModalExportDeck ? 'is-active' : ''">
+                    <div class="modal-background" v-on:click="showModalExportDeck = false"></div>
+                    <div class="modal-content box" style="width:460px;">
+                        <h6 class="title is-6">
+                            Export deck to Magic Arena
+                        </h6>
+                        <div v-if="isNotificationActive('tipBo1')" class="notification" style="padding:0;">
+                            <button class="delete" v-on:click="stopNotification('tipBo1')"></button>
+                            <span class="icon has-text-info"><i class="fas fa-info-circle"></i></span>
+                            You can select only the first part if you prefer Bo1
+                        </div>
+                        <textarea id="txtDeckExport" cols="50" rows="30">{{showModalExportDeckString}}</textarea>
+                        <p>
+                            <span class="icon has-text-info"><i class="fas fa-info-circle"></i></span>
+                            <strong>No more wildcards wasted!</strong>
+                            <br />
+                            Only your collection cards are considered above
+                            (e.g. so you don't craft those Opts unwillingly)
+                        </p>
                     </div>
                 </div>
                 <div class="modal" v-bind:class="showUploadCollectionModal ? 'is-active' : ''">
@@ -2327,13 +2797,18 @@
                             Help improve MTGAHelper
                         </h4>
                         <div>
-                            Monthly objective for ideal server availability: 25 / 100$
-                            <div style="margin:2rem;">
-                                <progress class="progress" value="25" max="100">25%</progress>
+                            We would love to be able to deliver blazing fast servers responsiveness :)
+                        </div>
+                        <div class="has-text-centered" style="margin: 1rem;">
+                            <span class="is-size-7">
+                                Monthly objective for ideal server availability: 5 / 100$
+                            </span>
+                            <div style="margin-top:0.2rem">
+                                <progress class="progress" value="5" max="100">5%</progress>
                             </div>
                         </div>
                         <p>
-                            If you would like to support this service monthly, you can do so with
+                            If you want to support this service monthly, you can do so with
                             <strong><a href="https://www.patreon.com/mtgahelper" target="_blank">Patreon</a></strong>
                             <br />
                             It is also possible to make a donation through
@@ -2348,7 +2823,7 @@
                             <div style="margin-top:0.5rem"><i class="fas fa-mouse-pointer"></i> Whitelist this site from your ad-blocker</div>
                         </div>
                         <div style="margin-top:1.5rem">
-                            <h4 class="title is-4">A huge thanks to everyone supporting this</h4>
+                            <h4 class="title is-4 has-text-weight-bold">A huge thanks to everyone supporting this project</h4>
                         </div>
                     </div>
                 </div>
@@ -2356,7 +2831,9 @@
         </div>
         <div class="pageloader" style="z-index:2000000000;"
              v-bind:class="[isAppLoaded === false || isLoadingData('collectionPost') || isLoadingData('collectionGet') || isLoadingLotsOfDecks() ? 'is-active' : '']">
-            <div id="msg" class="title" style="text-align:center; width:25%; white-space:normal;">Please wait...</div>
+            <div id="msg" class="title" style="text-align:center; width:25%; white-space:normal;">
+                We're gathering your data, sorry for the slow speed. This waiting time can be greatly reduced with enough support, see how you can help by clicking on the button on the bottom right. Thanks!
+            </div>
         </div>
     </div>
     <!--<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>

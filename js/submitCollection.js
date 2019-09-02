@@ -40,6 +40,7 @@
                 vueApp.modelUser.collection = response;
                 vueApp.refreshUserHistory();
                 vueApp.refreshAll(false);
+                vueApp.refreshCardsMissing();
                 vueApp.calculateWeightsProposed();
 
                 if (vueApp.modelUserDeckSelected.id !== '') {
