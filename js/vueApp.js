@@ -44,6 +44,8 @@ const pageDecks = 'decks';
 const pageDeckSelected = 'deckSelected';
 const pageCollection = 'collection';
 const pageMtgaDecks = 'mtgaDecks';
+const pageMtgaDeckDetailCards = 'mtgaDeckDetailsCards';
+const pageMtgaDeckDetailMatches = 'mtgaDeckDetailsMatches';
 //const pageMtgaDeckSelected = 'mtgaDeckSelected';
 const pageHistory = 'history';
 const pageMatchDetails = 'matchDetails';
@@ -65,7 +67,7 @@ const pageHistoryMatches = 'matches';
 
 const loadDeck = 'deck';
 const loadDeckTracked = 'deckTracked';
-const loadMtgaDeck = ',mtgaDeck';
+const loadMtgaDeck = 'mtgaDeck';
 
 var routes = [
     { pageName: pageThanks, route: 'thanks' },
@@ -88,8 +90,6 @@ var vueApp = new Vue({
             dark: "css/bulma-dark.min.css"
         },
         themeHelper: new ThemeHelper(),
-        themeIsDark: true,
-        themeIsDarkInitial: true,
         dynamicLanding: true,
 
         scryfallImagesPrefix: 'https://img.scryfall.com/cards',
@@ -111,7 +111,12 @@ var vueApp = new Vue({
         showModalShareDeck: false,
         showModalDonate: false,
         showModalExportDeck: false,
+        showModalExportCollection: false,
+        showModalBacklog: false,
         deckToShare: {},
+
+        exportCollectionFormat: '$name,$amount,$rarity,$set,$number',
+        exportCollectionHeader: false,
 
         showModalExportDeckString: '',
 
@@ -126,6 +131,7 @@ var vueApp = new Vue({
         currentPage: pageCollection,
         currentPageHistory: pageHistoryCards,
         currentPageProfileLandsType: 'Plains',
+        currentPageMtgaDeckDetail: pageMtgaDeckDetailCards,
 
         loading: [],
         scraperIdLoading: '',
@@ -254,9 +260,26 @@ var vueApp = new Vue({
 
                 set: '',
                 rarity: '',
+                card: '',
                 showMissing: false
             }
         },
+
+        // User preferences
+        themeIsDark: true,
+        userCollectionSetsOrderBy: 'PctOwned',
+        landsPickAll: false,
+
+        userCollectionSetsOrderByList: [
+            {
+                key: 'PctOwned',
+                value: '% owned'
+            },
+            {
+                key: 'NewestFirst',
+                value: 'Released date (newest first)'
+            }
+        ],
 
         modelUserHistory: {
             perPage: 14,
@@ -304,7 +327,6 @@ var vueApp = new Vue({
         });
 
         Promise.all(added).then(sheets => {
-            this.themeIsDark = vueApp.themeIsDarkInitial;
             this.themeHelper.theme = this.themeIsDark ? 'dark' : 'light';
             document.getElementById("divInitialLoader").classList.remove("is-active");
         });
@@ -507,11 +529,12 @@ var vueApp = new Vue({
                 //vueApp.modelUser.changesSinceLastLogin = data.changesSinceLastLogin;
                 vueApp.modelUser.notificationsInactive = data.notificationsInactive;
 
-                sendAjaxGet('/api/User/Theme', function (statuscode, body) {
+                sendAjaxGet('/api/User/Preferences', function (statuscode, body) {
                     var data = JSON.parse(body);
                     if (statuscode === 200) {
-                        vueApp.themeIsDarkInitial = data.status === 'true';
-                        vueApp.themeIsDark = vueApp.themeIsDarkInitial;
+                        vueApp.themeIsDark = data.userPreferences.ThemeIsDark;
+                        vueApp.userCollectionSetsOrderBy = data.userPreferences.CollectionSetsOrder;
+                        vueApp.landsPickAll = data.userPreferences.LandsPickAll;
                     }
                     else {
                         alert(data.error);
@@ -666,10 +689,13 @@ var vueApp = new Vue({
             });
         },
         refreshMtgaDeckSummary() {
-            this.loadData('getMtgaDeckSummary', true);
+            this.loadData(pageMtgaDecks, true);
             sendAjaxGet('/api/User/MtgaDeckSummary', (statuscode, body) => {
-                vueApp.modelMtgaDecksSummary = JSON.parse(body).summary;
-                vueApp.loadData('getMtgaDeckSummary', false);
+                var summary = JSON.parse(body).summary;
+                // Sort descending by lastPlayed
+                summary.sort((a, b) => a.lastPlayed > b.lastPlayed ? -1 : b.lastPlayed > a.lastPlayed ? 1 : 0);
+                vueApp.modelMtgaDecksSummary = summary;
+                vueApp.loadData(pageMtgaDecks, false);
             });
         },
         refreshDashboard() {
@@ -790,7 +816,17 @@ var vueApp = new Vue({
                     };
                 });
 
-            computed.sort(function (a, b) { return b.pct - a.pct; });
+            computed.sort(function (a, b) {
+                switch (vueApp.userCollectionSetsOrderBy) {
+                    case 'NewestFirst':
+                        // Less than ideal workaround to determine sets order
+                        return vueApp.modelUserCollectionFiltered.filters.sets.indexOf(b.name) - vueApp.modelUserCollectionFiltered.filters.sets.indexOf(a.name);
+
+                    //case 'PctOwned':
+                    default:
+                        return b.pct - a.pct;
+                }
+            });
 
             return computed;
         },
@@ -843,6 +879,7 @@ var vueApp = new Vue({
         filterCollection() {
             var set = this.modelUserCollectionFiltered.filters.set;
             var rarity = this.modelUserCollectionFiltered.filters.rarity;
+            var card = this.modelUserCollectionFiltered.filters.card.trim();
 
             var filtered = [];
 
@@ -852,6 +889,7 @@ var vueApp = new Vue({
                 var f = true;
                 f &= set === '' || i.set === set;
                 f &= rarity === '' || i.rarity === rarity;
+                f &= card === '' || i.name.toLowerCase().indexOf(card.toLowerCase()) >= 0;
 
                 if (f) filtered.push(i);
             });
@@ -869,6 +907,13 @@ var vueApp = new Vue({
             this.modelUserCollectionFiltered.filters.set = '';
             this.modelUserCollectionFiltered.filters.showMissing = false;
             this.filterCollection();
+        },
+        sortCollectionSets() {
+            // Ugly hack for now
+            // When refactoring, stop using computeSets() as the data source, rather use a computed field or something
+            this.$forceUpdate();
+
+            this.saveCollectionSetsOrder();
         },
         filterDecks(tracked, reloadDecksIfRequired) {
             // default values
@@ -1116,6 +1161,7 @@ var vueApp = new Vue({
             sendAjaxGet('/api/User/MtgaDeckDetail?deckId=' + mtgaDeckSummary.deckId, function (statuscode, body) {
                 var data = JSON.parse(body);
                 if (statuscode === 200) {
+                    window.scrollTo(0, 0);
                     vueApp.modelMtgaDeckSelected = data.detail;
                     vueApp.loadData(loadMtgaDeck, false);
                 }
@@ -1430,7 +1476,23 @@ var vueApp = new Vue({
             return type;
         },
         saveTheme() {
-            sendAjaxPost('/api/User/Theme?isDark=' + this.themeIsDark, null, null, (statuscode, body) => {
+            sendAjaxPost('/api/User/Preference?key=ThemeIsDark&value=' + this.themeIsDark, null, null, (statuscode, body) => {
+                if (statuscode !== 200) {
+                    var data = JSON.parse(body);
+                    alert(data.error);
+                }
+            });
+        },
+        saveCollectionSetsOrder() {
+            sendAjaxPost('/api/User/Preference?key=CollectionSetsOrder&value=' + this.userCollectionSetsOrderBy, null, null, (statuscode, body) => {
+                if (statuscode !== 200) {
+                    var data = JSON.parse(body);
+                    alert(data.error);
+                }
+            });
+        },
+        saveLandsPickAll() {
+            sendAjaxPost('/api/User/Preference?key=LandsPickAll&value=' + this.landsPickAll, null, null, (statuscode, body) => {
                 if (statuscode !== 200) {
                     var data = JSON.parse(body);
                     alert(data.error);
@@ -1606,6 +1668,7 @@ var vueApp = new Vue({
         isPagePublic: function () {
             return this.currentPage !== pageCollection &&
                 this.currentPage !== pageHistory &&
+                this.currentPage !== pageMtgaDecks &&
                 this.currentPage !== pageScrapers &&
                 this.currentPage !== pageDecksTracked &&
                 this.currentPage !== pageDashboardSummary &&
