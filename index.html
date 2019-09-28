@@ -65,7 +65,7 @@
         }
 
         div.packInfo {
-            height: 30rem;
+            height: 20rem;
         }
 
         ul.noBullet li {
@@ -118,13 +118,16 @@
             margin-left: 1rem;
         }
 
+        .darkTable h6 {
+            color: #eee !important;
+        }
+
         table.darkTable {
             background: none;
-            color: #aaa !important;
         }
 
             table.darkTable tbody td {
-                color: #aaa !important;
+                color: #eee !important;
                 border: none !important;
                 font-weight: bold !important;
                 padding-left: 0 !important;
@@ -132,12 +135,12 @@
             }
 
             table.darkTable thead th {
-                color: #aaa !important;
+                color: #eee !important;
                 border: none !important;
             }
 
             table.darkTable tfoot th {
-                color: #aaa !important;
+                color: #eee !important;
                 border: none !important;
                 background: #111;
             }
@@ -223,9 +226,22 @@
                 padding: 0 .25rem !important;
             }
 
-            #switchLandsPickAll+label::before, #switchLandsPickAll+label:before {
-                background: #209cee !important;
-            }
+        #switchLandsPickAll + label::before, #switchLandsPickAll + label:before {
+            background: #209cee !important;
+        }
+
+
+        .horizontalItems {
+            position: relative;
+            width: 100%;
+            overflow-x: auto;
+            overflow-y: hidden;
+            white-space: nowrap;
+        }
+
+        .horizontalItem {
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
@@ -312,7 +328,7 @@
                     <div class="navbar-end">
                         <div class="navbar-item is-hidden-desktop-only" style="padding:0 inherit;">
                             <a href="https://www.amazon.com?tag=mtgahelper01-20" target="_blank">
-                                <nav class="level is-mobile tooltip is-tooltip-left is-tooltip-multiline"
+                                <nav class="level is-mobile tooltip is-tooltip-bottom is-tooltip-multiline"
                                      data-tooltip="Help improve the services simply by using this link for your Amazon purchases. Thanks to all supporters!">
                                     <div class="level-item" style="margin-right:0;">
                                         <img src="/images/amazon.png" style="height:52px;" />
@@ -906,10 +922,10 @@
                                         Export in CSV format
                                     </button>
                                 </div>
-                                <div class="level-item" style="margin-left:1rem;">
+                                <div class="level-item nowrap" style="margin-left:1rem;">
                                     Order sets by
                                     &nbsp;
-                                    <select v-model="userCollectionSetsOrderBy" v-on:change="sortCollectionSets();">
+                                    <select class="input is-small" v-model="userCollectionSetsOrderBy" v-on:change="sortCollectionSets();">
                                         <option v-for="r in userCollectionSetsOrderByList" v-bind:value="r.key">
                                             {{ r.value }}
                                         </option>
@@ -917,14 +933,21 @@
                                 </div>
                             </div>
                         </nav>
-                        <div class="columns">
-                            <div class="column" v-for="set in computeSets()">
+                        <div v-if="isNotificationActive('tipHScrollCollectionSets')" class="notification is-hidden-desktop" style="margin-top:1em;">
+                            <button class="delete" v-on:click="stopNotification('tipHScrollCollectionSets')"></button>
+                            <p>
+                                <span class="icon has-text-info"><i class="fas fa-info-circle"></i></span>
+                                You can scroll horizontally to see more sets
+                            </p>
+                        </div>
+                        <div class="columns horizontalItems is-mobile">
+                            <div class="column is-narrow horizontalItem" style="width:15.5rem;" v-for="set in computeSets()">
                                 <div class="box has-text-centered darkTable" v-bind:style="'padding-left:0.5rem; padding-right:0.5rem; background: url(/images/set-' + set.name + '-pack.png); background-repeat:no-repeat; background-size:cover;'">
                                     <img v-bind:src="'/images/set-' + set.name + '.png'" v-on:click="modelUserCollectionFiltered.filters.set = set.name; modelUserCollectionFiltered.filters.rarity = ''; filterCollection();" style="cursor:pointer;" />
                                     <h6 class="subtitle is-6" style="font-weight:bold; color:#9d9d9d;">
                                         {{numeral(set.pct).format('0.00%')}}
                                         <br />
-                                        <span class="is-size-7-touch is-size-6-desktop">
+                                        <span>
                                             {{set.nbOwned}}
                                             /
                                             {{set.nbTotal}}
@@ -934,14 +957,14 @@
                                         <tbody>
                                             <tr v-for="rarity in ['Mythic', 'Rare', 'Uncommon', 'Common']" style="cursor:pointer;"
                                                 v-on:click="modelUserCollectionFiltered.filters.set = set.name; modelUserCollectionFiltered.filters.rarity = rarity; filterCollection();">
-                                                <td class="has-text-centered tooltip is-size-7" style="vertical-align:middle;"
+                                                <td class="has-text-centered tooltip is-size-7" style="width:50%;"
                                                     v-bind:data-tooltip="modelUser.collection.cards.filter(i => i.craftedOnly === false && i.set === set.name && i.rarity === rarity).reduce(function(a, b) { return a + b.amount; }, 0) + ' / ' + modelSets.filter(function(i) { return i.name === set.name && i.rarity === rarity.toLowerCase(); }).reduce(function(a, b) { return a + b.totalCards; }, 0) * 4">
                                                     <img v-bind:src="'/images/' + set.name + '-' + rarity.substring(0,1) + '.png'" class="wc" />
                                                 </td>
-                                                <td class="is-size-7 has-text-centered">
+                                                <td style="width:50%;">
                                                     {{numeral(modelUser.collection.cards.filter(i => i.craftedOnly === false && i.set === set.name && i.rarity === rarity).reduce(function(a, b) { return a + b.amount; }, 0) / (modelSets.filter(function(i) { return i.name === set.name && i.rarity === rarity.toLowerCase(); }).reduce(function(a, b) { return a + b.totalCards; }, 0) * 4)).format('0%')}}
                                                     <br />
-                                                    <span class="is-hidden-tablet-only is-hidden-desktop-only">
+                                                    <span style="color:#bcbcbc;">
                                                         {{modelUser.collection.cards.filter(i => i.craftedOnly === false && i.set === set.name && i.rarity === rarity).reduce(function(a, b) { return a + b.amount; }, 0) }}
                                                         /
                                                         {{modelSets.filter(function(i) { return i.name === set.name && i.rarity === rarity.toLowerCase(); }).reduce(function(a, b) { return a + b.totalCards; }, 0) * 4}}
@@ -956,7 +979,7 @@
                         <table class="table is-narrow" style="width:unset;">
                             <thead>
                                 <tr>
-                                    <th colspan="4">Filters</th>
+                                    <th colspan="4">Filters <span class="smallText gray">(Press Enter)</span></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -964,8 +987,20 @@
                                     <td>
                                         <div class="field">
                                             <div class="control">
+                                                <label class="label is-small">Format</label>
+                                                <select class="input is-small" v-model="modelUserCollectionFiltered.filters.format" v-on:change="filterCollection();">
+                                                    <option v-for="f in modelUserCollectionFiltered.filters.formats" v-bind:value="f">
+                                                        {{ f }}
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="field">
+                                            <div class="control">
                                                 <label class="label is-small">Set</label>
-                                                <select v-model="modelUserCollectionFiltered.filters.set" v-on:change="filterCollection();">
+                                                <select class="input is-small" v-model="modelUserCollectionFiltered.filters.set" v-on:change="filterCollection();">
                                                     <option v-for="set in modelUserCollectionFiltered.filters.sets" v-bind:value="set">
                                                         {{ set == '' ? '(All)' : set }}
                                                     </option>
@@ -977,7 +1012,7 @@
                                         <div class="field">
                                             <div class="control">
                                                 <label class="label is-small">Rarity</label>
-                                                <select v-model="modelUserCollectionFiltered.filters.rarity" v-on:change="filterCollection();">
+                                                <select class="input is-small" v-model="modelUserCollectionFiltered.filters.rarity" v-on:change="filterCollection();">
                                                     <option v-for="r in modelUserCollectionFiltered.filters.rarities" v-bind:value="r">
                                                         {{ r == '' ? '(All)' : r }}
                                                     </option>
@@ -1009,42 +1044,48 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <div class="columns">
-                            <div class="column" v-for="color in ['W','U','B','R','G','', 'Multicolor', 'Land']">
-                                <div class="box">
-                                    <div class="columns">
-                                        <div class="column is-one-third" style="text-align:right; padding:0.1rem;">
-                                            <span v-if="color !== 'Multicolor' && color !== 'Land'" class="tooltip" v-bind:data-tooltip="color == '' ? 'Colorless' : color">
-                                                <img v-bind:src="iconMana[color == '' ? 'C' : color]" class="iconMana" style="width:1.5rem; height:1.5rem;" />
-                                            </span>
-                                            <span v-else-if="color==='Multicolor'" class="tooltip" data-tooltip="Gold">
-                                                <img src="/images/color_gold.png" style="width:1.5rem; height:1.5rem;" />
-                                            </span>
-                                            <span v-else-if="color==='Land'" class="tooltip" data-tooltip="Land">
-                                                <img v-bind:src="iconLand" style="width:1.5rem; height:1.5rem;" />
-                                            </span>
-                                            <span v-else>
-                                                {{color}}
-                                            </span>
-                                        </div>
-                                        <div class="column" style="padding:0.1rem;">
-                                            <strong>
-                                                ({{numeral(modelUserCollectionFiltered.filtered.filter((i) => color === 'Multicolor' ? i.color !== 'Land' && i.color.length > 1 : i.color === color).reduce((a, b) => a += b.amount, 0)).format('0,0')}}
-                                                cards)
-                                            </strong>
-                                        </div>
-                                    </div>
-                                    <ul class="noBullet" style="margin:0;">
-                                        <li v-for="c in modelUserCollectionFiltered.filtered.filter((i) => color === 'Multicolor' ? i.color.length > 1 && i.color !== 'Land' : i.color === color)"
-                                            v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageCardUrl)" class="cardHover" style="list-style-type: none;">
-                                            {{c.amount}}x {{c.name}}
-                                            <span v-if="c.craftedOnly" class="tooltip" data-tooltip="This card is obtainable only by crafting it">
-                                                <i class="fas fa-exclamation-triangle"></i>
-                                            </span>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
+
+                        <div class="tabs">
+                            <ul>
+                                <li v-for="color in ['W','U','B','R','G','', 'Multicolor', 'Land']" v-on:click="currentPageCollectionColor = color;" v-bind:class="[ currentPageCollectionColor === color ? 'is-active' : '' ]">
+                                    <a>
+                                        <span v-if="color !== 'Multicolor' && color !== 'Land'">
+                                            <img v-bind:src="iconMana[color == '' ? 'C' : color]" class="iconMana" style="width:1.5rem; height:1.5rem;" />
+                                        </span>
+                                        <span v-else-if="color==='Multicolor'">
+                                            <img src="/images/color_gold.png" style="width:1.5rem; height:1.5rem;" />
+                                        </span>
+                                        <span v-else-if="color==='Land'">
+                                            <img v-bind:src="iconLand" style="width:1.5rem; height:1.5rem;" />
+                                        </span>
+                                        <span v-else>
+                                            {{color}}
+                                        </span>
+                                        <strong>
+                                            ({{numeral(modelUserCollectionFiltered.filtered.filter((i) => color === 'Multicolor' ? i.color !== 'Land' && i.color.length > 1 : i.color === color).reduce((a, b) => a += b.amount, 0)).format('0,0')}}
+                                            cards)
+                                        </strong>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div v-if="isNotificationActive('tipHScrollCollectionCards')" class="notification is-hidden-desktop" style="margin-top:1em;">
+                            <button class="delete" v-on:click="stopNotification('tipHScrollCollectionCards')"></button>
+                            <p>
+                                <span class="icon has-text-info"><i class="fas fa-info-circle"></i></span>
+                                You can scroll horizontally to see more cards
+                            </p>
+                        </div>
+                        <div class="horizontalItems">
+                            <ul class="horizontalItem" style="height: 600px; display: flex; flex-direction: column; flex-wrap: wrap;">
+                                <li v-for="c in modelUserCollectionFiltered.filtered.filter((i) => currentPageCollectionColor === 'Multicolor' ? i.color.length > 1 && i.color !== 'Land' : i.color === currentPageCollectionColor)"
+                                    v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageCardUrl)" class="cardHover" style="list-style-type: none;">
+                                    {{c.amount}}x {{c.name}}
+                                    <span v-if="c.craftedOnly" class="tooltip" data-tooltip="This card is obtainable only by crafting it">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                    </span>
+                                </li>
+                            </ul>
                         </div>
                     </div>
                 </div>
@@ -2028,10 +2069,10 @@
                                         <span v-on:click="deckToShare = modelUserDeckSelected; showModalShareDeck = true; $nextTick(() => txtShareDeck.select());" style="cursor:pointer; margin-left:0.5rem;" class="tooltip" data-tooltip="Share this deck">
                                             <i class="fas fa-share-alt"></i>
                                         </span>
-                                        <button class="button is-info is-hidden-touch" style="margin-left:0.5rem;" v-on:click="displayModalExportDeck(modelUserDeckSelected.mtgaImportFormat)">
-                                            Export to Arena
-                                        </button>
                                     </template>
+                                    <button class="button is-info is-hidden-touch" style="margin-left:0.5rem;" v-on:click="displayModalExportDeck(modelUserDeckSelected.mtgaImportFormat)">
+                                        Export to Arena
+                                    </button>
                                 </h4>
                                 <div class="columns">
                                     <div class="column">
@@ -2258,42 +2299,51 @@
                     </div>
                     <span v-if="isLoadingData('dashboard')" class="button is-loading"></span>
                     <div v-else-if="modelDashboard.summary.length === 0" style="margin-bottom:1.5rem;">No data available</div>
-                    <div v-else class="columns">
-                        <div class="column" v-for="(set, idx) in modelDashboard.summary.filter(i => modelSets.map(x => x.name).indexOf(i.key) >= 0)">
-                            <div class="box has-text-centered darkTable packInfo" v-bind:style="'padding-left:1rem; padding-right:1rem; background: url(/images/set-' + set.key + '-pack.png); background-repeat:no-repeat; background-size:cover;'">
-                                <img v-bind:src="'/images/set-' + set.key + '.png'" v-on:click="openDashboardDetails(set.key, '')" style="cursor:pointer;" />
-                                <table class="table is-narrow darkTable" style="margin:0 auto;">
-                                    <tbody>
-                                        <tr v-for="c in set.value">
-                                            <td class="tooltip" v-bind:class="idx === 0 ? ' is-tooltip-right' : idx === modelDashboard.summary.filter(i => modelSets.map(x => x.name).indexOf(i.key) >= 0).length - 1 ? 'is-tooltip-left' : ''" style="cursor:pointer" v-on:click="openDashboardDetails(set.key, c.rarity)"
-                                                v-bind:data-tooltip="'Missing ' + c.nbMissing + ' ' + (c.rarity === 'RareLand' ? ' Rare (Land)' : c.rarity === 'RareNonLand' ? ' Rare (Non-land)' : c.rarity) + ' weighting ' + numeral(c.missingWeight).format('0,0')">
-                                                {{c.nbMissing}}
-                                                <img v-if="c.rarity === 'RareLand'" class="wc" style="filter: invert(100%);" v-bind:src="iconLand" />
-                                                <img v-bind:src="'/images/' + set.key + '-' + c.rarity.substring(0,1) + '.png'" class="wc" />
-                                            </td>
-                                            <td class="has-text-right is-hidden-touch">
-                                                {{numeral(c.missingWeight).format('0,0')}}
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                    <tfoot>
-                                        <tr>
-                                            <th class="tooltip" v-bind:class="idx === 0 ? ' is-tooltip-right' : idx === modelDashboard.summary.filter(i => modelSets.map(x => x.name).indexOf(i.key) >= 0).length - 1 ? 'is-tooltip-left' : ''" v-bind:data-tooltip="'Missing ' + set.value.reduce((a, b) => a + b.nbMissing, 0) + '  cards weighting a total of ' + numeral(set.value.reduce((a, b) => a += b.missingWeight, 0)).format('0,0')">{{set.value.reduce((a, b) => a += b.nbMissing, 0)}}</th>
-                                            <th class="is-hidden-touch has-text-right">
-                                                {{numeral(set.value.reduce((a, b) => a += b.missingWeight, 0)).format('0,0')}}
-                                            </th>
-                                        </tr>
-                                    </tfoot>
-                                </table>
+                    <div v-else>
+                        <div v-if="isNotificationActive('tipHScrollDashboardSets')" class="notification is-hidden-desktop" style="margin-top:1em;">
+                            <button class="delete" v-on:click="stopNotification('tipHScrollDashboardSets')"></button>
+                            <p>
+                                <span class="icon has-text-info"><i class="fas fa-info-circle"></i></span>
+                                You can scroll horizontally to see more sets
+                            </p>
+                        </div>
+                        <div class="columns horizontalItems is-mobile">
+                            <div class="column horizontalItem is-narrow" style="width:15.5rem;" v-for="(set, idx) in modelDashboard.summary.filter(i => modelSets.map(x => x.name).indexOf(i.key) >= 0)">
+                                <div class="box has-text-centered darkTable packInfo" v-bind:style="'padding-left:1rem; padding-right:1rem; background: url(/images/set-' + set.key + '-pack.png); background-repeat:no-repeat; background-size:cover;'">
+                                    <img v-bind:src="'/images/set-' + set.key + '.png'" v-on:click="openDashboardDetails(set.key, '')" style="cursor:pointer;" />
+                                    <table class="table is-narrow darkTable" style="margin:0 auto;">
+                                        <tbody>
+                                            <tr v-for="c in set.value">
+                                                <td class="tooltip" v-bind:class="idx === 0 ? ' is-tooltip-right' : idx === modelDashboard.summary.filter(i => modelSets.map(x => x.name).indexOf(i.key) >= 0).length - 1 ? 'is-tooltip-left' : ''" style="cursor:pointer" v-on:click="openDashboardDetails(set.key, c.rarity)"
+                                                    v-bind:data-tooltip="'Missing ' + c.nbMissing + ' ' + (c.rarity === 'RareLand' ? ' Rare (Land)' : c.rarity === 'RareNonLand' ? ' Rare (Non-land)' : c.rarity) + ' weighting ' + numeral(c.missingWeight).format('0,0')">
+                                                    {{c.nbMissing}}
+                                                    <img v-if="c.rarity === 'RareLand'" class="wc" style="filter: invert(100%);" v-bind:src="iconLand" />
+                                                    <img v-bind:src="'/images/' + set.key + '-' + c.rarity.substring(0,1) + '.png'" class="wc" />
+                                                </td>
+                                                <td class="has-text-right">
+                                                    {{numeral(c.missingWeight).format('0,0')}}
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <th class="tooltip" v-bind:class="idx === 0 ? ' is-tooltip-right' : idx === modelDashboard.summary.filter(i => modelSets.map(x => x.name).indexOf(i.key) >= 0).length - 1 ? 'is-tooltip-left' : ''" v-bind:data-tooltip="'Missing ' + set.value.reduce((a, b) => a + b.nbMissing, 0) + '  cards weighting a total of ' + numeral(set.value.reduce((a, b) => a += b.missingWeight, 0)).format('0,0')">{{set.value.reduce((a, b) => a += b.nbMissing, 0)}}</th>
+                                                <th class="has-text-right">
+                                                    {{numeral(set.value.reduce((a, b) => a += b.missingWeight, 0)).format('0,0')}}
+                                                </th>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="notification">
+                    <!--<div class="notification">
                         <span class="icon has-text-info"><i class="fas fa-info-circle"></i></span>
                         Keep in mind that Ixalan, Rivals of Ixalan, Dominaria and M19 will rotate and can no longer be played in Standard in Fall 2019.
 
                         Guilds of Ravnica, Ravnica Allegiance, War of the Spark and M20 will be legal in Standard until Fall 2020.
-                    </div>
+                    </div>-->
                 </div>
                 <div v-else-if="currentPage === pageDashboardDetails">
                     <h4 v-if="modelDashboard.summary.length === 0" class="title is-4">
@@ -2900,6 +2950,17 @@
                     </script>
                     <script src="//z-na.amazon-adsystem.com/widgets/onejs?MarketPlace=US"></script>
                 </div>-->
+                <div v-show="currentPage === pageBacklog">
+                    <h4 class="title is-4">
+                        Help determine what's next
+                    </h4>
+                    <div class="box" style="width:520px;">
+                        <script type="text/javascript" src="https://host1.easypolls.net/ext/scripts/emPoll.js?c=5d7554c7e4b00d4af40ac339"></script>
+                        <a class="OPP-powered-by" href="https://www.easypolls.net/" style="text-decoration:none;"><div style="font: 9px arial; color: gray;">undefined</div></a>
+                        <noscript>JavaScript is disabled!</noscript>
+                    </div>
+                </div>
+
                 <div class="notification is-size-7" style="margin-top:1rem; padding:0.5rem 2.5rem 0.5rem 1.5rem;">
                     <p class="footerLinks">
                         <a v-on:click="loadPage(pagePrivacy)">Privacy policy</a>
@@ -2927,10 +2988,10 @@
                 <span id="iconChangelog" class="float tooltip is-tooltip-left" data-tooltip="Changelog" style="right:103px;" v-on:click="loadPage(pageChangelog)">
                     <i class="fas fa-history my-float"></i>
                 </span>
-                <span id="iconBacklog" class="float tooltip is-tooltip-left" data-tooltip="Vote for the next features" style="right:53px;" v-on:click="showModalBacklog = true;">
+                <span id="iconBacklog" class="float tooltip is-tooltip-left" data-tooltip="Vote for the next features" style="right:53px;" v-on:click="loadPage(pageBacklog)">
                     <i class="fas fa-laptop-code my-float"></i>
                 </span>
-                <span class="float tooltip is-tooltip-left" data-tooltip="Support the project" style="z-index:2147483647;" v-on:click="showModalDonate = true;">
+                <span class="float tooltip is-tooltip-left" data-tooltip="Support the project" style="z-index:2147483647;" v-on:click="showModalDonate = true">
                     <i class="fas fa-heart my-float"></i>
                 </span>
                 <!-- MODALS -->
@@ -3007,16 +3068,6 @@
                         </p>
                     </div>
                 </div>
-                <div class="modal" v-bind:class="showModalBacklog ? 'is-active' : ''">
-                    <div class="modal-background" v-on:click="showModalBacklog = false"></div>
-                    <div class="modal-content box" style="width:560px;">
-                        <h5 class="title is-5">
-                            Help determine what's next
-                        </h5>
-                        <script type="text/javascript" src="https://host1.easypolls.net/ext/scripts/emPoll.js?c=5d7554c7e4b00d4af40ac339"></script><a class="OPP-powered-by" href="https://www.easypolls.net/" style="text-decoration:none;"><div style="font: 9px arial; color: gray;">undefined</div></a>
-                        <noscript>JavaScript is disabled!</noscript>
-                    </div>
-                </div>
                 <div class="modal" v-bind:class="showUploadCollectionModal ? 'is-active' : ''">
                     <div class="modal-background" v-on:click="showUploadCollectionModal = false"></div>
                     <div class="modal-content box">
@@ -3081,10 +3132,10 @@
                         </div>
                         <div class="has-text-centered" style="margin: 1rem;">
                             <span class="is-size-7">
-                                Monthly objective for ideal servers availability: 7 / 100$
+                                Monthly objective for ideal servers availability: 16 / 100$
                             </span>
                             <div style="margin-top:0.2rem">
-                                <progress class="progress" value="7" max="100">7%</progress>
+                                <progress class="progress" value="16" max="100">16%</progress>
                             </div>
                         </div>
                         <p>
@@ -3154,5 +3205,5 @@
         gtag('config', 'UA-137512649-1');
     </script>
     <div id="amzn-assoc-ad-9b4039c3-fdb8-43ec-81c4-bcf34e3e48c6"></div>
-	<script async src="//z-na.amazon-adsystem.com/widgets/onejs?MarketPlace=US&adInstanceId=9b4039c3-fdb8-43ec-81c4-bcf34e3e48c6"></script>
+    <script async src="//z-na.amazon-adsystem.com/widgets/onejs?MarketPlace=US&adInstanceId=9b4039c3-fdb8-43ec-81c4-bcf34e3e48c6"></script>
 </body>

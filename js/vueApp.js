@@ -61,6 +61,8 @@ const pageChangelog = 'changelog';
 const pagePrivacy = 'privacy';
 const pageAbout = 'about';
 const pageThanks = 'thanks';
+const pageBacklog = 'backlog';
+
 
 const pageHistoryCards = 'cards';
 const pageHistoryMatches = 'matches';
@@ -112,7 +114,6 @@ var vueApp = new Vue({
         showModalDonate: false,
         showModalExportDeck: false,
         showModalExportCollection: false,
-        showModalBacklog: false,
         deckToShare: {},
 
         exportCollectionFormat: '$name,$amount,$rarity,$set,$number',
@@ -132,6 +133,7 @@ var vueApp = new Vue({
         currentPageHistory: pageHistoryCards,
         currentPageProfileLandsType: 'Plains',
         currentPageMtgaDeckDetail: pageMtgaDeckDetailCards,
+        currentPageCollectionColor: 'W',
 
         loading: [],
         scraperIdLoading: '',
@@ -255,9 +257,11 @@ var vueApp = new Vue({
             cardsMissing: [],
 
             filters: {
-                sets: ['', 'XLN', 'RIX', 'DOM', 'M19', 'GRN', 'RNA', 'WAR', 'M20'],
+                formats: ['Standard', 'Historic'],
+                sets: ['', 'XLN', 'RIX', 'DOM', 'M19', 'GRN', 'RNA', 'WAR', 'M20', 'ELD'],
                 rarities: ['', 'Mythic', 'Rare', 'Uncommon', 'Common'],
 
+                format: 'Standard',
                 set: '',
                 rarity: '',
                 card: '',
@@ -301,7 +305,7 @@ var vueApp = new Vue({
             detailsFiltered: [],
 
             detailsFilters: {
-                sets: ['', 'XLN', 'RIX', 'DOM', 'M19', 'GRN', 'RNA', 'WAR', 'M20'],
+                sets: ['', /*'XLN', 'RIX', 'DOM', 'M19',*/ 'GRN', 'RNA', 'WAR', 'M20', 'ELD'],
                 rarities: ['', 'Mythic', 'RareLand', 'RareNonLand', 'Uncommon', 'Common'],
 
                 set: '',
@@ -354,6 +358,8 @@ var vueApp = new Vue({
         //},
         formatSetToFullName(set) {
             switch (set) {
+                case 'ELD':
+                    return 'Throne of Eldraine';
                 case 'M20':
                     return 'Core Set 2020';
                 case 'WAR':
@@ -803,6 +809,7 @@ var vueApp = new Vue({
         },
         computeSets() {
             var data = this.modelSets
+                .filter(function (i) { return vueApp.modelUserCollectionFiltered.filters.format === '' || i.formats.indexOf(vueApp.modelUserCollectionFiltered.filters.format) >= 0; })
                 .groupBy('name')
                 .map(function (i) { return { name: i.key, totalCards: i.values.reduce(function (a, b) { return a + b.totalCards; }, 0) }; });
 
@@ -877,9 +884,10 @@ var vueApp = new Vue({
             });
         }, 3000),
         filterCollection() {
-            var set = this.modelUserCollectionFiltered.filters.set;
-            var rarity = this.modelUserCollectionFiltered.filters.rarity;
+            var format = this.modelUserCollectionFiltered.filters.format.trim();
             var card = this.modelUserCollectionFiltered.filters.card.trim();
+            var rarity = this.modelUserCollectionFiltered.filters.rarity;
+            var set = this.modelUserCollectionFiltered.filters.set.trim();
 
             var filtered = [];
 
@@ -887,6 +895,13 @@ var vueApp = new Vue({
 
             source.forEach(i => {
                 var f = true;
+
+                if (format !== '') {
+                    var idxSet = findWithAttr(vueApp.modelSets, 'name', i.set);
+                    //if (typeof (vueApp.modelSets[idxSet]) === 'undefined' && i.set !== 'ANA' && i.set !== 'MIR') alert(i.name + i.set);
+                    f &= idxSet === -1 /*i.set === 'ANA' || i.set === 'MIR'*/ || vueApp.modelSets[idxSet].formats.indexOf(format) >= 0;
+                }
+
                 f &= set === '' || i.set === set;
                 f &= rarity === '' || i.rarity === rarity;
                 f &= card === '' || i.name.toLowerCase().indexOf(card.toLowerCase()) >= 0;
@@ -899,12 +914,16 @@ var vueApp = new Vue({
         },
         collectionIsFiltered() {
             return this.modelUserCollectionFiltered.filters.rarity !== ''
+                || this.modelUserCollectionFiltered.filters.format !== 'Standard'
                 || this.modelUserCollectionFiltered.filters.set !== ''
+                || this.modelUserCollectionFiltered.filters.card !== ''
                 || this.modelUserCollectionFiltered.filters.showMissing;
         },
         clearFiltersCollection() {
             this.modelUserCollectionFiltered.filters.rarity = '';
+            this.modelUserCollectionFiltered.filters.format = 'Standard';
             this.modelUserCollectionFiltered.filters.set = '';
+            this.modelUserCollectionFiltered.filters.card = '';
             this.modelUserCollectionFiltered.filters.showMissing = false;
             this.filterCollection();
         },
