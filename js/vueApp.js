@@ -41,6 +41,7 @@ const pageArticleSelected = 'articleSelected';
 const pageStreams = 'streams';
 const pageMeta = 'meta';
 const pageDecks = 'decks';
+const pageMasteryPass = 'masteryPass';
 const pageDeckSelected = 'deckSelected';
 const pageCollection = 'collection';
 const pageMtgaDecks = 'mtgaDecks';
@@ -59,20 +60,23 @@ const pageLands = 'lands';
 const pageContact = 'contact';
 const pageChangelog = 'changelog';
 const pagePrivacy = 'privacy';
+const pageTerms = 'terms';
 const pageAbout = 'about';
 const pageThanks = 'thanks';
 const pageBacklog = 'backlog';
 
-
 const pageHistoryCards = 'cards';
 const pageHistoryMatches = 'matches';
+
+const loadSignup = 'signup';
+const loadResendCode = 'loadResendCode';
 
 const loadDeck = 'deck';
 const loadDeckTracked = 'deckTracked';
 const loadMtgaDeck = 'mtgaDeck';
 
 var routes = [
-    { pageName: pageThanks, route: 'thanks' },
+    //{ pageName: pageThanks, route: 'thanks' },
     { pageName: pageCollection, route: 'my/collection' },
     { pageName: pageMtgaDecks, route: 'my/mtgadecks' },
     { pageName: pageHistory, route: 'my/history' },
@@ -80,7 +84,8 @@ var routes = [
     { pageName: pageDashboardSummary, route: 'my/missingCardsSummary' },
     { pageName: pageDashboardDetails, route: 'my/missingCardsDetails' },
     { pageName: pageScrapers, route: 'my/sources' },
-    { pageName: pageCustomDecks, route: 'my/decks' }
+    { pageName: pageCustomDecks, route: 'my/decks' },
+    { pageName: pageMasteryPass, route: 'my/masteryPass' },
 ];
 
 var vueApp = new Vue({
@@ -109,19 +114,23 @@ var vueApp = new Vue({
         mouseX: 0,
         mouseY: 0,
         showUploadCollectionModal: false,
-        showLoginModal: false,
+        //showLoginModal: false,
         showModalShareDeck: false,
         showModalDonate: false,
         showModalExportDeck: false,
         showModalExportCollection: false,
+        showModalLogin: false,
+        showModalChangeAccountUserId: false,
         deckToShare: {},
 
         exportCollectionFormat: '$name,$amount,$rarity,$set,$number',
+        exportCollectionIncludeNotOwned: false,
         exportCollectionHeader: false,
 
         showModalExportDeckString: '',
 
-        loginUserId: '',
+        //loginUserId: '',
+        accountUserId: '',
 
         lotsOfDecks: 1000,
 
@@ -149,6 +158,21 @@ var vueApp = new Vue({
         },
 
         modelChangelog: [],
+
+        modelAccount: {
+            isAuthenticated: false,
+            message: null
+        },
+
+        signin: {
+            email: '',
+            password: ''
+        },
+
+        signup: {
+            email: '',
+            password: ''
+        },
 
         // Personal MTGA decks
         modelMtgaDeckSelected: {
@@ -212,9 +236,14 @@ var vueApp = new Vue({
             decks: []
         },
 
+        modelMasteryPass: {
+            expectedDailyWins: 10,
+            expectedWeeklyWins: 15
+        },
+
         modelUser: {
             id: '',
-            nbLogin: 0,
+            //nbLogin: 0,
             //changesSinceLastLogin: false,
             collection: {
                 collectionDate: 'Unknown',
@@ -345,8 +374,61 @@ var vueApp = new Vue({
         this.getSets();
         this.getNews();
         this.getArticles();
+
+        sendAjaxGet('/api/Misc/Changelog', function (statuscode, body) {
+            vueApp.modelChangelog = JSON.parse(body);
+        });
     },
     methods: {
+        doSignin: function () {
+            if (this.signin.email.trim() === '' || this.signin.password.trim() === '') {
+                this.modelAccount.message = 'Please provide an email and password';
+                return;
+            }
+
+            sendAjaxGet('/api/Account/Signin?email=' + encodeURIComponent(this.signin.email) + '&password=' + encodeURIComponent(this.signin.password), (statuscode, body) => {
+                vueApp.modelAccount = JSON.parse(body);
+                vueApp.showModalLogin = vueApp.modelAccount.isAuthenticated === false;
+            });
+        },
+        doSignup: function () {
+            if (this.signup.email.trim() === '' || this.signup.password.trim() === '') {
+                this.modelAccount.message = 'Please provide an email and password';
+                return;
+            }
+
+            // Local login
+            var body = {
+                email: this.signup.email,
+                password: this.signup.password
+            };
+            this.loadData(loadSignup, true);
+            sendAjaxPost('/api/Account', body, null, (statuscode, body) => {
+                vueApp.loadData(loadSignup, false);
+                vueApp.modelAccount = JSON.parse(body);
+            });
+        },
+        resendVerificationCode: function () {
+            // Local login
+            var body = {
+                email: this.signup.email,
+                password: this.signup.password
+            };
+
+            if (body.email.trim() === '' || body.password.trim() === '') {
+                body = {
+                    email: this.signin.email,
+                    password: this.signin.password
+                };
+            }
+
+            this.loadData(loadResendCode, true);
+            sendAjaxPost('/api/Account/ResendVerificationCode', body, null, (statuscode, body) => {
+                this.loadData(loadResendCode, false);
+                vueApp.modelAccount.message = JSON.parse(body).message;
+                //vueApp.modelAccount.status = '';
+            });
+        },
         //callForChangelogAttention() {
         //    var element = document.getElementById('iconChangelog');
         //    element.classList.remove('start-now');
@@ -486,14 +568,29 @@ var vueApp = new Vue({
             this.modelDeckSelectedCardsForManaCurve = cardsMain
                 .filter(c => (manaCost < 7 ? c.cmc === manaCost : c.cmc >= manaCost) && c.type.indexOf('Land') === -1);
         },
-        tryToLoginWithUserId() {
-            vueApp.loadData('tryToLoginWithUserId', true);
-            sendAjaxGet('/api/User/FromUserId?id=' + this.loginUserId, function (statuscode, body) {
+        //tryToLoginWithUserId() {
+        //    vueApp.loadData('tryToLoginWithUserId', true);
+        //    sendAjaxGet('/api/User/FromUserId?id=' + this.loginUserId, function (statuscode, body) {
+        //        var data = JSON.parse(body);
+        //        vueApp.loadData('tryToLoginWithUserId', false);
+
+        //        if (statuscode === 200) {
+        //            vueApp.showLoginModal = false;
+        //            vueApp.registerUser();
+        //        }
+        //        else {
+        //            alert(data.error);
+        //        }
+        //    });
+        //},
+        changeAccountUserId() {
+            vueApp.loadData('changeAccountUserId', true);
+            sendAjaxGet('/api/User/changeAccountUserId?userId=' + this.accountUserId, function (statuscode, body) {
                 var data = JSON.parse(body);
-                vueApp.loadData('tryToLoginWithUserId', false);
+                vueApp.loadData('changeAccountUserId', false);
 
                 if (statuscode === 200) {
-                    vueApp.showLoginModal = false;
+                    vueApp.showModalChangeAccountUserId = false;
                     vueApp.registerUser();
                 }
                 else {
@@ -538,17 +635,13 @@ var vueApp = new Vue({
                 sendAjaxGet('/api/User/Preferences', function (statuscode, body) {
                     var data = JSON.parse(body);
                     if (statuscode === 200) {
-                        vueApp.themeIsDark = data.userPreferences.ThemeIsDark;
+                        vueApp.themeIsDark = (data.userPreferences.ThemeIsDark.toLowerCase() === 'true');
                         vueApp.userCollectionSetsOrderBy = data.userPreferences.CollectionSetsOrder;
-                        vueApp.landsPickAll = data.userPreferences.LandsPickAll;
+                        vueApp.landsPickAll = (data.userPreferences.LandsPickAll.toLowerCase() === 'true');
                     }
                     else {
                         alert(data.error);
                     }
-                });
-
-                sendAjaxGet('/api/Misc/Changelog', function (statuscode, body) {
-                    vueApp.modelChangelog = JSON.parse(body);
                 });
 
                 //if (vueApp.modelUser.changesSinceLastLogin) {
@@ -557,6 +650,11 @@ var vueApp = new Vue({
 
                 var urlParams = new URLSearchParams(window.location.search);
                 vueApp.loadPageFromUrl(urlParams.get('r'), true);
+
+
+                sendAjaxGet('/api/Account', (statuscode, body) => {
+                    vueApp.modelAccount = JSON.parse(body);
+                });
 
                 vueApp.refreshAll(true);
             });
@@ -614,6 +712,7 @@ var vueApp = new Vue({
             this.refreshDecksTracked();
             this.refreshDashboard();
             this.refreshMtgaDeckSummary();
+                this.refreshMasteryPass(true);
 
             if (refreshCollection) {
                 this.loadData('collectionGet', true);
@@ -646,6 +745,19 @@ var vueApp = new Vue({
             sendAjaxGet('/api/User/Collection/Missing', (statuscode, body) => {
                 vueApp.loadData('collectionMissingGet', false);
                 vueApp.modelUserCollectionFiltered.cardsMissing = JSON.parse(body).cardsMissing;
+            });
+        },
+        refreshMasteryPass(initRequest) {
+            if (typeof initRequest === 'undefined') initRequest = true;
+
+            var request = '/api/User/MasteryPass';
+            if (initRequest === false)
+                request += '?dailyWins=' + this.modelMasteryPass.expectedDailyWins + '&weeklyWins=' + this.modelMasteryPass.expectedWeeklyWins;
+
+            this.loadData(pageMasteryPass, true);
+            sendAjaxGet(request, (statuscode, body) => {
+                vueApp.loadData(pageMasteryPass, false);
+                vueApp.modelMasteryPass = JSON.parse(body);
             });
         },
         refreshUserHistory() {
@@ -817,9 +929,9 @@ var vueApp = new Vue({
                 .map(function (set) {
                     return {
                         name: set.name,
-                        nbOwned: vueApp.modelUser.collection.cards.filter(i => i.set === set.name && i.craftedOnly === false).reduce(function (a, b) { return a + b.amount; }, 0),
+                        nbOwned: vueApp.modelUser.collection.cards.filter(i => i.set === set.name && i.notInBooster === false).reduce(function (a, b) { return a + b.amount; }, 0),
                         nbTotal: set.totalCards * 4,
-                        pct: vueApp.modelUser.collection.cards.filter(i => i.set === set.name && i.craftedOnly === false).reduce(function (a, b) { return a + b.amount; }, 0) / (set.totalCards * 4)
+                        pct: vueApp.modelUser.collection.cards.filter(i => i.set === set.name && i.notInBooster === false).reduce(function (a, b) { return a + b.amount; }, 0) / (set.totalCards * 4)
                     };
                 });
 
@@ -882,7 +994,7 @@ var vueApp = new Vue({
                     alert(data.error);
                 }
             });
-        }, 3000),
+        }, 2000),
         filterCollection() {
             var format = this.modelUserCollectionFiltered.filters.format.trim();
             var card = this.modelUserCollectionFiltered.filters.card.trim();
@@ -1528,8 +1640,31 @@ var vueApp = new Vue({
                 return;
             }
 
+            var weightsToSend = {
+                Mythic: {
+                    main: parseFloat(this.modelUser.weights.Mythic.main),
+                    sideboard: parseFloat(this.modelUser.weights.Mythic.sideboard)
+                },
+                RareLand: {
+                    main: parseFloat(this.modelUser.weights.RareLand.main),
+                    sideboard: parseFloat(this.modelUser.weights.RareLand.sideboard)
+                },
+                RareNonLand: {
+                    main: parseFloat(this.modelUser.weights.RareNonLand.main),
+                    sideboard: parseFloat(this.modelUser.weights.RareNonLand.sideboard)
+                },
+                Uncommon: {
+                    main: parseFloat(this.modelUser.weights.Uncommon.main),
+                    sideboard: parseFloat(this.modelUser.weights.Uncommon.sideboard)
+                },
+                Common: {
+                    main: parseFloat(this.modelUser.weights.Common.main),
+                    sideboard: parseFloat(this.modelUser.weights.Common.sideboard)
+                },
+            }
+
             vueApp.loadData('setWeights', true);
-            sendAjaxPut('/api/User/Weights', { weights: this.modelUser.weights }, null, (statuscode, body) => {
+            sendAjaxPut('/api/User/Weights', { weights: weightsToSend }, null, (statuscode, body) => {
                 vueApp.loadData('setWeights', false);
                 if (statuscode === 200) {
                     vueApp.refreshDecksTracked();

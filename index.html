@@ -274,47 +274,50 @@
                     </a>
                     <!--</template>-->
 
-                    <div v-if="modelUser.collection.cards.length > 0" class="loot is-hidden-desktop">
-                        <span v-if="modelUser.collection.constructedRank.class === null">&nbsp;</span>
-                        <span v-else class="tooltip is-tooltip-left" v-bind:data-tooltip="'Constructed Ranking: ' + modelUser.collection.constructedRank.class + ' ' + modelUser.collection.constructedRank.level">
-                            <img style="margin-top:0.8rem; height:32px;" v-bind:src="'/images/ranks/constructed/' + modelUser.collection.constructedRank.class + '_' + modelUser.collection.constructedRank.level + '.png'" />
-                        </span>
-                        <span v-if="modelUser.collection.constructedRank.class === null">&nbsp;</span>
-                        <span v-else class="tooltip is-tooltip-left" v-bind:data-tooltip="'Limited Ranking: ' + modelUser.collection.limitedRank.class + ' ' + modelUser.collection.limitedRank.level">
-                            <img style="height:32px;" v-bind:src="'/images/ranks/limited/' + modelUser.collection.limitedRank.class + '_' + modelUser.collection.limitedRank.level + '.png'" />
-                        </span>
-                        <span style="top:-0.8rem;" class="tooltip is-tooltip-left" data-tooltip="Common wildcards">
-                            {{modelUser.collection.mtgaUserProfile.wildcards.Common}}
-                            <img class="wc" src="/images/wcC.png" />
-                        </span>
-                        <span style="top:-0.8rem;" class="tooltip is-tooltip-left" data-tooltip="Uncommon wildcards">
-                            {{modelUser.collection.mtgaUserProfile.wildcards.Uncommon}}
-                            <img class="wc" src="/images/wcU.png" />
-                        </span>
-                        <span style="top:-0.8rem;" class="tooltip is-tooltip-left" data-tooltip="Rare wildcards">
-                            {{modelUser.collection.mtgaUserProfile.wildcards.Rare}}
-                            <img class="wc" src="/images/wcR.png" />
-                        </span>
-                        <span style="top:-0.8rem;" class="tooltip is-tooltip-left" data-tooltip="Mythic wildcards">
-                            {{modelUser.collection.mtgaUserProfile.wildcards.Mythic}}
-                            <img class="wc" src="/images/wcM.png" />
-                        </span>
-                        <span style="top:-0.8rem;" class="tooltip is-tooltip-left" data-tooltip="Gold">
-                            {{numeral(modelUser.collection.mtgaUserProfile.gold).format('0,0')}}
-                            <img class="wc" src="/images/inventory_gold.png" />
-                        </span>
-                        <span style="top:-0.8rem;" class="tooltip is-tooltip-left" data-tooltip="Gems">
-                            {{numeral(modelUser.collection.mtgaUserProfile.gems).format('0,0')}}
-                            <img class="wc" src="/images/inventory_gem.png" />
-                        </span>
-                        <span style="top:-0.8rem;" class="tooltip is-tooltip-left" data-tooltip="Vault progress">
-                            {{numeral(modelUser.collection.mtgaUserProfile.vaultProgress).format('0.0')}} %
-                            <img class="wc" src="/images/vault.png" />
-                        </span>
-                    </div>
-                    <div v-else class="loot is-hidden-desktop">
-                        <a class="button" v-on:click="showLoginModal = true; $nextTick(() => txtLoginId.focus());" style="margin:0.5rem;">
-                            Login with a user id
+                    <template v-if="modelAccount.isAuthenticated">
+                        <div v-if="modelUser.collection.cards.length > 0" class="loot is-hidden-desktop">
+                            <span v-if="modelUser.collection.constructedRank.class === null">&nbsp;</span>
+                            <span v-else class="tooltip is-tooltip-left" v-bind:data-tooltip="'Constructed Ranking: ' + modelUser.collection.constructedRank.class + ' ' + modelUser.collection.constructedRank.level">
+                                <img style="margin-top:0.8rem; height:32px;" v-bind:src="'/images/ranks/constructed/' + modelUser.collection.constructedRank.class + '_' + modelUser.collection.constructedRank.level + '.png'" />
+                            </span>
+                            <span v-if="modelUser.collection.constructedRank.class === null">&nbsp;</span>
+                            <span v-else class="tooltip is-tooltip-left" v-bind:data-tooltip="'Limited Ranking: ' + modelUser.collection.limitedRank.class + ' ' + modelUser.collection.limitedRank.level">
+                                <img style="height:32px;" v-bind:src="'/images/ranks/limited/' + modelUser.collection.limitedRank.class + '_' + modelUser.collection.limitedRank.level + '.png'" />
+                            </span>
+                            <span style="top:-0.8rem;" class="tooltip is-tooltip-left" data-tooltip="Common wildcards">
+                                {{modelUser.collection.mtgaUserProfile.wildcards.Common}}
+                                <img class="wc" src="/images/wcC.png" />
+                            </span>
+                            <span style="top:-0.8rem;" class="tooltip is-tooltip-left" data-tooltip="Uncommon wildcards">
+                                {{modelUser.collection.mtgaUserProfile.wildcards.Uncommon}}
+                                <img class="wc" src="/images/wcU.png" />
+                            </span>
+                            <span style="top:-0.8rem;" class="tooltip is-tooltip-left" data-tooltip="Rare wildcards">
+                                {{modelUser.collection.mtgaUserProfile.wildcards.Rare}}
+                                <img class="wc" src="/images/wcR.png" />
+                            </span>
+                            <span style="top:-0.8rem;" class="tooltip is-tooltip-left" data-tooltip="Mythic wildcards">
+                                {{modelUser.collection.mtgaUserProfile.wildcards.Mythic}}
+                                <img class="wc" src="/images/wcM.png" />
+                            </span>
+                            <span style="top:-0.8rem;" class="tooltip is-tooltip-left" data-tooltip="Gold">
+                                {{numeral(modelUser.collection.mtgaUserProfile.gold).format('0,0')}}
+                                <img class="wc" src="/images/inventory_gold.png" />
+                            </span>
+                            <span style="top:-0.8rem;" class="tooltip is-tooltip-left" data-tooltip="Gems">
+                                {{numeral(modelUser.collection.mtgaUserProfile.gems).format('0,0')}}
+                                <img class="wc" src="/images/inventory_gem.png" />
+                            </span>
+                            <span style="top:-0.8rem;" class="tooltip is-tooltip-left" data-tooltip="Vault progress">
+                                {{numeral(modelUser.collection.mtgaUserProfile.vaultProgress).format('0.0')}} %
+                                <img class="wc" src="/images/vault.png" />
+                            </span>
+                        </div>
+                    </template>
+                    <div v-else class="is-hidden-desktop navbar-item">
+                        <a class="button tooltip is-tooltip-bottom" v-on:click="showModalLogin = true" data-tooltip="You are anonymous, sign-in to keep a history of your data.">
+                            Sign-in
+                            <i class="fas fa-check" style="margin-left:0.5rem;"></i>
                         </a>
                     </div>
 
@@ -334,9 +337,9 @@
                                         <img src="/images/amazon.png" style="height:52px;" />
                                     </div>
                                     <div class="level-item" style="font-size:0.6rem; margin-left:0.5rem;">
-                                        Shop on Amazon,
+                                        🎁 Shop for Christmas
                                         <br />
-                                        support the project ❤
+                                        ❤ support the project
                                     </div>
                                 </nav>
                             </a>
@@ -379,6 +382,9 @@
                                 <a href="/my/collection" class="navbar-item" v-bind:class="currentPage === pageCollection ? 'bold' : ''" @click.prevent="loadPage(pageCollection);">
                                     Collection
                                 </a>
+                                <a href="/my/mastery pass" class="navbar-item" v-bind:class="currentPage === pageMasteryPass ? 'bold' : ''" @click.prevent="loadPage(pageMasteryPass);">
+                                    Mastery pass
+                                </a>
                                 <a href="/my/mtgadecks" class="navbar-item" v-bind:class="currentPage === pageMtgaDecks ? 'bold' : ''" @click.prevent="loadPage(pageMtgaDecks);">
                                     MTGA Decks
                                 </a>
@@ -409,7 +415,7 @@
                                 <i class="fas fa-cog is-size-4" style="margin-right:0.2rem;"></i>
                             </a>
                             <div class="navbar-dropdown">
-                                <a href="/profile" class="navbar-item" v-bind:class="currentPage === pageProfile ? 'bold' : ''" @click.prevent="loadPage(pageProfile);">
+                                <a v-if="modelAccount.isAuthenticated" href="/profile" class="navbar-item" v-bind:class="currentPage === pageProfile ? 'bold' : ''" @click.prevent="loadPage(pageProfile);">
                                     Profile
                                 </a>
                                 <a href="/lands" class="navbar-item" v-bind:class="currentPage === pageLands ? 'bold' : ''" @click.prevent="if (modelLands.length === 0) { getLands(); } loadPage(pageLands);">
@@ -417,50 +423,63 @@
                                 </a>
                             </div>
                         </div>
-                        <div v-if="modelUser.collection.cards.length > 0" class="loot navbar-item is-hidden-touch">
-                            <span v-if="modelUser.collection.constructedRank.class === null">&nbsp;</span>
-                            <span v-else class="tooltip is-tooltip-left" v-bind:data-tooltip="'Constructed Ranking: ' + modelUser.collection.constructedRank.class + ' ' + modelUser.collection.constructedRank.level">
-                                <img v-bind:src="'/images/ranks/constructed/' + modelUser.collection.constructedRank.class + '_' + modelUser.collection.constructedRank.level + '.png'" />
-                            </span>
-                            <span v-if="modelUser.collection.constructedRank.class === null">&nbsp;</span>
-                            <span v-else class="tooltip is-tooltip-left" v-bind:data-tooltip="'Limited Ranking: ' + modelUser.collection.limitedRank.class + ' ' + modelUser.collection.limitedRank.level">
-                                <img v-bind:src="'/images/ranks/limited/' + modelUser.collection.limitedRank.class + '_' + modelUser.collection.limitedRank.level + '.png'" />
-                            </span>
-                            <span class="tooltip is-tooltip-left" data-tooltip="Common wildcards">
-                                {{modelUser.collection.mtgaUserProfile.wildcards.Common}}
-                                <img class="wc" src="/images/wcC.png" />
-                            </span>
-                            <span class="tooltip is-tooltip-left" data-tooltip="Uncommon wildcards">
-                                {{modelUser.collection.mtgaUserProfile.wildcards.Uncommon}}
-                                <img class="wc" src="/images/wcU.png" />
-                            </span>
-                            <span class="tooltip is-tooltip-left" data-tooltip="Rare wildcards">
-                                {{modelUser.collection.mtgaUserProfile.wildcards.Rare}}
-                                <img class="wc" src="/images/wcR.png" />
-                            </span>
-                            <span class="tooltip is-tooltip-left" data-tooltip="Mythic wildcards">
-                                {{modelUser.collection.mtgaUserProfile.wildcards.Mythic}}
-                                <img class="wc" src="/images/wcM.png" />
-                            </span>
-                            <span class="tooltip is-tooltip-left" data-tooltip="Gold">
-                                {{numeral(modelUser.collection.mtgaUserProfile.gold).format('0,0')}}
-                                <img class="wc" src="/images/inventory_gold.png" />
-                            </span>
-                            <span class="tooltip is-tooltip-left" data-tooltip="Gems">
-                                {{numeral(modelUser.collection.mtgaUserProfile.gems).format('0,0')}}
-                                <img class="wc" src="/images/inventory_gem.png" />
-                            </span>
-                            <span class="tooltip is-tooltip-left" data-tooltip="Vault progress">
-                                {{numeral(modelUser.collection.mtgaUserProfile.vaultProgress).format('0.0')}} %
-                                <img class="wc" src="/images/vault.png" />
-                            </span>
+                        <div v-if="modelAccount.isAuthenticated" class="navbar-item is-hidden-desktop">
+                            <form action="/api/Account/Signout" method="post">
+                                <button class="button is-hidden-desktop" type="submit">Sign-out</button>
+                            </form>
                         </div>
-                        <div v-else class="navbar-item is-hidden-touch">
-                            <div class="buttons">
-                                <a class="button" v-on:click="showLoginModal = true; $nextTick(() => txtLoginId.focus());">
-                                    Login with a user id
-                                </a>
+                        <template v-if="modelAccount.isAuthenticated">
+                            <div v-if="modelUser.collection.cards.length > 0" class="loot navbar-item is-hidden-touch">
+                                <span v-if="modelUser.collection.constructedRank.class === null">&nbsp;</span>
+                                <span v-else class="tooltip is-tooltip-left" v-bind:data-tooltip="'Constructed Ranking: ' + modelUser.collection.constructedRank.class + ' ' + modelUser.collection.constructedRank.level">
+                                    <img v-bind:src="'/images/ranks/constructed/' + modelUser.collection.constructedRank.class + '_' + modelUser.collection.constructedRank.level + '.png'" />
+                                </span>
+                                <span v-if="modelUser.collection.constructedRank.class === null">&nbsp;</span>
+                                <span v-else class="tooltip is-tooltip-left" v-bind:data-tooltip="'Limited Ranking: ' + modelUser.collection.limitedRank.class + ' ' + modelUser.collection.limitedRank.level">
+                                    <img v-bind:src="'/images/ranks/limited/' + modelUser.collection.limitedRank.class + '_' + modelUser.collection.limitedRank.level + '.png'" />
+                                </span>
+                                <span class="tooltip is-tooltip-left" data-tooltip="Common wildcards">
+                                    {{modelUser.collection.mtgaUserProfile.wildcards.Common}}
+                                    <img class="wc" src="/images/wcC.png" />
+                                </span>
+                                <span class="tooltip is-tooltip-left" data-tooltip="Uncommon wildcards">
+                                    {{modelUser.collection.mtgaUserProfile.wildcards.Uncommon}}
+                                    <img class="wc" src="/images/wcU.png" />
+                                </span>
+                                <span class="tooltip is-tooltip-left" data-tooltip="Rare wildcards">
+                                    {{modelUser.collection.mtgaUserProfile.wildcards.Rare}}
+                                    <img class="wc" src="/images/wcR.png" />
+                                </span>
+                                <span class="tooltip is-tooltip-left" data-tooltip="Mythic wildcards">
+                                    {{modelUser.collection.mtgaUserProfile.wildcards.Mythic}}
+                                    <img class="wc" src="/images/wcM.png" />
+                                </span>
+                                <span class="tooltip is-tooltip-left" data-tooltip="Gold">
+                                    {{numeral(modelUser.collection.mtgaUserProfile.gold).format('0,0')}}
+                                    <img class="wc" src="/images/inventory_gold.png" />
+                                </span>
+                                <span class="tooltip is-tooltip-left" data-tooltip="Gems">
+                                    {{numeral(modelUser.collection.mtgaUserProfile.gems).format('0,0')}}
+                                    <img class="wc" src="/images/inventory_gem.png" />
+                                </span>
+                                <span class="tooltip is-tooltip-left" data-tooltip="Vault progress">
+                                    {{numeral(modelUser.collection.mtgaUserProfile.vaultProgress).format('0.0')}} %
+                                    <img class="wc" src="/images/vault.png" />
+                                </span>
                             </div>
+                            <div class="navbar-item is-hidden-touch">
+                                <div class="buttons">
+                                    <form action="/api/Account/Signout" method="post">
+                                        <button class="button" type="submit">Sign-out</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </template>
+                        <div v-else class="navbar-item is-hidden-touch">
+                            <a class="button tooltip is-tooltip-left" v-on:click="showModalLogin = true" data-tooltip="You are anonymous, sign-in to keep a history of your data.">
+                                Sign-in
+                                <i class="fas fa-check" style="margin-left:0.5rem;"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -958,14 +977,14 @@
                                             <tr v-for="rarity in ['Mythic', 'Rare', 'Uncommon', 'Common']" style="cursor:pointer;"
                                                 v-on:click="modelUserCollectionFiltered.filters.set = set.name; modelUserCollectionFiltered.filters.rarity = rarity; filterCollection();">
                                                 <td class="has-text-centered tooltip is-size-7" style="width:50%;"
-                                                    v-bind:data-tooltip="modelUser.collection.cards.filter(i => i.craftedOnly === false && i.set === set.name && i.rarity === rarity).reduce(function(a, b) { return a + b.amount; }, 0) + ' / ' + modelSets.filter(function(i) { return i.name === set.name && i.rarity === rarity.toLowerCase(); }).reduce(function(a, b) { return a + b.totalCards; }, 0) * 4">
+                                                    v-bind:data-tooltip="modelUser.collection.cards.filter(i => i.notInBooster === false && i.set === set.name && i.rarity === rarity).reduce(function(a, b) { return a + b.amount; }, 0) + ' / ' + modelSets.filter(function(i) { return i.name === set.name && i.rarity === rarity.toLowerCase(); }).reduce(function(a, b) { return a + b.totalCards; }, 0) * 4">
                                                     <img v-bind:src="'/images/' + set.name + '-' + rarity.substring(0,1) + '.png'" class="wc" />
                                                 </td>
                                                 <td style="width:50%;">
-                                                    {{numeral(modelUser.collection.cards.filter(i => i.craftedOnly === false && i.set === set.name && i.rarity === rarity).reduce(function(a, b) { return a + b.amount; }, 0) / (modelSets.filter(function(i) { return i.name === set.name && i.rarity === rarity.toLowerCase(); }).reduce(function(a, b) { return a + b.totalCards; }, 0) * 4)).format('0%')}}
+                                                    {{numeral(modelUser.collection.cards.filter(i => i.notInBooster === false && i.set === set.name && i.rarity === rarity).reduce(function(a, b) { return a + b.amount; }, 0) / (modelSets.filter(function(i) { return i.name === set.name && i.rarity === rarity.toLowerCase(); }).reduce(function(a, b) { return a + b.totalCards; }, 0) * 4)).format('0.00%')}}
                                                     <br />
                                                     <span style="color:#bcbcbc;">
-                                                        {{modelUser.collection.cards.filter(i => i.craftedOnly === false && i.set === set.name && i.rarity === rarity).reduce(function(a, b) { return a + b.amount; }, 0) }}
+                                                        {{modelUser.collection.cards.filter(i => i.notInBooster === false && i.set === set.name && i.rarity === rarity).reduce(function(a, b) { return a + b.amount; }, 0) }}
                                                         /
                                                         {{modelSets.filter(function(i) { return i.name === set.name && i.rarity === rarity.toLowerCase(); }).reduce(function(a, b) { return a + b.totalCards; }, 0) * 4}}
                                                     </span>
@@ -1081,7 +1100,7 @@
                                 <li v-for="c in modelUserCollectionFiltered.filtered.filter((i) => currentPageCollectionColor === 'Multicolor' ? i.color.length > 1 && i.color !== 'Land' : i.color === currentPageCollectionColor)"
                                     v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageCardUrl)" class="cardHover" style="list-style-type: none;">
                                     {{c.amount}}x {{c.name}}
-                                    <span v-if="c.craftedOnly" class="tooltip" data-tooltip="This card is obtainable only by crafting it">
+                                    <span v-if="c.notInBooster" class="tooltip" data-tooltip="This card cannot be obtained in booster packs">
                                         <i class="fas fa-exclamation-triangle"></i>
                                     </span>
                                 </li>
@@ -1093,48 +1112,83 @@
                     <div class="columns">
                         <div class="column is-half-desktop" v-bind:class="[modelMtgaDeckSelected.deckId === '' ? '' : 'is-hidden-touch', ]">
                             <h4 class="title is-4">MTGA Decks</h4>
-                            <span v-if="isLoadingData(pageMtgaDecks)" class="button is-loading"></span>
+                            <div v-if="isLoadingData(pageMtgaDecks)">
+                                <span class="button is-loading"></span>
+                                This can take some time to load with a lot of matches...
+                            </div>
                             <div v-else-if="modelMtgaDecksSummary.length === 0">
                                 No decks to display
                             </div>
-                            <table v-else class="table is-narrow is-hoverable">
-                                <thead>
-                                    <tr>
-                                        <th>&nbsp;</th>
-                                        <th>Deck name</th>
-                                        <th>Color</th>
-                                        <th>Most played format</th>
-                                        <th class="has-text-centered">Win rate</th>
-                                        <th class="has-text-centered">Matches played</th>
-                                        <th class="has-text-centered">Last played</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="s in modelMtgaDecksSummary" v-on:click="getMtgaDeck(s)" v-bind:class="[s.deckId === modelMtgaDeckSelected.deckId ? 'is-selected' : '']">
-                                        <td>
-                                            <img v-if="s.deckImage !== ''" v-bind:src="s.deckImage" wi v-bind:alt="s.deckName" />
-                                        </td>
-                                        <td>
-                                            {{s.deckName}}
-                                        </td>
-                                        <td>
-                                            <img v-for="c in s.deckColor.split('')" v-bind:src="iconMana[c]" class="iconMana" />
-                                        </td>
-                                        <td>
-                                            {{s.winRateFormat}}
-                                        </td>
-                                        <td class="nowrap has-text-centered">
-                                            {{(s.winRateNbMatches === 0 ? 'N/A' : numeral(s.winRate).format('0.0 %'))}}
-                                        </td>
-                                        <td class="has-text-centered">
-                                            {{s.winRateNbMatches}}
-                                        </td>
-                                        <td class="has-text-centered">
-                                            {{(s.winRateNbMatches === 0 ? 'N/A' : s.lastPlayed)}}
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                            <div v-else>
+                                <!--<table class="table is-narrow">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="5">Filters <span class="smallText gray">(Press Enter)</span></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <div class="field">
+                                                    <div class="control">
+                                                        <label class="label is-small">
+                                                            Source
+                                                            <span class="icon has-text-info tooltip" style="height:inherit; cursor:pointer;"
+                                                                  data-tooltip="Go configure sources of decks" v-on:click="loadPage(pageScrapers)">
+                                                                <i class="fas fa-info-circle"></i>
+                                                            </span>
+                                                        </label>
+                                                        <select class="input is-small" v-model="modelUserDecks.filters.scraperTypeId" v-on:change="filterDecks();">
+                                                            <option v-for="source in ['(All)'].concat(modelUserDecks.decks.map((i) => i.scraperTypeId).filter((value, index, self) => self.indexOf(value) === index).sort())"
+                                                                    v-bind:value="source">
+                                                                {{ formatScraperKey(source, true) }}
+                                                            </option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>-->
+                                <table class="table is-narrow is-hoverable">
+                                    <thead>
+                                        <tr>
+                                            <th>&nbsp;</th>
+                                            <th>Deck name / Color</th>
+                                            <th>Most played format</th>
+                                            <th class="has-text-centered">Win rate</th>
+                                            <th class="has-text-centered">Last played</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="s in modelMtgaDecksSummary" v-on:click="getMtgaDeck(s)" v-bind:class="[s.deckId === modelMtgaDeckSelected.deckId ? 'is-selected' : '']">
+                                            <td style="line-height:0;">
+                                                <img v-if="s.deckImage !== ''" v-bind:src="s.deckImage" wi v-bind:alt="s.deckName" width="48" />
+                                            </td>
+                                            <td>
+                                                {{s.deckName}}
+                                                <br />
+                                                <img v-for="c in s.deckColor.split('')" v-bind:src="iconMana[c]" class="iconMana" />
+                                            </td>
+                                            <td>
+                                                {{s.winRateFormat}}
+                                                <br />
+                                                {{s.winRateNbMatches}}
+                                                <span v-if="s.winRateNbMatches === 1">match</span>
+                                                <span v-else>matches</span>
+                                            </td>
+                                            <td class="nowrap has-text-centered">
+                                                {{(s.winRateNbMatches === 0 ? 'N/A' : numeral(s.winRate).format('0.0 %'))}}
+                                                <br />
+                                                {{s.winRateNbWin}}-{{s.winRateNbLoss}}-{{s.winRateNbOther}}
+                                            </td>
+                                            <td class="has-text-centered">
+                                                {{(s.winRateNbMatches === 0 ? 'N/A' : s.lastPlayed)}}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                         <div class="column" v-if="modelMtgaDeckSelected.deckId !== ''" v-bind:class="modelMtgaDeckSelected.deckId === '' ? 'is-hidden-touch' : ''">
                             <span v-if="isLoadingData(loadMtgaDeck)" class="button is-loading"></span>
@@ -1705,7 +1759,7 @@
                         <div class="columns is-multiline">
                             <div class="column is-full-touch">
                                 <h5 class="title is-5">
-                                    {{moment(g.startDateTime).format('HH:mm:ss')}} - Game #{{idx+1}} -
+                                    {{moment(g.startDateTime).format('YYYY-MM-DD HH:mm:ss')}} - Game #{{idx+1}} -
                                     On the {{g.firstTurn}} - {{g.outcome}} in {{moment.utc(g.secondsCount * 1000).format('HH:mm:ss')}}
                                 </h5>
                                 <div v-if="g.opponentCardsSeen.length === 0">
@@ -2274,12 +2328,12 @@
                     <template v-if="modelDashboard.summary.length > 0">
                         <h4 class="title is-4">
                             Consider opening
-                            <span style="font-weight:bold;">{{formatSetToFullName(modelDashboard.summary[0].key)}}</span>
+                            <span style="font-weight:bold;">{{formatSetToFullName(modelDashboard.summary[0].Key)}}</span>
                             packs
                         </h4>
                         <h5 class="subtitle is-5">
-                            You are currently requiring {{modelDashboard.summary[0].value.reduce((a, b) => a += b.nbMissing, 0)}} cards from this set,
-                            worth a total weight of {{numeral(modelDashboard.summary[0].value.reduce((a, b) => a += b.missingWeight, 0)).format('0,0')}}
+                            You are currently requiring {{modelDashboard.summary[0].Value.reduce((a, b) => a += b.nbMissing, 0)}} cards from this set,
+                            worth a total weight of {{numeral(modelDashboard.summary[0].Value.reduce((a, b) => a += b.missingWeight, 0)).format('0,0')}}
                             <span class="icon has-text-info tooltip" style="cursor:pointer;" data-tooltip="Weight?" v-on:click="currentPage=pageProfile"><i class="fas fa-info-circle"></i></span>
                         </h5>
                     </template>
@@ -2308,17 +2362,17 @@
                             </p>
                         </div>
                         <div class="columns horizontalItems is-mobile">
-                            <div class="column horizontalItem is-narrow" style="width:15.5rem;" v-for="(set, idx) in modelDashboard.summary.filter(i => modelSets.map(x => x.name).indexOf(i.key) >= 0)">
-                                <div class="box has-text-centered darkTable packInfo" v-bind:style="'padding-left:1rem; padding-right:1rem; background: url(/images/set-' + set.key + '-pack.png); background-repeat:no-repeat; background-size:cover;'">
-                                    <img v-bind:src="'/images/set-' + set.key + '.png'" v-on:click="openDashboardDetails(set.key, '')" style="cursor:pointer;" />
+                            <div class="column horizontalItem is-narrow" style="width:15.5rem;" v-for="(set, idx) in modelDashboard.summary.filter(i => modelSets.map(x => x.name).indexOf(i.Key) >= 0)">
+                                <div class="box has-text-centered darkTable packInfo" v-bind:style="'padding-left:1rem; padding-right:1rem; background: url(/images/set-' + set.Key + '-pack.png); background-repeat:no-repeat; background-size:cover;'">
+                                    <img v-bind:src="'/images/set-' + set.Key + '.png'" v-on:click="openDashboardDetails(set.Key, '')" style="cursor:pointer;" />
                                     <table class="table is-narrow darkTable" style="margin:0 auto;">
                                         <tbody>
-                                            <tr v-for="c in set.value">
-                                                <td class="tooltip" v-bind:class="idx === 0 ? ' is-tooltip-right' : idx === modelDashboard.summary.filter(i => modelSets.map(x => x.name).indexOf(i.key) >= 0).length - 1 ? 'is-tooltip-left' : ''" style="cursor:pointer" v-on:click="openDashboardDetails(set.key, c.rarity)"
+                                            <tr v-for="c in set.Value">
+                                                <td class="tooltip" v-bind:class="idx === 0 ? ' is-tooltip-right' : idx === modelDashboard.summary.filter(i => modelSets.map(x => x.name).indexOf(i.Key) >= 0).length - 1 ? 'is-tooltip-left' : ''" style="cursor:pointer" v-on:click="openDashboardDetails(set.Key, c.rarity)"
                                                     v-bind:data-tooltip="'Missing ' + c.nbMissing + ' ' + (c.rarity === 'RareLand' ? ' Rare (Land)' : c.rarity === 'RareNonLand' ? ' Rare (Non-land)' : c.rarity) + ' weighting ' + numeral(c.missingWeight).format('0,0')">
                                                     {{c.nbMissing}}
                                                     <img v-if="c.rarity === 'RareLand'" class="wc" style="filter: invert(100%);" v-bind:src="iconLand" />
-                                                    <img v-bind:src="'/images/' + set.key + '-' + c.rarity.substring(0,1) + '.png'" class="wc" />
+                                                    <img v-bind:src="'/images/' + set.Key + '-' + c.rarity.substring(0,1) + '.png'" class="wc" />
                                                 </td>
                                                 <td class="has-text-right">
                                                     {{numeral(c.missingWeight).format('0,0')}}
@@ -2327,9 +2381,9 @@
                                         </tbody>
                                         <tfoot>
                                             <tr>
-                                                <th class="tooltip" v-bind:class="idx === 0 ? ' is-tooltip-right' : idx === modelDashboard.summary.filter(i => modelSets.map(x => x.name).indexOf(i.key) >= 0).length - 1 ? 'is-tooltip-left' : ''" v-bind:data-tooltip="'Missing ' + set.value.reduce((a, b) => a + b.nbMissing, 0) + '  cards weighting a total of ' + numeral(set.value.reduce((a, b) => a += b.missingWeight, 0)).format('0,0')">{{set.value.reduce((a, b) => a += b.nbMissing, 0)}}</th>
+                                                <th class="tooltip" v-bind:class="idx === 0 ? ' is-tooltip-right' : idx === modelDashboard.summary.filter(i => modelSets.map(x => x.name).indexOf(i.Key) >= 0).length - 1 ? 'is-tooltip-left' : ''" v-bind:data-tooltip="'Missing ' + set.Value.reduce((a, b) => a + b.nbMissing, 0) + '  cards weighting a total of ' + numeral(set.Value.reduce((a, b) => a += b.missingWeight, 0)).format('0,0')">{{set.Value.reduce((a, b) => a += b.nbMissing, 0)}}</th>
                                                 <th class="has-text-right">
-                                                    {{numeral(set.value.reduce((a, b) => a += b.missingWeight, 0)).format('0,0')}}
+                                                    {{numeral(set.Value.reduce((a, b) => a += b.missingWeight, 0)).format('0,0')}}
                                                 </th>
                                             </tr>
                                         </tfoot>
@@ -2338,12 +2392,12 @@
                             </div>
                         </div>
                     </div>
-                    <!--<div class="notification">
+                    <div class="notification">
                         <span class="icon has-text-info"><i class="fas fa-info-circle"></i></span>
-                        Keep in mind that Ixalan, Rivals of Ixalan, Dominaria and M19 will rotate and can no longer be played in Standard in Fall 2019.
+                        Keep in mind that Guilds of Ravnica, Ravnica Allegiance, War of the Spark and M20 will rotate and can no longer be played in Standard in Fall 2020.
 
-                        Guilds of Ravnica, Ravnica Allegiance, War of the Spark and M20 will be legal in Standard until Fall 2020.
-                    </div>-->
+                        Throne of Eldraine, Theros: Beyond Death, M21 and Ikoria: Lair of Behemoths will be legal in Standard until Fall 2021.
+                    </div>
                 </div>
                 <div v-else-if="currentPage === pageDashboardDetails">
                     <h4 v-if="modelDashboard.summary.length === 0" class="title is-4">
@@ -2431,7 +2485,7 @@
                                                 </td>
                                                 <td>
                                                     {{c.set}}
-                                                    <span v-if="c.craftedOnly" class="tooltip" data-tooltip="This card is obtainable only by crafting it">
+                                                    <span v-if="c.notInBooster" class="tooltip" data-tooltip="This card cannot be obtained in booster packs">
                                                         <i class="fas fa-exclamation-triangle"></i>
                                                     </span>
                                                 </td>
@@ -2440,6 +2494,7 @@
                                                 </
                                             </tr>
                                         </tbody>
+                                        tb
                                     </table>
                                 </div>
                             </div>
@@ -2620,128 +2675,249 @@
                         </template>
                     </div>
                 </div>
+                <div v-else-if="currentPage === pageMasteryPass">
+                    <h4 class="title is-4">Mastery pass calculator</h4>
+                    <div style="margin-left:1rem;">
+                        <div v-if="typeof modelMasteryPass.error === 'string'">
+                            No data available
+                        </div>
+                        <template v-else>
+                            <p>
+                                You are currently Level {{modelMasteryPass.currentLevel}} with an extra {{modelMasteryPass.currentXp}} XP
+                            </p>
+                            <p>
+                                {{modelMasteryPass.nbDaysLeft}} days left for the Mastery pass (ending on {{modelMasteryPass.dateEnd}})
+                            </p>
+                            <div style="margin-bottom:1rem;">
+                                <p>
+                                    <input class="slider is-fullwidth" step="1" min="0" max="10" type="range"
+                                           v-model="modelMasteryPass.expectedDailyWins" v-on:change="refreshMasteryPass(false)">
+                                    {{modelMasteryPass.expectedDailyWins}} daily wins expected
+                                </p>
+                                <p>
+                                    <input class="slider is-fullwidth" step="1" min="0" max="15" type="range"
+                                           v-model="modelMasteryPass.expectedWeeklyWins" v-on:change="refreshMasteryPass(false)">
+                                    {{modelMasteryPass.expectedWeeklyWins}} weekly wins expected
+                                </p>
+                            </div>
+                            <table class="table is-narrow" style="width:unset;">
+                                <thead>
+                                    <tr>
+                                        <th>Description</th>
+                                        <th class="has-text-right">XP worth</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            {{modelMasteryPass.dailyQuestsAvailable}} / 3 daily quests available
+                                        </td>
+                                        <td class="has-text-right">
+                                            {{numeral(modelMasteryPass.xpWorthDailyQuestsToday).format('0,0')}}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding-bottom:1rem;">
+                                            {{modelMasteryPass.nbDaysLeft}} future daily quests
+                                        </td>
+                                        <td class="has-text-right">
+                                            {{numeral(modelMasteryPass.xpWorthDailyQuestsFuture).format('0,0')}}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            {{modelMasteryPass.dailyWinsCompleted}} / {{modelMasteryPass.expectedDailyWins}} daily wins completed today
+                                        </td>
+                                        <td class="has-text-right">
+                                            {{numeral(modelMasteryPass.xpWorthDailyWinsToday).format('0,0')}}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding-bottom:1rem;">
+                                            {{modelMasteryPass.nbDaysLeft}} days of future daily wins
+                                        </td>
+                                        <td class="has-text-right">
+                                            {{numeral(modelMasteryPass.xpWorthDailyWinsFuture).format('0,0')}}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            {{modelMasteryPass.weeklyWinsCompleted}} / {{modelMasteryPass.expectedWeeklyWins}} weekly wins completed this week
+                                        </td>
+                                        <td class="has-text-right">
+                                            {{numeral(modelMasteryPass.xpWorthWeeklyWinsToday).format('0,0')}}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding-bottom:1rem;">
+                                            {{modelMasteryPass.nbWeeksLeft}} weeks of future weekly wins
+                                        </td>
+                                        <td class="has-text-right">
+                                            {{numeral(modelMasteryPass.xpWorthWeeklyWinsFuture).format('0,0')}}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th>
+                                            Total
+                                        </th>
+                                        <th class="has-text-right">
+                                            {{numeral(modelMasteryPass.xpWorthTotal).format('0,0')}}
+                                        </th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                            <p>
+                                Estimated final level: {{modelMasteryPass.finalLevel}}
+                            </p>
+                            <p>
+                                * Please note that daily or weekly wins completed in the past that were not tracked are not accounted for because they do not appear in the log file.
+                            </p>
+                        </template>
+                    </div>
+                </div>
                 <div v-else-if="currentPage === pageProfile">
                     <h4 class="title is-4">My profile</h4>
-                    <div class="level box">
-                        <div class="level-item">
-                            <h5 class="subtitle is-5">
-                                User id : {{modelUser.id}}
-                            </h5>
-                        </div>
-                        <div class="level-item">
-                            <div class="field">
-                                <input type="checkbox" id="switchTheme" name="switchTheme" class="switch" v-model="themeIsDark" v-on:change="saveTheme()">
-                                <label for="switchTheme">{{themeIsDark ? 'Dark' : 'Light'}}</label>
-                                theme
+
+                    <template v-if="modelAccount.isAuthenticated">
+                        <div class="columns">
+                            <div class="column">
+                                <div v-if="modelAccount.isAuthenticated">
+                                    <!--<p>
+                                        Id: <span>{{modelAccount.subjectId}}</span>
+                                    </p>-->
+                                    <h5 class="subtitle is-5">
+                                        Email: <span>{{modelAccount.email}}</span>
+                                    </h5>
+                                </div>
+                                <div>
+                                    <h5 class="subtitle is-5">
+                                        User id : {{modelUser.id}}
+                                        <button v-on:click="showModalChangeAccountUserId = true;" class="button is-small tooltip is-tooltip-multiline" data-tooltip="This temporary feature allows you to link your old data to your new email login.">Change</button>
+                                    </h5>
+                                </div>
+                            </div>
+                            <div class="column">
+                                <div>
+                                    <div class="field">
+                                        <input type="checkbox" id="switchTheme" name="switchTheme" class="switch" v-model="themeIsDark" v-on:change="saveTheme()">
+                                        <label for="switchTheme">{{themeIsDark ? 'Dark' : 'Light'}}</label>
+                                        theme
+                                    </div>
+                                </div>
+                                <div v-if="modelUser.notificationsInactive.length > 0" style="margin-top:1rem;">
+                                    <div class="field tooltip is-tooltip-left"
+                                         v-bind:data-tooltip="'Reactivate the ' + modelUser.notificationsInactive.length + ' hidden notification' + (modelUser.notificationsInactive.length === 1 ? '' : 's')">
+                                        <button type="button" class="button" v-on:click="resetNotifications()">
+                                            Reset tips
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="level-item" v-if="modelUser.notificationsInactive.length > 0">
-                            <div class="field tooltip is-tooltip-left"
-                                 v-bind:data-tooltip="'Reactivate the ' + modelUser.notificationsInactive.length + ' hidden notification' + (modelUser.notificationsInactive.length === 1 ? '' : 's')">
-                                <button type="button" class="button" v-on:click="resetNotifications()">
-                                    Reset tips
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <h4 class="title is-4">
-                        Weights used for missing cards
-                    </h4>
-                    <h5 class="subtitle is-5">
-                        These values determine the importance of each card based on its rarity and if it's mained/sideboarded.
-                    </h5>
-                    <span v-if="typeof modelUser.weights.Mythic === 'undefined'" class="button is-loading"></span>
-                    <table v-else class="table is-bordered is-striped is-narrow" style="width:unset;">
-                        <thead>
-                            <tr>
-                                <th>Rarity</th>
-                                <th>Main</th>
-                                <th>Sideboard</th>
-                                <th v-if="showWeightsProposed()">
-                                    <span class="tooltip" data-tooltip="Based on your available wildcards">
-                                        <button class="button is-small is-info" v-on:click="applyUserWeightsProposed()">Use values</button>
-                                    </span>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Mythic</td>
-                                <td>
-                                    <input class="input is-small" type="text" v-model="modelUser.weights.Mythic.main" size="3" />
-                                </td>
-                                <td>
-                                    <input class="input is-small" type="text" v-model="modelUser.weights.Mythic.sideboard" size="3" />
-                                </td>
-                                <td v-if="showWeightsProposed()" class="has-text-centered">
-                                    {{modelUser.weightsProposed.Mythic}}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Rare (Land)</td>
-                                <td>
-                                    <input class="input is-small" type="text" v-model="modelUser.weights.RareLand.main" size="3" />
-                                </td>
-                                <td>
-                                    <input class="input is-small" type="text" v-model="modelUser.weights.RareLand.sideboard" size="3" />
-                                </td>
-                                <td v-if="showWeightsProposed()" class="has-text-centered">
-                                    {{modelUser.weightsProposed.RareLand}}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Rare (NonLand)</td>
-                                <td>
-                                    <input class="input is-small" type="text" v-model="modelUser.weights.RareNonLand.main" size="3" />
-                                </td>
-                                <td>
-                                    <input class="input is-small" type="text" v-model="modelUser.weights.RareNonLand.sideboard" size="3" />
-                                </td>
-                                <td v-if="showWeightsProposed()" class="has-text-centered">
-                                    {{modelUser.weightsProposed.RareNonLand}}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Uncommon</td>
-                                <td>
-                                    <input class="input is-small" type="text" v-model="modelUser.weights.Uncommon.main" size="3" />
-                                </td>
-                                <td>
-                                    <input class="input is-small" type="text" v-model="modelUser.weights.Uncommon.sideboard" size="3" />
-                                </td>
-                                <td v-if="showWeightsProposed()" class="has-text-centered">
-                                    {{modelUser.weightsProposed.Uncommon}}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Common</td>
-                                <td>
-                                    <input class="input is-small" type="text" v-model="modelUser.weights.Common.main" size="3" />
-                                </td>
-                                <td>
-                                    <input class="input is-small" type="text" v-model="modelUser.weights.Common.sideboard" size="3" />
-                                </td>
-                                <td v-if="showWeightsProposed()" class="has-text-centered">
-                                    {{modelUser.weightsProposed.Common}}
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <span class="tooltip is-tooltip-right" data-tooltip="Use the initial default values">
-                        <button class="button is-danger" v-on:click="resetUserWeights()"
+                        <h4 class="title is-4">
+                            Weights used for missing cards
+                        </h4>
+                        <h5 class="subtitle is-5">
+                            These values determine the importance of each card based on its rarity and if it's mained/sideboarded.
+                        </h5>
+                        <span v-if="typeof modelUser.weights.Mythic === 'undefined'" class="button is-loading"></span>
+                        <table v-else class="table is-bordered is-striped is-narrow" style="width:unset;">
+                            <thead>
+                                <tr>
+                                    <th>Rarity</th>
+                                    <th>Main</th>
+                                    <th>Sideboard</th>
+                                    <th v-if="showWeightsProposed()">
+                                        <span class="tooltip" data-tooltip="Based on your available wildcards">
+                                            <button class="button is-small is-info" v-on:click="applyUserWeightsProposed()">Use values</button>
+                                        </span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Mythic</td>
+                                    <td>
+                                        <input class="input is-small" type="text" v-model="modelUser.weights.Mythic.main" size="3" />
+                                    </td>
+                                    <td>
+                                        <input class="input is-small" type="text" v-model="modelUser.weights.Mythic.sideboard" size="3" />
+                                    </td>
+                                    <td v-if="showWeightsProposed()" class="has-text-centered">
+                                        {{modelUser.weightsProposed.Mythic}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Rare (Land)</td>
+                                    <td>
+                                        <input class="input is-small" type="text" v-model="modelUser.weights.RareLand.main" size="3" />
+                                    </td>
+                                    <td>
+                                        <input class="input is-small" type="text" v-model="modelUser.weights.RareLand.sideboard" size="3" />
+                                    </td>
+                                    <td v-if="showWeightsProposed()" class="has-text-centered">
+                                        {{modelUser.weightsProposed.RareLand}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Rare (NonLand)</td>
+                                    <td>
+                                        <input class="input is-small" type="text" v-model="modelUser.weights.RareNonLand.main" size="3" />
+                                    </td>
+                                    <td>
+                                        <input class="input is-small" type="text" v-model="modelUser.weights.RareNonLand.sideboard" size="3" />
+                                    </td>
+                                    <td v-if="showWeightsProposed()" class="has-text-centered">
+                                        {{modelUser.weightsProposed.RareNonLand}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Uncommon</td>
+                                    <td>
+                                        <input class="input is-small" type="text" v-model="modelUser.weights.Uncommon.main" size="3" />
+                                    </td>
+                                    <td>
+                                        <input class="input is-small" type="text" v-model="modelUser.weights.Uncommon.sideboard" size="3" />
+                                    </td>
+                                    <td v-if="showWeightsProposed()" class="has-text-centered">
+                                        {{modelUser.weightsProposed.Uncommon}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Common</td>
+                                    <td>
+                                        <input class="input is-small" type="text" v-model="modelUser.weights.Common.main" size="3" />
+                                    </td>
+                                    <td>
+                                        <input class="input is-small" type="text" v-model="modelUser.weights.Common.sideboard" size="3" />
+                                    </td>
+                                    <td v-if="showWeightsProposed()" class="has-text-centered">
+                                        {{modelUser.weightsProposed.Common}}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <span class="tooltip is-tooltip-right" data-tooltip="Use the initial default values">
+                            <button class="button is-danger" v-on:click="resetUserWeights()"
+                                    v-bind:class="getClassIsLoadingData('setWeights')" :disabled="isLoadingData('setWeights')">
+                                Reset weights
+                            </button>
+                        </span>
+                        <button class="button is-primary" v-on:click="setUserWeights()"
                                 v-bind:class="getClassIsLoadingData('setWeights')" :disabled="isLoadingData('setWeights')">
-                            Reset weights
+                            Update weights
                         </button>
-                    </span>
-                    <button class="button is-primary" v-on:click="setUserWeights()"
-                            v-bind:class="getClassIsLoadingData('setWeights')" :disabled="isLoadingData('setWeights')">
-                        Update weights
-                    </button>
-                    <div class="notification" style="margin-top:1em;">
-                        <p>
-                            <span class="icon has-text-info"><i class="fas fa-info-circle"></i></span>
-                            All values are relative so the number matters less than the relationship between them: A card worth a total missing weight of 1,200 is twice more important to get than one worth 600.
-                        </p>
+                        <div class="notification" style="margin-top:1em;">
+                            <p>
+                                <span class="icon has-text-info"><i class="fas fa-info-circle"></i></span>
+                                All values are relative so the number matters less than the relationship between them: A card worth a total missing weight of 1,200 is twice more important to get than one worth 600.
+                            </p>
+                        </div>
+                    </template>
+                    <div v-else>
+                        Please sign-in to view your profile.
                     </div>
                 </div>
                 <div v-else-if="currentPage === pageLands">
@@ -2831,21 +3007,30 @@
                     <h4 class="title is-4">
                         About MTGAHelper
                     </h4>
-                    <div class="box">
+                    <div class="box" style="width:800px;">
+                        <img src="/images/hero1-bg.jpg" style="width:600px;" />
                         <p>
                             Welcome!
                         </p>
                         <p>
-                            So it happens I'm a programmer at heart and I got addicted to Magic: The Gathering Arena.
-                            <br />
-                            I started writing programs to help me analyze data about my collection and the decks over all the web. It outgrew all my estimations and is now what is called MTGAHelper.
+                            What led to me creating MTGAHelper? It all started a long time ago when I tried out a certain card game in high school.
                         </p>
                         <p>
-                            I wanted to share my work with all others MTGA enthusiasts out there. I hope you enjoy it!
+                            I can clearly remember thinking I had a very cool deck at the time: a white milling deck. Pretty awful in retrospect but that's how I learned to both play and love Magic...Then I moved on to other activities and stopped playing.
+                        </p>
+                        <p>
+                            In 2018, <strong>Magic: The Gathering Arena</strong>'s Beta reared its head and I was instantly hooked again by the greatest card game ever created. In all that time between high school and then, I also happened to become a programmer.
+                        </p>
+                        <p>
+                            I started writing programs to help me analyze my data - collection, matches played, decks over all the web and such — and after a few months it came to become what is now known as MTGAHelper.
+                        </p>
+                        <p>
+                            I wanted to share the tools I am building with all the others MTGA enthusiasts out there.
+                            Hopefully you enjoy it!
                         </p>
                         <p>
                             If you appreciate the tools being provided, see how you can help
-                            <a v-on:click="showModalDonate = true;">support the project</a>.
+                            <strong><a v-on:click="showModalDonate = true;">support the project</a></strong>.
                             and improve the servers responsiveness. Thanks!
                         </p>
                     </div>
@@ -2933,6 +3118,99 @@
                         </p>
                     </div>
                 </div>
+                <div v-else-if="currentPage === pageTerms">
+                    <h4 class="title is-4">Terms of Service ("Terms")</h4>
+                    <h6 class="subtitle is-6">
+                        Last updated on October 17, 2019
+                    </h6>
+
+                    <div class="box">
+                        <p>Please read these Terms of Service ("Terms", "Terms of Service") carefully before using the https://mtgahelper.com website (the "Service") operated by MTGAHelper ("I", "me", "my", "us", "we", or "our").</p>
+
+                        <h5 class="title is-5">
+                            Privacy Policy
+                        </h5>
+
+                        <p>Before you continue using our website we advise you to read our <a v-on:click="loadPage(pagePrivacy)">privacy policy</a> regarding our user data collection. It will help you better understand our practices.</p>
+
+                        <h5 class="title is-5">
+                            Conditions of Use
+                        </h5>
+
+                        <p>Your access to and use of the Service is conditioned on your acceptance of and compliance with these Terms. These Terms apply to all visitors, users and others who access or use the Service.</p>
+
+                        <p>By accessing or using the Service you agree to be bound by these Terms. If you disagree with any part of the terms then you may not access the Service.</p>
+
+
+                        <h5 class="title is-5">
+                            Accounts
+                        </h5>
+
+                        <p>If you are an owner of an account on this website, you are solely responsible for safeguarding the password that you use to access the Service and for any activities or actions under your password, whether your password is with our Service or a third-party service.</p>
+
+                        <p>You agree not to disclose your password to any third party. You must notify us immediately upon becoming aware of any breach of security or unauthorized use of your account.</p>
+
+
+                        <h5 class="title is-5">
+                            Links To Other Web Sites
+                        </h5>
+
+                        <p>Our Service may contain links to third-party web sites or services that are not owned or controlled by MTGAHelper.</p>
+
+                        <p>MTGAHelper has no control over, and assumes no responsibility for, the content, privacy policies, or practices of any third party web sites or services. You further acknowledge and agree that MTGAHelper shall not be responsible or liable, directly or indirectly, for any damage or loss caused or alleged to be caused by or in connection with use of or reliance on any such content, goods or services available on or through any such web sites or services.</p>
+
+                        <p>We strongly advise you to read the terms and conditions and privacy policies of any third-party web sites or services that you visit.</p>
+
+
+                        <h5 class="title is-5">
+                            Termination
+                        </h5>
+
+                        <p>We may terminate or suspend access to our Service immediately, without prior notice or liability, for any reason whatsoever, including without limitation if you breach the Terms.</p>
+
+                        <p>All provisions of the Terms which by their nature should survive termination shall survive termination, including, without limitation, ownership provisions, warranty disclaimers, indemnity and limitations of liability.</p>
+
+                        <p>Upon termination, your right to use the Service will immediately cease. If you wish to terminate your account, you may simply discontinue using the Service.</p>
+
+                        <h5 class="title is-5">
+                            Comments, Reviews, and Emails
+                        </h5>
+
+                        <p>Visitors may post content as long as it is not obscene, illegal, defamatory, threatening, infringing of intellectual property rights, invasive of privacy or injurious in any other way to third parties. Content has to be free of software viruses, political campaign, and commercial solicitation.</p>
+
+                        <p>We reserve all rights (but not the obligation) to remove and/or edit such content. When you post your content, you grant MTGAHelper non-exclusive, royalty-free and irrevocable right to use, reproduce, publish, modify such content throughout the world in any media.</p>
+
+                        <h5 class="title is-5">
+                            Communications
+                        </h5>
+
+                        <p>The entire communication with us is electronic. Every time you send us an email or visit our website, you are going to be communicating with us. You hereby consent to receive communications from us. You also agree that all notices, disclosures, agreements and other communications we provide to you electronically meet the legal requirements that such communications be in writing.</p>
+
+                        <h5 class="title is-5">
+                            Governing Law
+                        </h5>
+
+                        <p>These Terms shall be governed and construed in accordance with the laws of Quebec, Canada, without regard to its conflict of law provisions.</p>
+
+                        <p>Our failure to enforce any right or provision of these Terms will not be considered a waiver of those rights. If any provision of these Terms is held to be invalid or unenforceable by a court, the remaining provisions of these Terms will remain in effect. These Terms constitute the entire agreement between us regarding our Service, and supersede and replace any prior agreements we might have between us regarding the Service.</p>
+
+
+                        <h5 class="title is-5">
+                            Changes
+                        </h5>
+
+                        <p>We reserve the right, at our sole discretion, to modify or replace these Terms at any time. If a revision is material we will try to provide at least 30 days notice prior to any new terms taking effect. What constitutes a material change will be determined at our sole discretion.</p>
+
+                        <p>By continuing to access or use our Service after those revisions become effective, you agree to be bound by the revised terms. If you do not agree to the new terms, please stop using the Service.</p>
+
+
+                        <h5 class="title is-5">
+                            Contact Us
+                        </h5>
+
+                        <p>If you have any questions about these Terms, please <a v-on:click="loadPage(pageContact)">contact us</a>.</p>
+                    </div>
+                </div>
                 <!--<div>
                     <script type="text/javascript">
                         amzn_assoc_placement = "adunit0";
@@ -2954,7 +3232,7 @@
                     <h4 class="title is-4">
                         Help determine what's next
                     </h4>
-                    <div class="box" style="width:520px;">
+                    <div>
                         <script type="text/javascript" src="https://host1.easypolls.net/ext/scripts/emPoll.js?c=5d7554c7e4b00d4af40ac339"></script>
                         <a class="OPP-powered-by" href="https://www.easypolls.net/" style="text-decoration:none;"><div style="font: 9px arial; color: gray;">undefined</div></a>
                         <noscript>JavaScript is disabled!</noscript>
@@ -2964,6 +3242,7 @@
                 <div class="notification is-size-7" style="margin-top:1rem; padding:0.5rem 2.5rem 0.5rem 1.5rem;">
                     <p class="footerLinks">
                         <a v-on:click="loadPage(pagePrivacy)">Privacy policy</a>
+                        <a v-on:click="loadPage(pageTerms)">Terms of use</a>
                         <a v-on:click="loadPage(pageContact)">Contact us</a>
                         <a v-on:click="loadPage(pageAbout)">About</a>
                         <a href="https://github.com/ibiza240/MTGAHelper-Windows-Client" target="_blank">Install the tracker</a>
@@ -2988,14 +3267,14 @@
                 <span id="iconChangelog" class="float tooltip is-tooltip-left" data-tooltip="Changelog" style="right:103px;" v-on:click="loadPage(pageChangelog)">
                     <i class="fas fa-history my-float"></i>
                 </span>
-                <span id="iconBacklog" class="float tooltip is-tooltip-left" data-tooltip="Vote for the next features" style="right:53px;" v-on:click="loadPage(pageBacklog)">
+                <span id="iconBacklog" class="float tooltip is-tooltip-left" data-tooltip="Vote for the next features in November" style="right:53px;" v-on:click="loadPage(pageBacklog)">
                     <i class="fas fa-laptop-code my-float"></i>
                 </span>
                 <span class="float tooltip is-tooltip-left" data-tooltip="Support the project" style="z-index:2147483647;" v-on:click="showModalDonate = true">
-                    <i class="fas fa-heart my-float"></i>
+                    <i class="fas fa-heart my-float" style="color:#bf0000;"></i>
                 </span>
                 <!-- MODALS -->
-                <div class="modal" v-bind:class="showLoginModal ? 'is-active' : ''">
+                <!--<div class="modal" v-bind:class="showLoginModal ? 'is-active' : ''">
                     <div class="modal-background" v-on:click="showLoginModal = false"></div>
                     <div class="modal-content box">
                         <div class="field is-grouped" style="justify-content: center;">
@@ -3007,6 +3286,25 @@
                                 </div>
                                 <div class="control"><button class="button is-link" v-on:click="tryToLoginWithUserId()">Go</button></div>
                             </div>
+                        </div>
+                    </div>
+                    <button class="modal-close is-large" aria-label="close" v-on:click="showLoginModal = false"></button>
+                </div>-->
+                <div class="modal" v-bind:class="showModalChangeAccountUserId ? 'is-active' : ''">
+                    <div class="modal-background" v-on:click="showModalChangeAccountUserId = false"></div>
+                    <div class="modal-content box">
+                        <div class="field is-grouped" style="justify-content: center;">
+                            <span class="is-size-4" style="margin-right:1rem;">User id:</span>
+                            <div class="field has-addons">
+                                <div class="control">
+                                    <input type="text" class="input" id="txtLoginId" v-model="accountUserId" placeholder="3e67ec9fee324e9fa39742d563fc95ab"
+                                           style="width:24rem;" />
+                                </div>
+                                <div class="control"><button class="button is-link" v-on:click="changeAccountUserId()">Change</button></div>
+                            </div>
+                        </div>
+                        <div class="has-text-centered">
+                            Enter your original user id to associate your data with your new email login.
                         </div>
                     </div>
                     <button class="modal-close is-large" aria-label="close" v-on:click="showLoginModal = false"></button>
@@ -3036,11 +3334,15 @@
                             </h7>
                         </div>
                         <div class="field">
+                            <input type="checkbox" id="switchExportCollectionIncludeNotOwned" name="switchExportCollectionIncludeNotOwned" class="switch" v-model="exportCollectionIncludeNotOwned">
+                            <label for="switchExportCollectionIncludeNotOwned">Include cards with 0 copies</label>
+                        </div>
+                        <div class="field">
                             <input type="checkbox" id="switchExportCollectionHeader" name="switchExportCollectionHeader" class="switch" v-model="exportCollectionHeader">
                             <label for="switchExportCollectionHeader">With Header</label>
                         </div>
                         <div class="field">
-                            <a v-bind:href="'/api/User/ExportCollection?format=' + this.exportCollectionFormat + '&header=' + this.exportCollectionHeader" target="_blank" class="button is-info">
+                            <a v-bind:href="'/api/User/ExportCollection?format=' + exportCollectionFormat + '&header=' + exportCollectionHeader + '&includeNotOwned=' + exportCollectionIncludeNotOwned" target="_blank" class="button is-info">
                                 Export
                             </a>
                         </div>
@@ -3120,41 +3422,136 @@
                     </div>
                     <button class="modal-close is-large" aria-label="close" v-on:click="showUploadCollectionModal = false"></button>
                 </div>
+                <div class="modal" v-bind:class="showModalLogin ? 'is-active' : ''">
+                    <div class="modal-background" v-on:click="showModalLogin = false"></div>
+                    <div class="modal-content box">
+                        <div class="columns">
+                            <div class="column">
+                                <h3 class="title is-3">Sign-in</h3>
+                                <div class="button">
+                                    <img src="https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png" style="height:1rem; margin-right:1rem;" alt="Google" />
+                                    <a href="/External/Challenge?provider=Google&returnUrl=%2F">With Google</a>
+                                </div>
+                                <div class="button" style="margin-top:1rem;">
+                                    <img src="https://static.xx.fbcdn.net/rsrc.php/yo/r/iRmz9lCMBD2.ico" style="height:1rem; margin-right:1rem;" alt="Facebook" />
+                                    <a href="/External/Challenge?provider=Facebook&returnUrl=%2F">With Facebook</a>
+                                </div>
+                                <!--<div>
+                                    <a href="/External/Challenge?provider=Twitter&returnUrl=%2F">With Twitter</a>
+                                </div>-->
+                                <hr />
+                                <h4 class="title is-4">Or with a local account</h4>
+                                <div class="field">
+                                    <div class="control">
+                                        <label class="label is-small">Email</label>
+                                        <input class="input is-small" type="text" v-model="signin.email" size="16" />
+                                    </div>
+                                </div>
+                                <div class="field">
+                                    <div class="control">
+                                        <label class="label is-small">Password</label>
+                                        <input class="input is-small" type="password" v-model="signin.password" size="16" />
+                                    </div>
+                                </div>
+                                <div>
+                                    <button class="button is-info" v-on:click="doSignin()">Sign-in</button>
+                                </div>
+                            </div>
+                            <div class="column" style="border-left:dashed 1px #888;">
+                                <h3 class="title is-3">Sign-up</h3>
+                                <h4 class="subtitle is-4">with a local account</h4>
+                                <div class="field">
+                                    <div class="control">
+                                        <label class="label is-small">Email</label>
+                                        <input class="input is-small" type="text" v-model="signup.email" size="16" />
+                                    </div>
+                                </div>
+                                <div class="field">
+                                    <div class="control">
+                                        <label class="label is-small">Password</label>
+                                        <input class="input is-small" type="password" v-model="signup.password" size="16" />
+                                    </div>
+                                </div>
+                                <div>
+                                    <button class="button is-info" v-on:click="doSignup()" v-bind:class="getClassIsLoadingData(loadSignup)" :disabled="isLoadingData(loadSignup)">Sign-up</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="has-text-weight-bold has-text-centered">
+                            <div v-if="modelAccount.message !== null">
+                                <span v-if="modelAccount.responseStatus !== 'Success'">
+                                    Error:
+                                </span>
+                                {{modelAccount.message}}
+                                <button v-if="modelAccount.status === 'WaitingForVerificationCode'" v-on:click="resendVerificationCode()"
+                                        class="button is-small is-info" v-bind:class="getClassIsLoadingData(loadResendCode)" :disabled="isLoadingData(loadResendCode)">
+                                    Resend code
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="modal modalTopLevel" v-bind:class="showModalDonate ? 'is-active' : ''">
                     <div class="modal-background" v-on:click="showModalDonate = false"></div>
                     <div class="modal-content box">
                         <h4 class="title is-4">
-                            <i class="fas fa-heart"></i>
+                            <i class="fas fa-heart" style="color:#890000;"></i>
                             Help improve MTGAHelper
                         </h4>
-                        <div>
+                        <h5 class="subtitle is-5" style="padding-left:2rem;">
                             We would love to deliver blazing fast responsiveness
+                            <i class="fas fa-bolt" style="color:gold;"></i>
+                        </h5>
+                        <div>
                         </div>
                         <div class="has-text-centered" style="margin: 1rem;">
                             <span class="is-size-7">
-                                Monthly objective for ideal servers availability: 16 / 100$
+                                Monthly objective for ideal servers availability: 28 / 100$
                             </span>
                             <div style="margin-top:0.2rem">
-                                <progress class="progress" value="16" max="100">16%</progress>
+                                <progress class="progress" value="28" max="100">28%</progress>
                             </div>
                         </div>
-                        <p>
-                            If you want to support this service monthly, you can do so with
-                            <strong><a href="https://www.patreon.com/mtgahelper" target="_blank">Patreon</a></strong>
-                            <br />
-                            It is also possible to make a donation through
-                            <strong><a href="https://www.paypal.me/mtgahelper" target="_blank">Paypal</a></strong>
-                        </p>
-                        <div class="box">
-                            <h5 class="title is-5">
-                                FREE ways to support MTGAHelper
-                            </h5>
-                            <div><a target="_blank" href="https://www.amazon.com?tag=mtgahelper01-20"><i class="fab fa-amazon"></i> Use this referral link when shopping on <strong>Amazon</strong></a></div>
-                            <div style="margin-top:0.5rem"><i class="far fa-heart"></i> Spread the word! Help people discover MTGAHelper</div>
-                            <div style="margin-top:0.5rem"><i class="fas fa-mouse-pointer"></i> Whitelist this site from your ad-blocker</div>
+                        <div class="columns" style="margin-top:1rem;">
+                            <div class="column">
+                                If you would like to support this service monthly, you can do so with
+                                <img src="https://c5.patreon.com/external/favicon/favicon-32x32.png?v=69kMELnXkB" style="height:1rem" alt="Patreon" />&nbsp;<strong><a href="https://www.patreon.com/mtgahelper" target="_blank">Patreon</a></strong>
+                            </div>
+                            <div class="column" style="border-left:1px dashed #888;">
+                                To make a one-time donation you can use
+                                <img src="https://www.paypalobjects.com/webstatic/icon/pp32.png" style="height:1rem" alt="Paypal" />&nbsp;<strong><a href="https://www.paypal.me/mtgahelper" target="_blank">Paypal</a></strong>
+                            </div>
                         </div>
+                        <p style="margin:0;">
+                            You can also help by subscribing to one of these services:
+                        </p>
+                        <ul style="margin:0 0 1rem 1rem; list-style-type:none;">
+                            <li>
+                                <img src="/images/amazonprime.png" alt="Amazon Prime" style="height:1rem; margin-top:0.2rem;" />
+                                <a target="_blank" href="https://www.amazon.com/tryprimefree?ref_=assoc_tag_ph_1427739975520&_encoding=UTF8&camp=1789&creative=9325&linkCode=pf4&tag=mtgahelper01-20&linkId=42d317f3f80c3f694584946fca7fae34">
+                                    Amazon Prime (30-Day Free Trial)
+                                </a>
+                                <img src="//ir-na.amazon-adsystem.com/e/ir?t=mtgahelper01-20&l=pf4&o=1" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+                            </li>
+                            <li>
+                                <img src="/images/twitchprime.png" alt="Amazon Prime" style="height:1rem; margin-top:0.2rem;" />
+                                <a target="_blank" href="https://www.amazon.com/b/?ie=UTF8&node=15195001011&ref_=assoc_tag_ph_1500607949196&_encoding=UTF8&camp=1789&creative=9325&linkCode=pf4&tag=mtgahelper01-20&linkId=7406b56eb98397346aa47a70a9985713">
+                                    Twitch Prime (30-Day Free Trial)
+                                </a>
+                                <img src="//ir-na.amazon-adsystem.com/e/ir?t=mtgahelper01-20&l=pf4&o=1" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+                            </li>
+                        </ul>
+                        <hr />
+                        <h5 class="title is-5">
+                           FREE ways to help MTGAHelper
+                        </h5>
+                        <div><a target="_blank" href="https://www.amazon.com?tag=mtgahelper01-20"><i class="fab fa-amazon"></i> Use this referral link when shopping on <strong>Amazon</strong></a>. Christmas is coming! 🎁</div>
+                        <div style="margin-top:0.5rem"><i class="fas fa-share-alt"></i> <strong>Help the community grow</strong>: Share or recommend this resource</div>
+                        <div style="margin-top:0.5rem"><i class="fas fa-mouse-pointer"></i> Whitelist this site from your ad-blocker. Even if there are no ads xD</div>
                         <div style="margin-top:1.5rem">
-                            <h4 class="title is-4 has-text-weight-bold">A huge thanks to everyone supporting this project</h4>
+                            <h4 class="title is-4" style="margin-bottom:0;">
+                                A huge thanks to everyone supporting this project
+                            </h4>
                         </div>
                     </div>
                 </div>
