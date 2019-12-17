@@ -25,11 +25,18 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pivottable/2.23.0/plotly_renderers.min.js" integrity="sha256-Y0EYqPg/MEAxRVq5Baq0iNEUDPE8d3KpJ0nk95EqbRQ=" crossorigin="anonymous"></script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pivottable/2.23.0/pivot.min.css" integrity="sha256-nn3M6N8S2BjPirPhvCF61ZCcgcppdLtnaNOLhiwro7E=" crossorigin="anonymous" />
+
+    <style>
+        .pvtTable, .pvtTable thead tr th, .pvtTable tbody tr th {
+            font-size:1.5rem !important;
+        }
+        .pvtTable thead tr th, .pvtTable tbody tr th, .pvtTable tbody tr td {
+            padding:0.7rem !important;
+        }
+    </style>
 </head>
 <body style="background-color:#e3e2df; min-height:100vh;">
     <script type="text/javascript">
-
-        var scryfallImagesPrefix = 'https://img.scryfall.com/cards';
 
         $(function () {
             var renderers = $.extend($.pivotUtilities.renderers,
@@ -40,7 +47,7 @@
                 var data = JSON.parse(body);
                 if (statuscode === 200) {
                     $('#deckName').html(data.analysis.deckName);
-                    $('#deckImage').prop('src', scryfallImagesPrefix + data.analysis.deckImage)
+                    $('#deckImage').prop('src', data.analysis.deckImage)
                     $('#deckImage').prop('alt', data.analysis.deckName)
 
                     $("#output").pivotUI(data.analysis.matchesInfo,
@@ -64,6 +71,9 @@
     <h2 class="title is-2">
         MTGAHelper Deck Analysis
     </h2>
+    <h5 class="subtitle is-5 has-text-weight-bold">
+        Use this like a Pivot Table in Excel.<br />Drag and drop labels to the row or column areas to segment and display your data as you want.
+    </h5>
     <div class="columns is-vcentered">
         <div class="column is-narrow">
             <img id="deckImage" style="height:64px; margin-left:1rem;" />
@@ -72,11 +82,8 @@
             <h3 id="deckName" class="title is-3"></h3>
         </div>
     </div>
-    <div id="output"></div>
-    <div style="margin-top:1rem;">
-        <h7 class="title is-7">
-            Use this like a Pivot Table in Excel. Drag and drop labels to the row or column areas to segment and display your data as you want.
-        </h7>
+    <div class="is-size-5">
+        <div id="output"></div>
     </div>
 </body>
 </html>
