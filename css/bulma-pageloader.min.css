@@ -233,7 +233,7 @@
         animation: loader-figure 1.15s infinite cubic-bezier(.215,.61,.355,1)
     }*/
 
-    .pageloader .title {
+    /*.pageloader .title {
         position: absolute;
         top: 50%;
         left: 50%;
@@ -245,7 +245,7 @@
         line-height: 1.5em;
         color: #fff;
         white-space: nowrap
-    }
+    }*/
 
 @-webkit-keyframes loader-figure {
     0% {

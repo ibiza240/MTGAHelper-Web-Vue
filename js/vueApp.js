@@ -93,7 +93,7 @@ var routes = [
     { pageName: pageDashboardDetails, route: 'my/missingCardsDetails' },
     { pageName: pageScrapers, route: 'my/sources' },
     { pageName: pageCustomDecks, route: 'my/decks' },
-    { pageName: pageMasteryPass, route: 'my/masteryPass' },
+    { pageName: pageMasteryPass, route: 'my/masteryPass' }
 ];
 
 var vueApp = new Vue({
@@ -130,6 +130,7 @@ var vueApp = new Vue({
         showModalExportCollection: false,
         showModalLogin: false,
         showModalChangeAccountUserId: false,
+        showModalAdPreorder: false,
         deckToShare: {},
 
         exportCollectionFormat: '$name,$amount,$rarity,$set,$number',
@@ -194,13 +195,13 @@ var vueApp = new Vue({
             {
                 img: 'https://c5.patreon.com/external/favicon/favicon-32x32.png?v=69kMELnXkB',
                 text: 'Join us on Patreon',
-                tooltip: 'If you like this service and wish to show your appreciation 💪 Thanks to all supporters!',
+                tooltip: 'Join us on Patreon if you like this service and wish to show your appreciation 💪 Thanks to all supporters!',
                 href: 'https://www.patreon.com/mtgahelper'
             },
             {
                 img: 'https://www.paypalobjects.com/webstatic/icon/pp32.png',
                 text: 'Contribute to the coffee fund',
-                tooltip: 'Must. produce.. more...code 😴 Thanks to all supporters!',
+                tooltip: 'Contribute to the coffee fund ☕ Thanks to all supporters!',
                 href: 'https://www.paypal.me/mtgahelper'
             }
         ],
@@ -283,17 +284,31 @@ var vueApp = new Vue({
 
         modelDraftsCalculator: {
             defaultValues: {
+                winsPerDraft: 3,
                 packsPerDraft: 1.35,
                 raresPerDraft: 2.5,
-                mythicsPerDraft: 0.5
+                mythicsPerDraft: 0.5,
+                additionalPacks: 0
             },
 
+            winsPerDraft: 3,
             packsPerDraft: 1.35,
             raresPerDraft: 2.5,
             mythicsPerDraft: 0.5,
-            sets: ["GRN", "RNA", "WAR", "M20", "ELD"],
-            setSelected: "ELD",
-            result: null
+            sets: ["THB", "ELD", "M20", "WAR", "RNA", "GRN", "M19", "DOM", "RIX", "XLN"],
+            setSelected: "THB",
+            result: null,
+
+            gemsPerWin: {
+                0: 50,
+                1: 100,
+                2: 200,
+                3: 300,
+                4: 450,
+                5: 650,
+                6: 850,
+                7: 950
+            }
         },
 
         modelUser: {
@@ -308,7 +323,7 @@ var vueApp = new Vue({
                         Common: 0,
                         Uncommon: 0,
                         Rare: 0,
-                        Mythic: 0,
+                        Mythic: 0
                     }
                 }
             },
@@ -350,7 +365,8 @@ var vueApp = new Vue({
                 set: '',
                 rarity: '',
                 card: '',
-                showMissing: false
+                showMissing: false,
+                showOnlyInBoosters: false
             }
         },
 
@@ -396,7 +412,7 @@ var vueApp = new Vue({
             detailsFiltered: [],
 
             detailsFilters: {
-                sets: ['', /*'XLN', 'RIX', 'DOM', 'M19',*/ 'GRN', 'RNA', 'WAR', 'M20', 'ELD'],
+                sets: ['', /*'XLN', 'RIX', 'DOM', 'M19',*/ 'GRN', 'RNA', 'WAR', 'M20', 'ELD', 'THB'],
                 rarities: ['', 'Mythic', 'RareLand', 'RareNonLand', 'Uncommon', 'Common'],
 
                 set: '',
@@ -414,7 +430,7 @@ var vueApp = new Vue({
         modelNews: [],
         modelArticles: [],
         modelArticleSelected: {},
-        modelMtgaDecksSummary: [],
+        modelMtgaDecksSummary: []
     },
     created: function () {
         let added = Object.keys(this.themes).map(name => {
@@ -423,7 +439,7 @@ var vueApp = new Vue({
 
         Promise.all(added).then(sheets => {
             this.themeHelper.theme = this.themeIsDark ? 'dark' : 'light';
-            document.getElementById("divInitialLoader").classList.remove("is-active");
+            //document.getElementById("divInitialLoader").classList.remove("is-active");
         });
 
         addEventListener('popstate', this.loadPageFromBackButton, false);
@@ -644,6 +660,14 @@ var vueApp = new Vue({
         isNotificationActive(key) {
             return this.modelUser.notificationsInactive.indexOf(key) < 0;
         },
+        showMissingRarity(rarity, set) {
+            this.modelUserCollectionFiltered.filters.rarity = rarity;
+            this.modelUserCollectionFiltered.filters.set = set;
+            this.modelUserCollectionFiltered.filters.showMissing = true;
+            this.modelUserCollectionFiltered.filters.showOnlyInBoosters = true;
+            vueApp.filterCollection();
+            this.loadPage(pageCollection);
+        },
         showCard(imageUrl) {
             if (imageUrl === null) {
                 this.modelCardSelectedUrl = '';
@@ -732,6 +756,7 @@ var vueApp = new Vue({
             sendAjaxGet('/api/User/Register', function (statuscode, body) {
                 var data = JSON.parse(body);
                 vueApp.modelUser.id = data.userId;
+                vueApp.modelUser.isSupporter = data.isSupporter;
                 vueApp.modelUser.nbLogin = data.nbLogin;
 
                 function calcTopAdIndex(nbLogin) {
@@ -886,10 +911,18 @@ var vueApp = new Vue({
                 vueApp.modelMasteryPass = JSON.parse(body);
             });
         },
+        calculateDraftGemsWon(nbDrafts) {
+            var floor = this.modelDraftsCalculator.gemsPerWin[Math.floor(this.modelDraftsCalculator.winsPerDraft)];
+            var ceiling = this.modelDraftsCalculator.gemsPerWin[Math.ceil(this.modelDraftsCalculator.winsPerDraft)];
+            return (floor + ceiling) / 2 * nbDrafts;
+        },
         resetDraftCalculator() {
+            this.modelDraftsCalculator.winsPerDraft = 3;
             this.modelDraftsCalculator.raresPerDraft = this.modelDraftsCalculator.defaultValues.raresPerDraft;
             this.modelDraftsCalculator.mythicsPerDraft = this.modelDraftsCalculator.defaultValues.mythicsPerDraft;
             this.modelDraftsCalculator.packsPerDraft = this.modelDraftsCalculator.defaultValues.packsPerDraft;
+            this.modelDraftsCalculator.additionalPacks = 0;
+            this.refreshDraftsCalculator();
         },
         refreshDraftsCalculator() {
             //if (typeof initRequest === 'undefined') initRequest = true;
@@ -906,7 +939,9 @@ var vueApp = new Vue({
                 "&mythicsPerDraft=" +
                 this.modelDraftsCalculator.mythicsPerDraft +
                 "&packsPerDraft=" +
-                this.modelDraftsCalculator.packsPerDraft;
+                this.modelDraftsCalculator.packsPerDraft +
+                "&additionalPacks=" +
+                (parseInt(this.modelDraftsCalculator.additionalPacks) || 0);
 
             this.loadData(pageDraftBeforeBoosters, true);
             sendAjaxGet(request, (statuscode, body) => {
@@ -997,8 +1032,8 @@ var vueApp = new Vue({
                             return {
                                 type: i.key,
                                 searchByUser: '',
-                                bySection: i.values.filter(x => { return x.isByUser === false }),
-                                byUser: i.values.filter(x => { return x.isByUser === true }),
+                                bySection: i.values.filter(x => { return x.isByUser === false; }),
+                                byUser: i.values.filter(x => { return x.isByUser === true; }),
                                 group: i.key === 'aetherhub' ? 0 : i.key === 'mtggoldfish' || i.key === 'mtgtop8' || i.key === 'mtgatool' || i.key === 'userdecksource' ? 1 : 2
                             };
                         });
@@ -1142,7 +1177,7 @@ var vueApp = new Vue({
             var landsSelected = vueApp.modelLands
                 .reduce((a, b) => { return a.concat(b.cards); }, [])
                 .filter(i => i.isSelected)
-                .map(i => i.grpId);;
+                .map(i => i.grpId);
 
             var body = {
                 lands: landsSelected
@@ -1163,6 +1198,7 @@ var vueApp = new Vue({
             var card = this.modelUserCollectionFiltered.filters.card.trim();
             var rarity = this.modelUserCollectionFiltered.filters.rarity;
             var set = this.modelUserCollectionFiltered.filters.set.trim();
+            var showOnlyInBoosters = this.modelUserCollectionFiltered.filters.showOnlyInBoosters;
 
             var filtered = [];
 
@@ -1183,6 +1219,7 @@ var vueApp = new Vue({
                 f &= set === '' || i.set === set;
                 f &= rarity === '' || i.rarity === rarity;
                 f &= card === '' || i.name.toLowerCase().indexOf(card.toLowerCase()) >= 0;
+                f &= showOnlyInBoosters === false || i.notInBooster === false;
 
                 if (f) filtered.push(i);
             });
@@ -1195,7 +1232,8 @@ var vueApp = new Vue({
                 || this.modelUserCollectionFiltered.filters.format !== 'Standard'
                 || this.modelUserCollectionFiltered.filters.set !== ''
                 || this.modelUserCollectionFiltered.filters.card !== ''
-                || this.modelUserCollectionFiltered.filters.showMissing;
+                || this.modelUserCollectionFiltered.filters.showMissing
+                || this.modelUserCollectionFiltered.filters.showOnlyInBoosters;
         },
         clearFiltersCollection() {
             this.modelUserCollectionFiltered.filters.rarity = '';
@@ -1203,6 +1241,7 @@ var vueApp = new Vue({
             this.modelUserCollectionFiltered.filters.set = '';
             this.modelUserCollectionFiltered.filters.card = '';
             this.modelUserCollectionFiltered.filters.showMissing = false;
+            this.modelUserCollectionFiltered.filters.showOnlyInBoosters = false;
             this.filterCollection();
         },
         sortCollectionSets() {
@@ -1218,7 +1257,7 @@ var vueApp = new Vue({
                 U: 1,
                 B: 2,
                 R: 3,
-                G: 4,
+                G: 4
             };
             var colors = str.split('').sort(function (a, b) { return dictOrder[a] > dictOrder[b] ? 1 : dictOrder[a] < dictOrder[b] ? -1 : 0 });
             return colors.join('');
@@ -1300,7 +1339,7 @@ var vueApp = new Vue({
                 this.modelDecksFiltered = {
                     decks: filtered,
                     perPage: 200,
-                    currentPage: 0,
+                    currentPage: 0
                 };
             }
         },
@@ -1845,8 +1884,8 @@ var vueApp = new Vue({
                 Common: {
                     main: parseFloat(this.modelUser.weights.Common.main),
                     sideboard: parseFloat(this.modelUser.weights.Common.sideboard)
-                },
-            }
+                }
+            };
 
             vueApp.loadData('setWeights', true);
             sendAjaxPut('/api/User/Weights', { weights: weightsToSend }, null, (statuscode, body) => {
@@ -1973,6 +2012,9 @@ var vueApp = new Vue({
         }
     },
     computed: {
+        isLoadingSomething: function () {
+            return this.isAppLoaded === false || this.isLoadingData('collectionPost') || this.isLoadingData('collectionGet') || this.isLoadingLotsOfDecks();
+        },
         decksTotalPages: function () {
             return Math.max(1, Math.ceil(this.modelDecksFiltered.decks.length / this.modelDecksFiltered.perPage));
         },
@@ -2014,13 +2056,14 @@ var vueApp = new Vue({
         },
         dictScraperUrl: function () {
             var info = vueApp.modelUser.scrapers
-                .map(i => i.bySection.map(j => { return { id: j.id, url: j.url } }).concat(i.byUser.map(j => { return { id: j.id, url: j.url } })));
+                .map(i => i.bySection.map(j => { return { id: j.id, url: j.url }; }).concat(i.byUser.map(j => { return { id: j.id, url: j.url }; })));
 
             return info.reduce((a, b) => a.concat(b), []).reduce((a, b) => { a[b.id] = b.url; return a; }, {});
         },
         isPagePublic: function () {
             return this.currentPage !== pageInventory &&
                 this.currentPage !== pageMasteryPass &&
+                this.currentPage !== pageDraftBeforeBoosters &&
                 this.currentPage !== pageBacklog &&
                 this.currentPage !== pageCollection &&
                 this.currentPage !== pageHistory &&

@@ -23,6 +23,9 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.23.0/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js"></script>
+
+    <link rel="stylesheet" href="https://unpkg.com/bulma-modal-fx/dist/css/modal-fx.min.css" />
+
     <!--<script src="//cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>-->
     <style>
         /* Custom fonts */
@@ -40,11 +43,12 @@
         }*/
 
         html {
-            background:url('/images/bg.jpg');
+            background: url('/images/bg.jpg');
         }
-        html.adjustBgPos {
-            background-position-y:400px;
-        }
+
+            html.adjustBgPos {
+                background-position-y: 400px;
+            }
 
         .modalTopLevel {
             /* Above the page loader */
@@ -71,6 +75,7 @@
             background-image: url('/images/loadingBg.jpg');
             background-color: #000;
             background-repeat: no-repeat;
+            background-size: contain;
         }
 
         img.iconMana {
@@ -149,7 +154,7 @@
 
         .masteryPassRewards img {
             /*width:100%;*/
-            display:block !important;
+            display: block !important;
         }
 
         .nowrap {
@@ -170,6 +175,10 @@
 
         .loot span {
             margin-left: 1rem;
+        }
+
+        .content table td, .content table th, .table td, .table th {
+            border: none !important;
         }
 
         .darkTable h6 {
@@ -206,6 +215,7 @@
         .herobg1 {
             background: url(/images/hero1-bg.jpg);
             background-repeat: no-repeat;
+            background-color: transparent !important;
         }
 
         .hero2bg {
@@ -304,26 +314,30 @@
             <nav class="navbar is-fixed-top" role="navigation" aria-label="main navigation" style="min-height:unset;">
                 <div class="navbar-brand" style="min-height:unset;">
                     <!--v-on:click="loadPage(pageHome);"-->
-                    <img src="/images/wcC.png">
+                    <img class="is-hidden-desktop-only" src="/images/wcC.png">
 
                     <!--<a class="navbar-item" v-bind:class="currentSection === sectionGeneral ? 'bold' : ''" @click.prevent="currentSection = sectionGeneral">
                         <i class="fas fa-bullhorn is-size-5" style="margin-right:0.2rem;"></i>
                         General
                     </a>-->
                     <!--<template v-if="currentSection === sectionGeneral">-->
-                    <a href="/news" class="navbar-item tooltip is-tooltip-right" v-bind:class="currentPage === pageNews ? 'bold' : ''" @click.prevent="loadPage(pageNews);" data-tooltip="Latest MTGA information">
+                    <a href="/news" class="navbar-item tooltip is-tooltip-right is-size-7-desktop is-size-6-widescreen"
+                       v-bind:class="currentPage === pageNews ? 'bold' : ''" @click.prevent="loadPage(pageNews);" data-tooltip="Latest MTGA information">
                         News
                     </a>
-                    <!--<a href="/articles" class="navbar-item tooltip is-tooltip-right" v-bind:class="currentPage === pageArticles ? 'bold' : ''" @click.prevent="loadPage(pageArticles);" data-tooltip="Useful reading material">
+                    <a href="/articles" class="navbar-item tooltip is-tooltip-right is-size-7-desktop is-size-6-widescreen"
+                       v-bind:class="currentPage === pageArticles ? 'bold' : ''" @click.prevent="loadPage(pageArticles);" data-tooltip="Useful reading material">
                         Articles
-                    </a>-->
+                    </a>
                     <!--<a class="navbar-item" v-bind:class="currentPage === pageStreams ? 'bold' : ''" @click.prevent="loadPage(pageStreams);">
                         Streams
                     </a>-->
-                    <a href="/meta" class="navbar-item tooltip is-tooltip-right" v-bind:class="currentPage === pageMeta ? 'bold' : ''" @click.prevent="loadPage(pageMeta);" data-tooltip="Be competitive">
+                    <a href="/meta" class="navbar-item tooltip is-tooltip-right is-size-7-desktop is-size-6-widescreen"
+                       v-bind:class="currentPage === pageMeta ? 'bold' : ''" @click.prevent="loadPage(pageMeta);" data-tooltip="Be competitive">
                         Meta
                     </a>
-                    <a href="/decks" class="navbar-item tooltip is-tooltip-right" v-bind:class="currentPage === pageDecks ? 'bold' : ''" @click.prevent="loadPage(pageDecks);" data-tooltip="Browse all decks">
+                    <a href="/decks" class="navbar-item tooltip is-tooltip-right is-size-7-desktop is-size-6-widescreen"
+                       v-bind:class="currentPage === pageDecks ? 'bold' : ''" @click.prevent="loadPage(pageDecks);" data-tooltip="Browse all decks">
                         Decks
                     </a>
                     <!--<a href="/cards" class="navbar-item tooltip is-tooltip-right" v-bind:class="currentPage === pageAllCards ? 'bold' : ''" @click.prevent="loadPage(pageAllCards);" data-tooltip="All cards">
@@ -386,46 +400,48 @@
                 </div>
                 <div id="navbarTop" class="navbar-menu" v-bind:class="navbarBurgerActive ? 'is-active' : ''">
                     <div class="navbar-end">
-                        <div class="navbar-item is-hidden-desktop-only" style="padding:0 inherit;">
-                            <a v-bind:href="topAd.href" target="_blank">
-                                <nav class="level is-mobile tooltip is-tooltip-bottom is-tooltip-multiline"
-                                     v-bind:data-tooltip="topAd.tooltip">
-                                    <div class="level-item" style="margin-right:0;">
-                                        <img v-bind:src="topAd.img" alt="Shop on Amazon" style="height:52px;" />
-                                    </div>
-                                    <div class="level-item" style="font-size:0.6rem; margin-left:0.5rem;">
-                                        {{topAd.text}}
-                                        <br />
-                                        ❤ support the project
-                                    </div>
-                                </nav>
+                        <div class="navbar-item has-text-centered tooltip is-tooltip-bottom is-tooltip-multiline"
+                             v-bind:data-tooltip="topAds[0].tooltip" style="padding:0 inherit;">
+                            <a v-bind:href="topAds[0].href" target="_blank">
+                                <img v-bind:src="topAds[0].img" v-bind:alt="topAd.text" style="height:52px; vertical-align:middle;" />
                             </a>
                         </div>
+                        <div v-if="modelUser.isSupporter === false && topAd.href !== topAds[0].href" class="navbar-item has-text-centered is-hidden-desktop-only tooltip is-tooltip-bottom is-tooltip-multiline"
+                             v-bind:data-tooltip="topAd.tooltip" style="padding:0 inherit;">
+                            <a v-bind:href="topAd.href" target="_blank">
+                                <img v-bind:src="topAd.img" v-bind:alt="topAd.text" style="height:52px; vertical-align:middle;" />
+                            </a>
+                        </div>
+                        <div v-if="modelUser.isSupporter" class="navbar-item has-text-centered is-hidden-desktop-only tooltip is-tooltip-bottom" data-tooltip="Thank you so much for being a Patreon supporter">
+                            <i class="fas fa-heart" style="color: rgb(191, 0, 0);"></i>
+                        </div>
                         <!--<template v-if="currentSection === sectionMyData">
-        <a class="navbar-item" v-bind:class="currentPage === pageCollection ? 'bold' : ''" @click.prevent="loadPage(pageCollection);">
-            Collection
-        </a>
-        <a class="navbar-item" v-bind:class="currentPage === pageHistory ? 'bold' : ''" @click.prevent="loadPage(pageHistory);">
-            History
-        </a>
-        <a class="navbar-item" v-bind:class="currentPage === pageScrapers ? 'bold' : ''" @click.prevent="loadPage(pageScrapers);">
-            Sources of decks
-        </a>
-        <a class="navbar-item" v-bind:class="currentPage === pageDecksTracked ? 'bold' : ''" @click.prevent="loadPage(pageDecksTracked);">
-            Decks tracked
-        </a>
-        <a class="navbar-item is-size-7" v-bind:class="currentPage === pageDashboardSummary ? 'bold' : ''" @click.prevent="loadPage(pageDashboardSummary);">
-            Missing cards Summary
-        </a>
-        <a class="navbar-item is-size-7" v-bind:class="currentPage === pageDashboardDetails ? 'bold' : ''" @click.prevent="loadPage(pageDashboardDetails);">
-            Missing cards Details
-        </a>
-    </template>-->
+                            <a class="navbar-item" v-bind:class="currentPage === pageCollection ? 'bold' : ''" @click.prevent="loadPage(pageCollection);">
+                                Collection
+                            </a>
+                            <a class="navbar-item" v-bind:class="currentPage === pageHistory ? 'bold' : ''" @click.prevent="loadPage(pageHistory);">
+                                History
+                            </a>
+                            <a class="navbar-item" v-bind:class="currentPage === pageScrapers ? 'bold' : ''" @click.prevent="loadPage(pageScrapers);">
+                                Sources of decks
+                            </a>
+                            <a class="navbar-item" v-bind:class="currentPage === pageDecksTracked ? 'bold' : ''" @click.prevent="loadPage(pageDecksTracked);">
+                                Decks tracked
+                            </a>
+                            <a class="navbar-item is-size-7" v-bind:class="currentPage === pageDashboardSummary ? 'bold' : ''" @click.prevent="loadPage(pageDashboardSummary);">
+                                Missing cards Summary
+                            </a>
+                            <a class="navbar-item is-size-7" v-bind:class="currentPage === pageDashboardDetails ? 'bold' : ''" @click.prevent="loadPage(pageDashboardDetails);">
+                                Missing cards Details
+                            </a>
+                        </template>-->
                         <div class="navbar-item is-hidden-touch">
                             <div class="buttons">
-                                <a class="button" v-bind:class="[modelUser.collection.cards.length === 0 ? 'is-primary' : '']"
+                                <a class="button tooltip is-tooltip-bottom" data-tooltip="Manually import your MTGA log file" v-bind:class="[modelUser.collection.cards.length === 0 ? 'is-primary' : '']"
                                    v-on:click="showUploadCollectionModal = true">
-                                    <strong>Import</strong>
+                                    <i class="fas fa-file-import"></i>
+                                    &nbsp;
+                                    <strong class="is-hidden-desktop-only">Import</strong>
                                 </a>
                             </div>
                         </div>
@@ -489,7 +505,7 @@
                             <a class="navbar-link">
                                 <!--v-bind:class="currentSection === sectionMyData ? 'bold' : ''" v-on:click="currentSection = sectionMyData"-->
                                 <i class="fas fa-table is-size-5" style="margin-right:0.2rem;"></i>
-                                My Data
+                                <span class="is-hidden-desktop-only is-hidden-widescreen-only">My Data</span>
                             </a>
                             <div class="navbar-dropdown">
                                 <a href="/my/inventory" class="navbar-item" v-bind:class="currentPage === pageInventory ? 'bold' : ''" @click.prevent="loadPage(pageInventory);">
@@ -517,8 +533,8 @@
                         </div>
                         <div class="navbar-item has-dropdown is-hoverable">
                             <a class="navbar-link">
-                                <i class="fas fa-window-restore" style="margin-right:0.2rem;"></i>
-                                Advisors
+                                <i class="fas fa-hat-wizard" style="margin-right:0.2rem;"></i>
+                                <span class="is-hidden-desktop-only is-hidden-widescreen-only">Advisors</span>
                             </a>
                             <div class="navbar-dropdown">
                                 <a href="/my/sources" class="navbar-item" v-bind:class="currentPage === pageScrapers ? 'bold' : ''" @click.prevent="loadPage(pageScrapers);">
@@ -531,7 +547,7 @@
                                     Decks to play
                                 </a>
                                 <a href="/my/missingCardsSummary" class="navbar-item" v-bind:class="currentPage === pageDashboardSummary ? 'bold' : ''" @click.prevent="loadPage(pageDashboardSummary);">
-                                    <img v-bind:src="'/images/' + (modelDashboard.summary.length === 0 ? 'ELD' : modelDashboard.summary[0].Key) + '-booster.png'" style="margin-right:0.5rem; width:1rem;" />
+                                    <img v-bind:src="'/images/' + (modelDashboard.summary.length === 0 ? 'THB' : modelDashboard.summary[0].Key) + '-booster.png'" style="margin-right:0.5rem; width:1rem;" />
                                     Boosters to open
                                 </a>
                                 <a href="/my/missingCardsDetails" class="navbar-item" v-bind:class="currentPage === pageDashboardDetails ? 'bold' : ''" @click.prevent="loadPage(pageDashboardDetails);">
@@ -544,7 +560,7 @@
                             <a class="navbar-link">
                                 <!--v-bind:class="currentSection === sectionMyData ? 'bold' : ''" v-on:click="currentSection = sectionMyData"-->
                                 <i class="fas fa-calculator is-size-5" style="margin-right:0.2rem;"></i>
-                                Tools
+                                <span class="is-hidden-desktop-only is-hidden-widescreen-only">Tools</span>
                             </a>
                             <div class="navbar-dropdown">
                                 <a href="/my/masteryPass" class="navbar-item" v-bind:class="currentPage === pageMasteryPass ? 'bold' : ''" @click.prevent="loadPage(pageMasteryPass);">
@@ -552,7 +568,7 @@
                                     Mastery pass
                                 </a>
                                 <a href="/my/draftsBeforeBoosters" class="navbar-item" v-bind:class="currentPage === pageDraftBeforeBoosters ? 'bold' : ''" @click.prevent="loadPage(pageDraftBeforeBoosters);">
-                                    <i class="fas fa-traffic-light" style="font-size:1.1rem; margin-right:0.7rem;"></i>
+                                    <i class="fas fa-traffic-light" style="font-size:1.1rem; margin-right:0.6rem;"></i>
                                     Drafts vs boosters
                                 </a>
                             </div>
@@ -602,7 +618,7 @@
                                 MTGAHelper &mdash; The ultimate collection tracker for Magic: The Gathering Arena
                             </h2>
                             <div style="margin-left:4rem;">
-                                <button class="button is-large" v-on:click="window.open('https://github.com/ibiza240/MTGAHelper-Windows-Client', '_blank');">Start by installing the Tracker</button>
+                                <a class="button" href="https://github.com/ibiza240/MTGAHelper-Windows-Client/raw/master/MTGAHelperTracker.msi">Start by installing the Tracker</a>
                                 <br />
                                 <span style="text-shadow: 4px 4px 10px #000000;">
                                     or upload your file manually by using the <strong>Import</strong> button in the navigation bar at the top
@@ -614,7 +630,12 @@
                         <div class="hero-body" style="text-shadow: 1px 1px 20px #000000;">
                             <template v-if="currentPage === pageMasteryPass">
                                 <h4 class="title is-4 is-marginless">
-                                    Using the MTGAHelper tracker, you can know your final mastery level automatically
+                                    Using the MTGAHelper tracker, determine your final mastery level automatically
+                                </h4>
+                            </template>
+                            <template v-else-if="currentPage === pageDraftBeforeBoosters">
+                                <h4 class="title is-4 is-marginless">
+                                    Using the MTGAHelper tracker, know exactly how many drafts to complete before opening your boosters
                                 </h4>
                             </template>
                             <template v-else>
@@ -722,7 +743,112 @@
                         Some useful readings for players of Magic: The Gathering Arena
                     </h4>
                     <div class="columns is-multiline">
-                        <div class="column is-one-quarter" v-for="article in modelArticles">
+                        
+                        <div class="column is-2">
+                            <div class="box">
+                                <article>
+                                    <div>
+                                        <a href="https://joestradingpost.weebly.com/blahg/arena-collection-drafting-how-to-thb" target="_blank">
+                                            <img src="https://img.scryfall.com/cards/art_crop/front/7/2/726e8b29-13e9-4138-b6a9-d2a0d8188d1c.jpg?1578533240">
+                                        </a>
+                                    </div>
+                                    <div class="media-content">
+                                        <div class="content">
+                                            <h6 class="title is-6">
+                                                <a href="https://joestradingpost.weebly.com/blahg/arena-collection-drafting-how-to-thb" target="_blank">
+                                                    Arena Collection Drafting - How To (THB)
+                                                </a>
+                                            </h6>
+                                            <p>
+                                                <a href="https://joestradingpost.weebly.com/blahg/arena-collection-drafting-how-to-thb" target="_blank">
+                                                    Read about how to build a large collection for your constructed needs through an optimal system!
+                                                </a>
+                                            </p>
+                                            <h7 class="subtitle is-7" style="margin-bottom:0;">{{moment('2020-02-05').fromNow()}}</h7>
+                                        </div>
+                                    </div>
+                                </article>
+                            </div>
+                        </div>
+                        <div class="column is-2">
+                            <div class="box">
+                                <article>
+                                    <div>
+                                        <a href="https://joestradingpost.weebly.com/blog/mtgahelper-installation" target="_blank">
+                                            <img src="https://img.scryfall.com/cards/art_crop/front/9/e/9ea40438-90ca-47ff-9805-df130d47ae48.jpg?1562820939">
+                                        </a>
+                                    </div>
+                                    <div class="media-content">
+                                        <div class="content">
+                                            <h6 class="title is-6">
+                                                <a href="https://joestradingpost.weebly.com/blog/mtgahelper-installation" target="_blank">
+                                                    MTGAHelper Installation Guide
+                                                </a>
+                                            </h6>
+                                            <p>
+                                                <a href="https://joestradingpost.weebly.com/blog/mtgahelper-installation" target="_blank">
+                                                    Confused about how to install the MTGAHelper tracker? Read this handy guide!
+                                                </a>
+                                            </p>
+                                            <h7 class="subtitle is-7" style="margin-bottom:0;">{{moment('2020-02-03').fromNow()}}</h7>
+                                        </div>
+                                    </div>
+                                </article>
+                            </div>
+                        </div>
+                        <div class="column is-2">
+                            <div class="box">
+                                <article>
+                                    <div>
+                                        <a href="https://joestradingpost.weebly.com/mtg-arena.html" target="_blank">
+                                            <img src="https://img.scryfall.com/cards/art_crop/front/3/7/37ed04d3-cfa1-4778-aea6-b4c2c29e6e0a.jpg?1559959382">
+                                        </a>
+                                    </div>
+                                    <div class="media-content">
+                                        <div class="content">
+                                            <h6 class="title is-6">
+                                                <a href="https://joestradingpost.weebly.com/mtg-arena.html" target="_blank">
+                                                    Arena Finance
+                                                </a>
+                                            </h6>
+                                            <p>
+                                                <a href="https://joestradingpost.weebly.com/mtg-arena.html" target="_blank">
+                                                    A collection of insightful articles about MTGA Economics
+                                                </a>
+                                            </p>
+                                            <h7 class="subtitle is-7" style="margin-bottom:0;">{{moment('2020-01-16').fromNow()}}</h7>
+                                        </div>
+                                    </div>
+                                </article>
+                            </div>
+                        </div>
+                        <div class="column is-2">
+                            <div class="box">
+                                <article>
+                                    <div>
+                                        <a href="https://www.patreon.com/posts/how-to-make-best-29075781" target="_blank">
+                                            <img src="https://img.scryfall.com/cards/art_crop/front/8/2/821cd2dd-aa03-4c55-b9e4-98e0284889d3.jpg?1578670581">
+                                        </a>
+                                    </div>
+                                    <div class="media-content">
+                                        <div class="content">
+                                            <h6 class="title is-6">
+                                                <a href="https://www.patreon.com/posts/how-to-make-best-29075781" target="_blank">
+                                                    How to make best usage of MTGAHelper
+                                                </a>
+                                            </h6>
+                                            <p>
+                                                <a href="https://www.patreon.com/posts/how-to-make-best-29075781" target="_blank">
+                                                    Read this short post to learn more about how all the tools available here are connected together
+                                                </a>
+                                            </p>
+                                            <h7 class="subtitle is-7" style="margin-bottom:0;">{{moment('2019-08-11').fromNow()}}</h7>
+                                        </div>
+                                    </div>
+                                </article>
+                            </div>
+                        </div>
+                        <div class="column is-2" v-for="article in modelArticles">
                             <div class="box">
                                 <article>
                                     <div>
@@ -751,14 +877,15 @@
                     </div>
                 </div>
                 <div v-else-if="currentPage === pageArticleSelected">
-                    <h4 class="title is-4">
-                        {{modelArticleSelected.title}}
-                    </h4>
                     <div class="columns">
                         <div class="column is-one-quarter">
                             <img v-bind:src="modelArticleSelected.imageUrl">
                         </div>
-                        <div class="column" v-html="modelArticleSelected.text">
+                        <div class="column is-two-thirds-fullhd is-three-quarters-until-fullhd" style="background:#161712;">
+                            <h2 class="title is-2">
+                                {{modelArticleSelected.title}}
+                            </h2>
+                            <div v-html="modelArticleSelected.text"></div>
                         </div>
                     </div>
                 </div>
@@ -867,7 +994,7 @@
                         </span>
                     </div>
                     <div v-else class="wrapper-tablescroll">
-                        <table class="table is-narrow is-hoverable">
+                        <table class="table is-narrow is-hoverable is-striped">
                             <thead>
                                 <tr>
                                     <th>Name</th>
@@ -1045,7 +1172,7 @@
                         Inventory
                     </h4>
 
-                    <div class="columns is-mobile has-text-centered is-size-5">
+                    <div class="columns is-mobile has-text-centered is-size-5 has-text-weight-bold">
                         <div class="column">
                             <h5 class="title is-5">
                                 Currency
@@ -1235,6 +1362,14 @@
                                         </div>
                                     </td>
                                     <td style="vertical-align:bottom;">
+                                        <div class="field">
+                                            <div class="control">
+                                                <input type="checkbox" id="switchCollectionNotInBoosters" name="switchCollectionNotInBoosters" class="switch is-danger" v-model="modelUserCollectionFiltered.filters.showOnlyInBoosters" v-on:change="filterCollection()">
+                                                <label for="switchCollectionNotInBoosters">{{modelUserCollectionFiltered.filters.showOnlyInBoosters ? 'Showing cards in boosters only' : 'Showing also cards unobtainable from boosters'}}</label>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td style="vertical-align:bottom;">
                                         <button v-if="collectionIsFiltered()" v-on:click="clearFiltersCollection();" class="button is-danger is-small">
                                             Clear filters
                                         </button>
@@ -1243,6 +1378,12 @@
                             </tbody>
                         </table>
 
+                        <h4 class="title is-4 is-marginless">
+                            {{modelUserCollectionFiltered.filtered.reduce((a, b) => a + b.amount, 0)}}
+                            cards
+                            {{modelUserCollectionFiltered.filters.showMissing ? 'missing' : 'collected'}}
+                            with these filters
+                        </h4>
                         <div class="tabs">
                             <ul>
                                 <li v-for="color in ['W','U','B','R','G','', 'Multicolor', 'Land']" v-on:click="currentPageCollectionColor = color;" v-bind:class="[ currentPageCollectionColor === color ? 'is-active' : '' ]">
@@ -1291,6 +1432,10 @@
                     <div class="columns">
                         <div class="column is-half-desktop" v-bind:class="[modelMtgaDeckSelected.deckId === '' ? '' : 'is-hidden-touch', ]">
                             <h4 class="title is-4">MTGA Decks</h4>
+                            <!--<p v-if="modelUser.nbLogin > 10">
+                                <i class="fas fa-info-circle"></i>
+                                Disclaimer: Unless you are a supporter, your data will be reset at the release of a new set
+                            </p>-->
                             <div v-if="isLoadingData(pageMtgaDecks)">
                                 <span class="button is-loading"></span>
                                 This can take some time to load with a lot of matches...
@@ -1300,36 +1445,36 @@
                             </div>
                             <div v-else>
                                 <!--<table class="table is-narrow">
-                                    <thead>
-                                        <tr>
-                                            <th colspan="5">Filters <span class="smallText gray">(Press Enter)</span></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>
-                                                <div class="field">
-                                                    <div class="control">
-                                                        <label class="label is-small">
-                                                            Source
-                                                            <span class="icon has-text-info tooltip" style="height:inherit; cursor:pointer;"
-                                                                  data-tooltip="Go configure sources of decks" v-on:click="loadPage(pageScrapers)">
-                                                                <i class="fas fa-info-circle"></i>
-                                                            </span>
-                                                        </label>
-                                                        <select class="input is-small" v-model="modelUserDecks.filters.scraperTypeId" v-on:change="filterDecks();">
-                                                            <option v-for="source in ['(All)'].concat(modelUserDecks.decks.map((i) => i.scraperTypeId).filter((value, index, self) => self.indexOf(value) === index).sort())"
-                                                                    v-bind:value="source">
-                                                                {{ formatScraperKey(source, true) }}
-                                                            </option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>-->
-                                <table class="table is-narrow is-hoverable">
+            <thead>
+                <tr>
+                    <th colspan="5">Filters <span class="smallText gray">(Press Enter)</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <div class="field">
+                            <div class="control">
+                                <label class="label is-small">
+                                    Source
+                                    <span class="icon has-text-info tooltip" style="height:inherit; cursor:pointer;"
+                                          data-tooltip="Go configure sources of decks" v-on:click="loadPage(pageScrapers)">
+                                        <i class="fas fa-info-circle"></i>
+                                    </span>
+                                </label>
+                                <select class="input is-small" v-model="modelUserDecks.filters.scraperTypeId" v-on:change="filterDecks();">
+                                    <option v-for="source in ['(All)'].concat(modelUserDecks.decks.map((i) => i.scraperTypeId).filter((value, index, self) => self.indexOf(value) === index).sort())"
+                                            v-bind:value="source">
+                                        {{ formatScraperKey(source, true) }}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>-->
+                                <table class="table is-narrow is-hoverable is-striped">
                                     <thead>
                                         <tr>
                                             <th>&nbsp;</th>
@@ -1635,7 +1780,7 @@
                                 </li>
                             </ul>
                         </nav>
-                        <table class="table is-narrow is-hoverable">
+                        <table class="table is-narrow is-hoverable is-striped">
                             <thead>
                                 <tr>
                                     <th>
@@ -1801,11 +1946,11 @@
                                     </button>
                                 </div>
                                 <!--<div class="column">
-        <button v-on:click="currentPageHistory = pageHistoryRankUpdates"
-                class="button is-fullwidth is-rounded" v-bind:class="[currentPageHistory === pageHistoryRankUpdates ? 'is-info' : '']">
-            Rank updates
-        </button>
-    </div>-->
+                                    <button v-on:click="currentPageHistory = pageHistoryRankUpdates"
+                                            class="button is-fullwidth is-rounded" v-bind:class="[currentPageHistory === pageHistoryRankUpdates ? 'is-info' : '']">
+                                        Rank updates
+                                    </button>
+                                </div>-->
                             </div>
                             <!--<div v-if="currentPageHistory === pageHistoryRankUpdates">
                                 <h5 class="title is-5" v-if="modelUserHistorySelected2.rankUpdates.length === 0">
@@ -1859,13 +2004,13 @@
                                             </thead>
                                             <tbody>
                                                 <tr v-for="i in modelUserHistorySelected2.economyEvents">
-                                                    <td style="is-size-7">
+                                                    <td class="is-size-7">
                                                         {{moment(i.dateTime).format('YYYY-MM-DD HH:mm')}}
                                                     </td>
                                                     <td>
                                                         {{i.context}}
                                                     </td>
-                                                    <td style="white-space:nowrap;">
+                                                    <td style="white-space: nowrap;">
                                                         <div class="columns">
                                                             <div class="column has-text-right">
                                                                 <template v-for="change in i.changes.filter(i => i.amount >= 0)">
@@ -1930,9 +2075,9 @@
                                                                         <img class="wc" src="/images/vault.png" />
                                                                     </span>
                                                                     <!--<span v-else-if="change.type === 'NewCards'" class="tooltip" v-bind:data-tooltip="Math.abs(change.amount) + ' card' + (change.amount == 1 ? '' : 's') + ' lost'">
-                                        {{numeral(change.amount).format('+0,0')}}
-                                        <img class="wc" v-bind:src="imgCardUnknown" />
-                                    </span>-->
+                                                                        {{numeral(change.amount).format('+0,0')}}
+                                                                        <img class="wc" v-bind:src="imgCardUnknown" />
+                                                                    </span>-->
                                                                     <span v-else>
                                                                         {{change.value}}
                                                                         {{change.type}}
@@ -2323,7 +2468,7 @@
                                 </span>
                             </div>-->
                             <div v-else class="wrapper-tablescroll">
-                                <table class="table is-narrow is-hoverable">
+                                <table class="table is-narrow is-hoverable is-striped">
                                     <thead>
                                         <tr>
                                             <th>
@@ -3058,6 +3203,7 @@
                     </div>
                 </div>
                 <div v-else-if="currentPage === pageDraftBeforeBoosters">
+                    <img src="/images/draftsBeforeBoostersHeader.png" style="position:absolute; right:0; opacity:0.26;" />
                     <div class="has-text-centered" style="margin-bottom:1rem;">
                         <h3 class="title is-3">
                             Drafts to complete before opening boosters
@@ -3066,10 +3212,11 @@
                             This tool will help you know when to open your booster packs, if you want to optimize your collecting rate.
                         </h5>
                     </div>
+                    <hr />
                     <div class="level is-size-4">
                         <div class="level-item">
                             <div class="level" style="align-items:start">
-                                <div class="level-item" style="padding-right:0.5rem;">
+                                <div class="level-item" style="padding-right:1rem;">
                                     <div style="display:block">
                                         <div class="field">
                                             <div class="control">
@@ -3081,26 +3228,52 @@
                                                         </option>
                                                     </select>
                                                 </span>
+                                                <span v-if="isLoadingData(pageDraftBeforeBoosters)" class="button is-loading"></span>
                                             </div>
                                         </div>
                                         <div style="margin-top:2rem;">
+                                            <div class="field">
+                                                <input type="text" class="input" style="width:129px"
+                                                       v-model="modelDraftsCalculator.additionalPacks" v-on:change="refreshDraftsCalculator()">
+                                                additional packs
+                                                <span class="icon has-text-info tooltip" data-tooltip="You can enter a number of additional packs you know you will get">
+                                                    <i class="fas fa-info-circle"></i>
+                                                </span>
+                                            </div>
                                             <h4 class="title is-4" style="margin-bottom:1rem;">
-                                                Averages per draft
+                                                Expected per draft
                                             </h4>
+                                            <div style="margin-bottom:0.5rem;">
+                                                <input class="slider" step="0.5" min="0" max="7" type="range"
+                                                       v-model="modelDraftsCalculator.winsPerDraft" v-on:change="refreshDraftsCalculator()">
+                                                {{modelDraftsCalculator.winsPerDraft}} wins
+                                                <span class="icon has-text-info tooltip" data-tooltip="Average number of wins per draft">
+                                                    <i class="fas fa-info-circle"></i>
+                                                </span>
+                                            </div>
                                             <div style="margin-bottom:0.5rem;">
                                                 <input class="slider" step="0.05" min="0" max="2" type="range"
                                                        v-model="modelDraftsCalculator.packsPerDraft" v-on:change="refreshDraftsCalculator()">
-                                                {{modelDraftsCalculator.packsPerDraft}} packs
+                                                {{modelDraftsCalculator.packsPerDraft}} packs rewarded
+                                                <span class="icon has-text-info tooltip" data-tooltip="Average packs rewarded per draft, depending on your winrate">
+                                                    <i class="fas fa-info-circle"></i>
+                                                </span>
                                             </div>
                                             <div style="margin-bottom:0.5rem;">
-                                                <input class="slider" step="0.1" min="0" max="5" type="range"
+                                                <input class="slider" step="0.5" min="0" max="10" type="range"
                                                        v-model="modelDraftsCalculator.raresPerDraft" v-on:change="refreshDraftsCalculator()">
-                                                {{modelDraftsCalculator.raresPerDraft}} new Rares
+                                                {{modelDraftsCalculator.raresPerDraft}} new Rares acquired
+                                                <span class="icon has-text-info tooltip" data-tooltip="Rares per draft of which you do not already own 4 copies">
+                                                    <i class="fas fa-info-circle"></i>
+                                                </span>
                                             </div>
                                             <div>
                                                 <input class="slider" step="0.1" min="0" max="2" type="range"
                                                        v-model="modelDraftsCalculator.mythicsPerDraft" v-on:change="refreshDraftsCalculator()">
-                                                {{modelDraftsCalculator.mythicsPerDraft}} new Mythics
+                                                {{modelDraftsCalculator.mythicsPerDraft}} new Mythics acquired
+                                                <span class="icon has-text-info tooltip" data-tooltip="Mythics per draft of which you do not already own 4 copies">
+                                                    <i class="fas fa-info-circle"></i>
+                                                </span>
                                             </div>
                                         </div>
                                         <div class="field" style="margin-top:1rem;">
@@ -3110,27 +3283,201 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="level-item has-text-centered" style="padding-left:0.5rem;">
+                                <div class="level-item has-text-centered" style="padding-left:1rem;">
                                     <span v-if="modelDraftsCalculator.result === null" class="button is-loading"></span>
                                     <div v-else style="display:block;">
                                         <div>
-                                            {{modelDraftsCalculator.result.nbRaresMissing}} missing  Rares
+                                            {{modelDraftsCalculator.result.nbRaresMissing}} <a v-on:click="showMissingRarity('Rare', modelDraftsCalculator.setSelected)">missing Rares</a>
+                                            <span class="is-size-7">(obtainable from boosters)</span>
                                         </div>
                                         <div>
-                                            {{modelDraftsCalculator.result.nbMythicsMissing}} missing Mythics
+                                            {{modelDraftsCalculator.result.nbMythicsMissing}} <a v-on:click="showMissingRarity('Mythic', modelDraftsCalculator.setSelected)">missing Mythics</a>
+                                            <span class="is-size-7">(obtainable from boosters)</span>
+                                        </div>
+                                        <div>
+                                            {{modelDraftsCalculator.result.infoRare.p}} unopened packs
                                         </div>
                                         <hr />
-                                        <div style="color:#ccc;">
-                                            <h3 class="title is-3 has-text-weight-bold" style="color:#ccc; margin-bottom:1rem;">
-                                                Expected drafts required
-                                            </h3>
-                                            <p>
+                                        <h3 class="title is-3 has-text-weight-bold" style="color:#eee; margin-bottom:1rem;">
+                                            Drafts to complete<br />before opening your packs:
+                                        </h3>
+                                        <div class="has-text-weight-bold" style="color:#ddd;">
+                                            <p style="margin:0;">
                                                 {{numeral(modelDraftsCalculator.result.expectedNbDraftsToPlaysetRares).format('0,0.0')}} for Rares playset
+                                                <span class="is-size-7">
+                                                    (
+                                                    {{numeral(Math.ceil(modelDraftsCalculator.result.expectedNbDraftsToPlaysetRares) * 5000).format('0,0')}}
+                                                    <img src="/images/inventory_gold.png" class="wc" style="vertical-align:baseline;">
+                                                    or
+                                                    {{numeral(Math.ceil(modelDraftsCalculator.result.expectedNbDraftsToPlaysetRares) * 750).format('0,0')}}
+                                                    <img src="/images/inventory_gem.png" class="wc" style="vertical-align:baseline;">
+                                                    )
+                                                </span>
                                             </p>
-                                            <p>
-                                                {{numeral(modelDraftsCalculator.result.expectedNbDraftsToPlaysetMythics).format('0,0.0')}} for Mythics playset
+                                            <p class="is-size-7">
+                                                You can expect to gain <em>roughly</em>
+                                                {{numeral(calculateDraftGemsWon(Math.ceil(modelDraftsCalculator.result.expectedNbDraftsToPlaysetRares))).format('0,0')}}
+                                                <img src="/images/inventory_gem.png" class="wc" style="vertical-align:baseline;">
+                                                from playing
+                                                {{Math.ceil(modelDraftsCalculator.result.expectedNbDraftsToPlaysetRares)}}
+                                                drafts,
+                                                <br />
+                                                saving you {{numeral(calculateDraftGemsWon(Math.ceil(modelDraftsCalculator.result.expectedNbDraftsToPlaysetRares)) / 750 * 5000).format('0,0')}}
+                                                <img src="/images/inventory_gold.png" class="wc" style="vertical-align:baseline;">
                                             </p>
                                         </div>
+                                        <hr />
+                                        <div class="has-text-weight-bold" style="color:#ddd;">
+                                            <p class="is-marginless">
+                                                {{numeral(modelDraftsCalculator.result.expectedNbDraftsToPlaysetMythics).format('0,0.0')}} for Mythics playset
+
+                                                <span class="is-size-7">
+                                                    (
+                                                    {{numeral(Math.ceil(modelDraftsCalculator.result.expectedNbDraftsToPlaysetMythics) * 5000).format('0,0')}}
+                                                    <img src="/images/inventory_gold.png" class="wc" style="vertical-align:baseline;">
+                                                    or
+                                                    {{numeral(Math.ceil(modelDraftsCalculator.result.expectedNbDraftsToPlaysetMythics) * 750).format('0,0')}}
+                                                    <img src="/images/inventory_gem.png" class="wc" style="vertical-align:baseline;">
+                                                    )
+                                                </span>
+                                            </p>
+                                            <p class="is-size-7">
+                                                You can expect to gain <em>roughly</em>
+                                                {{numeral(calculateDraftGemsWon(Math.ceil(modelDraftsCalculator.result.expectedNbDraftsToPlaysetMythics))).format('0,0')}}
+                                                <img src="/images/inventory_gem.png" class="wc" style="vertical-align:baseline;">
+                                                from playing
+                                                {{Math.ceil(modelDraftsCalculator.result.expectedNbDraftsToPlaysetMythics)}}
+                                                drafts,
+                                                <br />
+                                                saving you {{numeral(calculateDraftGemsWon(Math.ceil(modelDraftsCalculator.result.expectedNbDraftsToPlaysetMythics)) / 750 * 5000).format('0,0')}}
+                                                <img src="/images/inventory_gold.png" class="wc" style="vertical-align:baseline;">
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="is-size-4" v-if="modelDraftsCalculator.result !== null">
+                        <div class="columns is-centered">
+                            <div class="column is-full-mobile is-full-tablet is-full-desktop is-three-quarters-widescreen is-half-fullhd has-text-centered">
+                                <h3 class="title is-3">Calculation details</h3>
+                                <div class="level">
+                                    <div class="level-item">
+                                        <div class="level">
+                                            <div class="level-item  has-text-right">
+                                                For Rares:
+                                                <br />
+                                                For Mythics:
+                                            </div>
+                                            <div class="level-item" style="padding:0 2rem;">
+                                                D = (T - P*7/8*11/12 - R)/(N+W*7/8*11/12)
+                                                <br />
+                                                D = (T - P*1/8*11/12 - R)/(N+W*1/8*11/12)
+                                            </div>
+                                            <div class="level-item">
+                                                <a target="_blank" href="https://www.mtggoldfish.com/articles/collecting-mtg-arena-part-1-of-2">[Ref. MtgGoldfish]</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="columns is-centered">
+                            <div class="column is-two-thirds-fullhd is-three-quarters-widescreen is-three-quarters-desktop is-full-tablet is-full-mobile">
+                                <div class="columns">
+                                    <div class="column is-narrow">
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th colspan="2">For Rares</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>T =</td>
+                                                    <td>{{modelDraftsCalculator.result.infoRare.t}}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>P =</td>
+                                                    <td>{{modelDraftsCalculator.result.infoRare.p}}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>R =</td>
+                                                    <td>{{modelDraftsCalculator.result.infoRare.r}}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>N =</td>
+                                                    <td>{{modelDraftsCalculator.result.infoRare.n}}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>W =</td>
+                                                    <td>{{modelDraftsCalculator.result.infoRare.w}}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="column is-narrow">
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th colspan="2">For Mythics</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>T =</td>
+                                                    <td>{{modelDraftsCalculator.result.infoMythic.t}}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>P =</td>
+                                                    <td>{{modelDraftsCalculator.result.infoMythic.p}}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>R =</td>
+                                                    <td>{{modelDraftsCalculator.result.infoMythic.r}}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>N =</td>
+                                                    <td>{{modelDraftsCalculator.result.infoMythic.n}}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>W =</td>
+                                                    <td>{{modelDraftsCalculator.result.infoMythic.w}}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="column">
+                                        <table class="is-size-5">
+                                            <tbody>
+                                                <tr>
+                                                    <td>D</td>
+                                                    <td>Number of drafts you still need to do</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>T</td>
+                                                    <td>Total number of [Rares/Mythics] in a set you need to collect</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>P</td>
+                                                    <td>Total number of reward packs of that set already in your collection</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>R</td>
+                                                    <td>Total number of [Rares/Mythics] of that set already in your collection</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>N</td>
+                                                    <td>Number of "new" [Rares/Mythics] you pull from a draft on average (Higher earlier, lesser later, but an average across the set is fine.)</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>W</td>
+                                                    <td>Average number of reward packs from doing the draft</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
                             </div>
@@ -3140,17 +3487,17 @@
                 <div v-else-if="currentPage === pageMasteryPass" class="has-text-centered">
                     <div class="container" style="margin-bottom:0;">
                         <div class="level">
-                                <div class="level-item has-text-right" style="display:block;">
-                                    <img src="/images/mastery.png" alt="Mastery icon" style="height:6rem;" />
-                                </div>
-                                <div class="level-item has-text-left" style="margin-left:1rem; display:block;">
-                                    <h3 class="title is-3">
-                                        Mastery pass calculator
-                                    </h3>
-                                    <h5 class="subtitle is-5" v-if="typeof modelMasteryPass.error !== 'string'" style="margin-top:0.25rem;">
-                                        {{modelMasteryPass.nbDaysLeft}} days left (ending on {{moment(modelMasteryPass.dateEnd).format('LL')}})
-                                    </h5>
-                                </div>
+                            <div class="level-item has-text-right" style="display:block;">
+                                <img src="/images/mastery.png" alt="Mastery icon" style="height:6rem;" />
+                            </div>
+                            <div class="level-item has-text-left" style="margin-left:1rem; display:block;">
+                                <h3 class="title is-3">
+                                    Mastery pass calculator
+                                </h3>
+                                <h5 class="subtitle is-5" v-if="typeof modelMasteryPass.error !== 'string'" style="margin-top:0.25rem;">
+                                    {{modelMasteryPass.nbDaysLeft}} days left (ending on {{moment(modelMasteryPass.dateEnd).format('LL')}})
+                                </h5>
+                            </div>
                         </div>
                     </div>
                     <div class="level is-size-4">
@@ -3160,7 +3507,7 @@
                             </span>
                             <div v-else>
                                 <p>
-                                    You are currently <span style="font-weight:bold; color:#ccc;">Level {{modelMasteryPass.currentLevel}}</span> with an extra {{modelMasteryPass.currentXp}} XP
+                                    You are currently <span style="font-weight:bold; color:#ddd;">Level {{modelMasteryPass.currentLevel}}</span> with an extra {{modelMasteryPass.currentXp}} XP
                                 </p>
                                 <div class="level">
                                     <div class="level-item">
@@ -3245,7 +3592,7 @@
                                                     </tr>
                                                 </tfoot>
                                             </table>
-                                            <h3 class="title is-3 has-text-weight-bold" style="margin:0.5rem 0 0 0; color:#ccc;">
+                                            <h3 class="title is-3 has-text-weight-bold" style="margin:0.5rem 0 0 0; color:#ddd;">
                                                 Estimated final level: {{modelMasteryPass.finalLevel}}
                                             </h3>
                                         </div>
@@ -3257,10 +3604,10 @@
                                                 Level ~45: Break-even value
                                             </p>
                                             <p>
-                                                Level 92: All free-to-play rewards
+                                                Level 78: All free-to-play rewards
                                             </p>
                                             <p>
-                                                Level 110: All mastery pass rewards
+                                                Level 90: All mastery pass rewards
                                             </p>
                                             <hr />
                                         </div>
@@ -3273,25 +3620,16 @@
                                     Rewards
                                 </h4>
                                 <div class="masteryPassRewards" style="margin:0.5rem auto;">
-                                    <img src="/images/masteryRewards/ELD/masteryRewards_Eld01.png" alt="Mastery pass rewards (ELD)" />
-                                    <img src="/images/masteryRewards/ELD/masteryRewards_Eld02.png" alt="Mastery pass rewards (ELD)" />
-                                    <img src="/images/masteryRewards/ELD/masteryRewards_Eld03.png" alt="Mastery pass rewards (ELD)" />
-                                    <img src="/images/masteryRewards/ELD/masteryRewards_Eld04.png" alt="Mastery pass rewards (ELD)" />
-                                    <img src="/images/masteryRewards/ELD/masteryRewards_Eld05.png" alt="Mastery pass rewards (ELD)" />
-                                    <img src="/images/masteryRewards/ELD/masteryRewards_Eld06.png" alt="Mastery pass rewards (ELD)" />
-                                    <img src="/images/masteryRewards/ELD/masteryRewards_Eld07.png" alt="Mastery pass rewards (ELD)" />
-                                    <img src="/images/masteryRewards/ELD/masteryRewards_Eld08.png" alt="Mastery pass rewards (ELD)" />
-                                    <img src="/images/masteryRewards/ELD/masteryRewards_Eld09.png" alt="Mastery pass rewards (ELD)" />
-                                    <img src="/images/masteryRewards/ELD/masteryRewards_Eld10.png" alt="Mastery pass rewards (ELD)" />
-                                    <img src="/images/masteryRewards/ELD/masteryRewards_Eld11.png" alt="Mastery pass rewards (ELD)" />
+                                    <img src="/images/masteryRewards/masteryTHB.jpg" alt="Mastery pass rewards (THB)" />
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div v-else-if="currentPage === pageProfile">
-                    <h4 class="title is-4">My profile</h4>
-
+                    <h4 class="title is-4">
+                        My profile
+                    </h4>
                     <template v-if="modelAccount.isAuthenticated">
                         <div class="columns">
                             <div class="column">
@@ -3443,13 +3781,13 @@
                     <div v-else>
                         <div class="field">
                             <div class="control">
-                                <input type="checkbox" id="switchLandsPickAll" name="switchLandsPickAll" class="switch is-info" v-model="landsPickAll" v-on:change="saveLandsPickAll()">
+                                <input type="checkbox" id="switchLandsPickAll" name="switchLandsPickAll" class="switch is-info is-rounded" v-model="landsPickAll" v-on:change="saveLandsPickAll()">
                                 <label for="switchLandsPickAll">
                                     {{landsPickAll ? 'Include in your decks every possible land art from your favorites' : 'Include in your decks a random single land art per color from your favorites'}}
                                 </label>
                             </div>
                         </div>
-                        <div class="columns">
+                        <div class="columns" style="margin-top:2rem;">
                             <div v-for="landType in modelLands" class="column">
                                 <button v-on:click="currentPageProfileLandsType = landType.type"
                                         class="button is-fullwidth is-rounded" v-bind:class="[currentPageProfileLandsType === landType.type ? 'is-info' : '']">
@@ -3462,7 +3800,7 @@
                                  class="column is-1-desktop is-2-touch has-text-centered" style="margin-bottom:1.5rem;" v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(land.imageCardUrl)">
                                 <div class="field" style="margin-bottom:0;">
                                     <input type="checkbox" v-bind:id="'landPref' + currentPageProfileLandsType + index" v-bind:name="'landPref' + currentPageProfileLandsType + index"
-                                           class="switch" v-model="land.isSelected" v-on:change="saveLandsPreference()">
+                                           class="switch is-small is-rounded" v-model="land.isSelected" v-on:change="saveLandsPreference()">
                                     <label v-bind:for="'landPref' + currentPageProfileLandsType + index"></label>
                                 </div>
                                 <img v-bind:src="land.imageCardUrl" style="cursor:pointer;" v-bind:alt="land.name + ' - ' + land.set" v-bind:title="land.name + ' - ' + land.set" v-on:click="toggleLand(land);saveLandsPreference();" />
@@ -3771,7 +4109,7 @@
                         <a v-on:click="loadPage(pageTerms)">Terms of use</a>
                         <a v-on:click="loadPage(pageContact)">Contact us</a>
                         <a v-on:click="loadPage(pageAbout)">About</a>
-                        <a href="https://github.com/ibiza240/MTGAHelper-Windows-Client" target="_blank">Install the tracker</a>
+                        <a href="https://github.com/ibiza240/MTGAHelper-Windows-Client/raw/master/MTGAHelperTracker.msi" target="_blank">Install the tracker</a>
                     </p>
                     <p>
                         All art is property of their respective artists and/or Wizards of the Coast Inc.
@@ -3798,6 +4136,9 @@
                 </span>
                 <span class="float tooltip is-tooltip-left" data-tooltip="Support the project" style="z-index:2147483647;" v-on:click="showModalDonate = true">
                     <i class="fas fa-heart my-float" style="color:#bf0000;"></i>
+                </span>
+                <span class="float tooltip is-tooltip-left" data-tooltip="Purchase Magic paper products" style="z-index:2147483647; bottom:53px;" v-on:click="showModalAdPreorder = true">
+                    <img src="/images/preorder-THB.png" style="margin-top:15px;" />
                 </span>
                 <!-- MODALS -->
                 <!--<div class="modal" v-bind:class="showLoginModal ? 'is-active' : ''">
@@ -3915,7 +4256,7 @@
                             </code>
                         </p>
                         <p style="margin-top:1rem;">
-                            2. <strong>Zip</strong> the output_log.txt file and send it here (max size 15MB)
+                            2. <strong>Zip</strong> the output_log.txt file and send it here
                         </p>
                         <div class="notification" style="padding: 0;">
                             <span class="icon has-text-info"><i class="fas fa-info-circle"></i></span>
@@ -3933,18 +4274,27 @@
                                 </div>
                                 <div class="field">
                                     <div class="control">
-                                        <span onclick="submitCollection();" class="button is-primary"
+                                        <span v-if="modelUser.isSupporter" onclick="submitCollection();" class="button is-primary"
                                               v-bind:class="getClassIsLoadingData('collectionPost')" :disabled="isLoadingData('collectionPost')">
                                             Submit
                                         </span>
+                                        <button v-else class="button is-disabled" disabled="disabled">
+                                            Submit
+                                        </button>
                                     </div>
                                 </div>
                             </form>
                         </div>
+                        <p v-if="modelUser.isSupporter === false">
+                            Uploading your file in-browser is available to <a href="https://www.patreon.com/mtgahelper" target="_blank">Patreon supporters</a> only since it is quite resource intensive on the server.
+                        </p>
                         <hr />
-                        <div class="is-size-7">
-                            <a href="https://github.com/ibiza240/MTGAHelper-Windows-Client" target="_blank">Install the tracker</a> to automatically import your data
-                        </div>
+                        <p v-if="modelUser.isSupporter === false">
+                            On Windows: You can use the <a href="https://github.com/ibiza240/MTGAHelper-Windows-Client/raw/master/MTGAHelperTracker.msi">tracker program</a> to sync your log file with the server.
+                        </p>
+                        <p v-if="modelUser.isSupporter === false">
+                            On Linux/MacOS: You can use a <a href="https://github.com/ibiza240/MTGAHelper-Windows-Client/raw/master/MTGAHelper.ConsoleSync.exe.zip">portable console application</a> to sync your log file with the server.
+                        </p>
                     </div>
                     <button class="modal-close is-large" aria-label="close" v-on:click="showUploadCollectionModal = false"></button>
                 </div>
@@ -3955,12 +4305,16 @@
                             <div class="column">
                                 <h3 class="title is-3">Sign-in</h3>
                                 <div class="button">
-                                    <img src="https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png" style="height:1rem; margin-right:1rem;" alt="Google" />
-                                    <a href="/External/Challenge?provider=Google&returnUrl=%2F">With Google</a>
+                                    <a href="/External/Challenge?provider=Google&returnUrl=%2F">
+                                        <img src="https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png" style="height:1rem; margin-right:0.5rem;" alt="Google" />
+                                        With Google
+                                    </a>
                                 </div>
                                 <div class="button" style="margin-top:1rem;">
-                                    <img src="https://static.xx.fbcdn.net/rsrc.php/yo/r/iRmz9lCMBD2.ico" style="height:1rem; margin-right:1rem;" alt="Facebook" />
-                                    <a href="/External/Challenge?provider=Facebook&returnUrl=%2F">With Facebook</a>
+                                    <a href="/External/Challenge?provider=Facebook&returnUrl=%2F">
+                                        <img src="https://static.xx.fbcdn.net/rsrc.php/yo/r/iRmz9lCMBD2.ico" style="height:1rem; margin-right:0.5rem;" alt="Facebook" />
+                                        With Facebook
+                                    </a>
                                 </div>
                                 <hr />
                                 <h4 class="title is-4">Or with a local account</h4>
@@ -4040,10 +4394,10 @@
                         </div>
                         <div class="has-text-centered" style="margin: 1rem;">
                             <span class="is-size-7">
-                                Monthly objective for ideal servers availability: 58 / 100$
+                                Monthly objective for ideal servers availability: 85 / 100$
                             </span>
                             <div style="margin-top:0.2rem">
-                                <progress class="progress" value="58" max="100">58%</progress>
+                                <progress class="progress" value="85" max="100">85%</progress>
                             </div>
                         </div>
                         <div class="columns" style="margin-top:1rem;">
@@ -4056,30 +4410,21 @@
                                 <img src="https://www.paypalobjects.com/webstatic/icon/pp32.png" style="height:1rem" alt="Paypal" />&nbsp;<strong><a href="https://www.paypal.me/mtgahelper" target="_blank">Paypal</a></strong>
                             </div>
                         </div>
-                        <p style="margin:0;">
-                            You can also help by subscribing to one of these services:
-                        </p>
-                        <ul style="margin:0 0 1rem 1rem; list-style-type:none;">
-                            <li>
-                                <img src="/images/amazonprime.png" alt="Amazon Prime" style="height:1rem; margin-top:0.2rem;" />
-                                <a target="_blank" href="https://www.amazon.com/tryprimefree?ref_=assoc_tag_ph_1427739975520&_encoding=UTF8&camp=1789&creative=9325&linkCode=pf4&tag=mtgahelper01-20&linkId=42d317f3f80c3f694584946fca7fae34">
-                                    Amazon Prime (30-Day Free Trial)
-                                </a>
-                                <img src="//ir-na.amazon-adsystem.com/e/ir?t=mtgahelper01-20&l=pf4&o=1" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
-                            </li>
-                            <li>
-                                <img src="/images/twitchprime.png" alt="Amazon Prime" style="height:1rem; margin-top:0.2rem;" />
-                                <a target="_blank" href="https://www.amazon.com/b/?ie=UTF8&node=15195001011&ref_=assoc_tag_ph_1500607949196&_encoding=UTF8&camp=1789&creative=9325&linkCode=pf4&tag=mtgahelper01-20&linkId=7406b56eb98397346aa47a70a9985713">
-                                    Twitch Prime (30-Day Free Trial)
-                                </a>
-                                <img src="//ir-na.amazon-adsystem.com/e/ir?t=mtgahelper01-20&l=pf4&o=1" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
-                            </li>
-                        </ul>
                         <hr />
-                        <h5 class="title is-5">
-                            FREE ways to help MTGAHelper
+                        <h5 class="title is-5" style="margin-bottom:3rem;">
+                            Other ways to help MTGAHelper
                         </h5>
-                        <div><a target="_blank" href="https://www.amazon.com?tag=mtgahelper01-20"><i class="fab fa-amazon"></i> Use this referral link when shopping on <strong>Amazon</strong></a>. Christmas is coming! 🎁</div>
+                        <div style="position:absolute; left: 13px; bottom:10.5rem;">
+                            <a href="http://www.gamenerdz.com?aff=42">
+                                <img src="/images/gamenerdz.png" title="GameNerdz" alt="GameNerdz" style="height:20px; vertical-align: middle;">
+                                Use this referral link when shopping on GameNerdz (best prices for paper Magic)
+                            </a>
+                        </div>
+                        <div>
+                            <a target="_blank" href="https://www.amazon.com?tag=mtgahelper01-20">
+                                <i class="fab fa-amazon"></i> Use this referral link when shopping on <strong>Amazon</strong>
+                            </a>
+                        </div>
                         <div style="margin-top:0.5rem"><i class="fas fa-share-alt"></i> <strong>Help the community grow</strong>: Share or recommend this resource</div>
                         <div style="margin-top:0.5rem"><i class="fas fa-mouse-pointer"></i> Whitelist this site from your ad-blocker. Even if there are no ads xD</div>
                         <div style="margin-top:1.5rem">
@@ -4089,15 +4434,101 @@
                         </div>
                     </div>
                 </div>
+                <!--<div class="modal modalTopLevel" v-bind:class="showModalAdPreorder ? 'is-active' : ''">
+                    <div class="modal-background" v-on:click="showModalAdPreorder = false"></div>
+                    <div class="modal-content box" style="background:url('https://mtgazone.com/wp-content/uploads/2019/10/thb_1080p_en.jpg');">
+                        <a href="https://www.amazon.com/s/ref=as_li_ss_tl?k=theros+beyond+death&crid=17QA8XOE3K3X1&sprefix=theros+beyond+,aps,141&ref=nb_sb_ss_i_1_14&linkCode=ll2&tag=mtgahelper01-20&linkId=e0759fb97f5e27a906df976a6396aadf&language=en_US">
+                            <h2 class="title is-2">Pre-order your Magic: The Gathering Teros Beyond Death Booster Box</h2>
+                            <h4 class="subtitle is-4">and help support MTGAHelper ❤</h4>
+                        </a>
+                    </div>
+                </div>-->
+                <div class="modal modal-fx-fadeInScale"
+                     v-bind:class="[showModalAdPreorder || isLoadingSomething ? 'is-active' : '']">
+                    <div class="modal-background" style="background-image:url('/images/loadingBg.jpg'); background-size:cover;"></div>
+                    <div class="modal-content is-huge" style="max-width:1200px;">
+                        <div v-if="isLoadingSomething" class="has-text-centered" style="margin-bottom:1rem;">
+                            <img src="/images/MTGA_Anim.gif" alt="Loading..." style="height:64px; width:64px;" />
+                            <p>
+                                We're gathering your data. This waiting time can be greatly reduced with enough support,
+                                <br />
+                                see how you can help by clicking on the button on the bottom right. Thanks!
+                            </p>
+                        </div>
+                        <div v-if="showModalAdPreorder"
+                             style="background:#fff; color:#000; border:solid 2px #52575c; padding:2rem; border-bottom-left-radius:10px; border-bottom-right-radius:10px; border-top-left-radius:10px; border-top-right-radius:10px;">
+
+                            <h3 style="color:#000;" class="title is-3">
+                                Purchase your games or Magic: The Gathering paper products on
+                                <a href="https://www.gamenerdz.com/search.php?search_query=theros&section=product&aff=42" rel="nofollow" target="_blank" style="color:#00F">
+                                    GameNerdz
+                                </a>
+                            </h3>
+                            <h4 style="color:#000;" class="subtitle is-4">
+                                and help improve the MTGAHelper services
+                                <span style="color:#f00;">❤</span>
+                            </h4>
+
+                            <div class="level">
+                                <div class="level-item">
+                                    <a href="https://www.gamenerdz.com/magic-the-gathering-theros-beyond-death-booster-box-preorder?aff=42" rel="nofollow" target="_blank">
+                                        <img src="https://images-na.ssl-images-amazon.com/images/I/51cn2m%2BZuPL._SL250_.jpg" />
+                                    </a>
+
+                                    <a href="https://www.gamenerdz.com/magic-the-gathering-theros-beyond-death-bundle-preorder?aff=42" rel="nofollow" target="_blank">
+                                        <img src="https://images-na.ssl-images-amazon.com/images/I/51PHN4jH4%2BL._SL250_.jpg" />
+                                    </a>
+
+                                    <a href="https://www.gamenerdz.com/magic-the-gathering-game-night-2019?aff=42" rel="nofollow" target="_blank">
+                                        <img style="height:192px;" src="https://cdn11.bigcommerce.com/s-ua4dd/images/stencil/480x420/products/39474/83902/wocc62710__06007.1572048907.jpg?c=2" />
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button v-if="showModalAdPreorder" class="modal-close is-large" aria-label="close" v-on:click="showModalAdPreorder = false" />
+                </div>
             </div>
         </div>
-        <div class="pageloader" style="z-index:2000000000;"
-             v-bind:class="[isAppLoaded === false || isLoadingData('collectionPost') || isLoadingData('collectionGet') || isLoadingLotsOfDecks() ? 'is-active' : '']">
-            <div id="msg" class="title" style="text-align:center; width:25%; white-space:normal;">
-                <img src="/images/MTGA_Anim.gif" alt="Loading..." style="height:64px; width:64px;" />
-                <p>
-                    We're gathering your data. This waiting time can be greatly reduced with enough support, see how you can help by clicking on the button on the bottom right. Thanks!
-                </p>
+        <div class="pageloader" style="z-index:2000000000;" v-bind:class="isLoadingSomething ? 'is-active' : ''">
+            <div style="max-width:1200px; margin:0 auto;">
+                <div v-if="isLoadingSomething" class="has-text-centered" style="margin-bottom:1rem;">
+                    <img src="/images/MTGA_Anim.gif" alt="Loading..." style="height:64px; width:64px;" />
+                    <p>
+                        We're gathering your data. This waiting time can be greatly reduced with enough support,
+                        <br />
+                        see how you can help by clicking on the button on the bottom right. Thanks!
+                    </p>
+                </div>
+                <div v-if="showModalAdPreorder"
+                     style="background:#fff; color:#000; border:solid 2px #52575c; padding:2rem; border-bottom-left-radius:10px; border-bottom-right-radius:10px; border-top-left-radius:10px; border-top-right-radius:10px;">
+
+                    <h3 style="color:#000;" class="title is-3">
+                        Purchase your games or Magic: The Gathering paper products on
+                        <a href="https://www.gamenerdz.com/search.php?search_query=theros&section=product&aff=42" rel="nofollow" target="_blank" style="color:#00F">
+                            GameNerdz
+                        </a>
+                    </h3>
+                    <h4 style="color:#000;" class="subtitle is-4">
+                        and help improve the MTGAHelper services
+                        <span style="color:#f00;">❤</span>
+                    </h4>
+                    <div class="level">
+                        <div class="level-item">
+                            <a href="https://www.gamenerdz.com/magic-the-gathering-theros-beyond-death-booster-box-preorder?aff=42" rel="nofollow" target="_blank">
+                                <img src="https://images-na.ssl-images-amazon.com/images/I/51cn2m%2BZuPL._SL250_.jpg" />
+                            </a>
+
+                            <a href="https://www.gamenerdz.com/magic-the-gathering-theros-beyond-death-bundle-preorder?aff=42" rel="nofollow" target="_blank">
+                                <img src="https://images-na.ssl-images-amazon.com/images/I/51PHN4jH4%2BL._SL250_.jpg" />
+                            </a>
+
+                            <a href="https://www.gamenerdz.com/magic-the-gathering-game-night-2019?aff=42" rel="nofollow" target="_blank">
+                                <img style="height:192px;" src="https://cdn11.bigcommerce.com/s-ua4dd/images/stencil/480x420/products/39474/83902/wocc62710__06007.1572048907.jpg?c=2" />
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -4108,40 +4539,41 @@
             enable_page_level_ads: true
         });
     </script>-->
-    <div id="divInitialLoader" class="pageloader is-active">
+    <!--<div id="divInitialLoader" class="pageloader is-active">
         <div id="msg" class="title" style="text-align:center; width:25%; white-space:normal;">
             <img src="/images/MTGA_Anim.gif" alt="Loading..." style="height:64px; width:64px;" />
             <p>
                 <span class="title">Please wait...</span>
             </p>
         </div>
-        <!-- Script placement optimized -->
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                if (window.Event) {
-                    document.captureEvents(Event.MOUSEMOVE);
-                }
-                document.onmousemove = getCursorXY;
-            });
-
-            function getCursorXY(e) {
-                var x = (window.Event) ? e.pageX : event.clientX + (document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft);
-                var y = (window.Event) ? e.pageY : event.clientY + (document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop);
-                vueApp.mouseX = x;
-                vueApp.mouseY = y;
+    </div>-->
+    <!-- Script placement optimized -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.Event) {
+                document.captureEvents(Event.MOUSEMOVE);
             }
-        </script>
-        <script src="https://cdn.jsdelivr.net/npm/vue"></script>
-        <script src="js/vueApp.js"></script>
-        <!-- Global site tag (gtag.js) - Google Analytics -->
-        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-137512649-1"></script>
-        <script>
-            window.dataLayer = window.dataLayer || [];
-            function gtag() { dataLayer.push(arguments); }
-            gtag('js', new Date());
+            document.onmousemove = getCursorXY;
+        });
 
-            gtag('config', 'UA-137512649-1');
-        </script>
-        <div id="amzn-assoc-ad-9b4039c3-fdb8-43ec-81c4-bcf34e3e48c6"></div>
-        <script async src="//z-na.amazon-adsystem.com/widgets/onejs?MarketPlace=US&adInstanceId=9b4039c3-fdb8-43ec-81c4-bcf34e3e48c6"></script>
+        function getCursorXY(e) {
+            var x = (window.Event) ? e.pageX : event.clientX + (document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft);
+            var y = (window.Event) ? e.pageY : event.clientY + (document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop);
+            vueApp.mouseX = x;
+            vueApp.mouseY = y;
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script src="js/vueApp.js"></script>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-137512649-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'UA-137512649-1');
+    </script>
+    <div id="amzn-assoc-ad-9b4039c3-fdb8-43ec-81c4-bcf34e3e48c6"></div>
+    <script async src="//z-na.amazon-adsystem.com/widgets/onejs?MarketPlace=US&adInstanceId=9b4039c3-fdb8-43ec-81c4-bcf34e3e48c6"></script>
 </body>
