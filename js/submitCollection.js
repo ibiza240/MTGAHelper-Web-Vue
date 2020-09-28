@@ -9,7 +9,7 @@
     var file = fileInput.files[0];
 
     if (file.name.endsWith(".txt")) {
-        alert('The file to upload must be a .zip file (not the output_log.txt file directly) and be less than 20 MB.');
+        alert('The file to upload must be a .zip file (not the Player.log file directly) and be less than 20 MB.');
         return;
     }
     else if (file.name.endsWith(".zip") === false) {
@@ -17,7 +17,7 @@
         return;
     }
     else if (file.size > 52428800) {
-        alert('Your file is too big. Try deleting the output_log.txt file, reopen the MTG Arena game, go browse your collection and close the game. This will generate a very small valid output_log.txt that you can ZIP and send here.');
+        alert('Your file is too big. Try deleting the Player.log file, reopen the MTG Arena game, go browse your collection and close the game. This will generate a very small valid Player.log that you can ZIP and send here.');
         return;
     }
 

@@ -54,6 +54,7 @@ const pageHistorySelected = 'historySelected';
 const pageInventory = 'inventory';
 const pageDraftBeforeBoosters = 'draftsBeforeBoosters';
 const pageMatchDetails = 'matchDetails';
+const pageStatsLimited = 'statsLimited';
 const pageScrapers = 'scrapers';
 const pageDecksTracked = 'decksTracked';
 const pageDashboardSummary = 'dashboardSummary';
@@ -68,6 +69,8 @@ const pageTerms = 'terms';
 const pageAbout = 'about';
 const pageThanks = 'thanks';
 const pageBacklog = 'backlog';
+const pageCustomDraftRatings = 'customDraftRatings';
+const pageMissingJumpstart = 'missingJumpstart';
 
 const pageHistoryCards = 'cards';
 const pageHistoryEconomyEvents = 'economyEvents';
@@ -85,6 +88,7 @@ var routes = [
     //{ pageName: pageThanks, route: 'thanks' },
     { pageName: pageCollection, route: 'my/collection' },
     { pageName: pageInventory, route: 'my/inventory' },
+    { pageName: pageStatsLimited, route: 'my/statsLimited' }, 
     { pageName: pageMtgaDecks, route: 'my/mtgadecks' },
     { pageName: pageHistory, route: 'my/history' },
     { pageName: pageHistorySelected, route: 'my/history' },
@@ -93,7 +97,8 @@ var routes = [
     { pageName: pageDashboardDetails, route: 'my/missingCardsDetails' },
     { pageName: pageScrapers, route: 'my/sources' },
     { pageName: pageCustomDecks, route: 'my/decks' },
-    { pageName: pageMasteryPass, route: 'my/masteryPass' }
+    { pageName: pageMasteryPass, route: 'my/masteryPass' },
+    { pageName: pageCustomDraftRatings, route: 'my/draftRatings' }
 ];
 
 var vueApp = new Vue({
@@ -108,7 +113,7 @@ var vueApp = new Vue({
         dynamicLanding: true,
 
         //scryfallImagesPrefix: 'https://img.scryfall.com/cards',
-        iconLand: 'https://c-4tvylwolbz88x24nhtlwlkphx2ejbyzljkux2ejvt.g00.gamepedia.com/g00/3_c-4tan.nhtlwlkph.jvt_/c-4TVYLWOLBZ88x24oaawzx3ax2fx2fnhtlwlkph.jbyzljku.jvtx2ftanzhschapvu_nhtlwlkphx2f0x2f04x2fShuk_zftivs.zcnx3fclyzpvux3dj4691m071m4544409k709i17hj9k41j1x26p87j.thyrx3dpthnl_$/$/$/$/$',
+        iconLand: 'https://gamepedia.cursecdn.com/mtgsalvation_gamepedia/3/37/Land_symbol.svg',
         imgCardUnknown: 'https://cdn11.bigcommerce.com/s-0kvv9/images/stencil/1280x1280/products/266486/371622/classicmtgsleeves__43072.1532006814.jpg?c=2&imbypass=on',
 
         iconMana: {
@@ -131,9 +136,10 @@ var vueApp = new Vue({
         showModalLogin: false,
         showModalChangeAccountUserId: false,
         showModalAdPreorder: false,
+        showModalDraftCalculator: false,
         deckToShare: {},
 
-        exportCollectionFormat: '$name,$amount,$rarity,$set,$number',
+        exportCollectionFormat: '$name,$amount,$set,$number,$rarity,$type,$cmc,$color',
         exportCollectionIncludeNotOwned: false,
         exportCollectionHeader: false,
 
@@ -153,11 +159,13 @@ var vueApp = new Vue({
         currentPageProfileLandsType: 'Plains',
         currentPageMtgaDeckDetail: pageMtgaDeckDetailCards,
         currentPageCollectionColor: 'W',
+        currentPageStatsLimitedIsSealed: false,
 
         loading: [],
         scraperIdLoading: '',
 
         modelCardSelectedUrl: '',
+        contactEmail: '',
         contactMessage: '',
 
         wildcardsOrder: {
@@ -184,6 +192,7 @@ var vueApp = new Vue({
             password: ''
         },
 
+        dhTopAd: true,
         topAd: {},
         topAds: [
             {
@@ -283,31 +292,90 @@ var vueApp = new Vue({
         },
 
         modelDraftsCalculator: {
-            defaultValues: {
+            sets: ["", "ZNR", "M21", "IKO", "THB", "ELD", "M20", "WAR", "RNA", "GRN", "M19", "DOM", "RIX", "XLN", "AKR"],
+            setSelected: "",
+            draftTypeSelected: 'premierDraft',
+            additionalPacks: 0,
+
+            quickDraft: {
+                defaultValues: {
+                    winsPerDraft: 3,
+                    packsPerDraft: 1.35,
+                    raresPerDraft: 2.5,
+                    mythicsPerDraft: 0.5
+                },
+
+                result: null,
                 winsPerDraft: 3,
                 packsPerDraft: 1.35,
                 raresPerDraft: 2.5,
                 mythicsPerDraft: 0.5,
-                additionalPacks: 0
+
+                costGold: 5000,
+                costGems: 750,
+
+                gemsPerWin: {
+                    0: 50,
+                    1: 100,
+                    2: 200,
+                    3: 300,
+                    4: 450,
+                    5: 650,
+                    6: 850,
+                    7: 950
+                }
             },
+            premierDraft: {
+                defaultValues: {
+                    winsPerDraft: 3,
+                    packsPerDraft: 2,
+                    raresPerDraft: 2,
+                    mythicsPerDraft: 0.5
+                },
 
-            winsPerDraft: 3,
-            packsPerDraft: 1.35,
-            raresPerDraft: 2.5,
-            mythicsPerDraft: 0.5,
-            sets: ["THB", "ELD", "M20", "WAR", "RNA", "GRN", "M19", "DOM", "RIX", "XLN"],
-            setSelected: "THB",
-            result: null,
+                result: null,
+                winsPerDraft: 3,
+                packsPerDraft: 2,
+                raresPerDraft: 2,
+                mythicsPerDraft: 0.5,
 
-            gemsPerWin: {
-                0: 50,
-                1: 100,
-                2: 200,
-                3: 300,
-                4: 450,
-                5: 650,
-                6: 850,
-                7: 950
+                costGold: 10000,
+                costGems: 1500,
+
+                gemsPerWin: {
+                    0: 50,
+                    1: 100,
+                    2: 250,
+                    3: 1000,
+                    4: 1400,
+                    5: 1600,
+                    6: 1800,
+                    7: 2200
+                }
+            },
+            traditionalDraft: {
+                defaultValues: {
+                    winsPerDraft: 1.5,
+                    packsPerDraft: 2.5,
+                    raresPerDraft: 2,
+                    mythicsPerDraft: 0.5
+                },
+
+                result: null,
+                winsPerDraft: 1.5,
+                packsPerDraft: 2,
+                raresPerDraft: 1.5,
+                mythicsPerDraft: 0.5,
+
+                costGold: 10000,
+                costGems: 1500,
+
+                gemsPerWin: {
+                    0: 0,
+                    1: 0,
+                    2: 1000,
+                    3: 3000
+                }
             }
         },
 
@@ -358,7 +426,7 @@ var vueApp = new Vue({
 
             filters: {
                 formats: ['Standard', 'Historic'],
-                sets: ['', 'XLN', 'RIX', 'DOM', 'M19', 'GRN', 'RNA', 'WAR', 'M20', 'ELD', 'THB'],
+                sets: ['', 'AKR', 'XLN', 'RIX', 'DOM', 'M19', 'GRN', 'RNA', 'WAR', 'M20', 'ELD', 'THB', 'IKO', 'M21', 'JMP', 'ZNR'],
                 rarities: ['', 'Mythic', 'Rare', 'Uncommon', 'Common'],
 
                 format: 'Standard',
@@ -386,6 +454,11 @@ var vueApp = new Vue({
             }
         ],
 
+        modelUserStatsLimited: {
+            details: [],
+            summary: []
+        },
+
         modelUserHistory: {
             totalItems: 0,
             perPage: 7,
@@ -406,13 +479,24 @@ var vueApp = new Vue({
             mtgaFormat: ''
         },
 
+        modelJumpstartInputs: {
+            onlyStandard: true,
+            landWeighting: 'MoreThanRare',
+            landWeightingList: [
+                'Ignore',
+                'SameAsRare',
+                'MoreThanRare'
+            ]
+        },
+        modelJumpstartMissing: [],
+
         modelDashboard: {
             summary: [],
             details: [],
             detailsFiltered: [],
 
             detailsFilters: {
-                sets: ['', /*'XLN', 'RIX', 'DOM', 'M19',*/ 'GRN', 'RNA', 'WAR', 'M20', 'ELD', 'THB'],
+                sets: ['', 'AKR', 'XLN', 'RIX', 'DOM', 'M19', 'GRN', 'RNA', 'WAR', 'M20', 'ELD', 'THB', 'IKO', 'M21', 'ZNR'],
                 rarities: ['', 'Mythic', 'RareLand', 'RareNonLand', 'Uncommon', 'Common'],
 
                 set: '',
@@ -425,6 +509,8 @@ var vueApp = new Vue({
             decks: []
         },
 
+        modelCustomDraftRatingsFilterSet: 'ZNR',
+        modelCustomDraftRatings: [],
         modelLands: [],
         modelSets: [],
         modelNews: [],
@@ -458,15 +544,11 @@ var vueApp = new Vue({
         });
     },
     methods: {
-        localPasswordSignin_KeyUp: function (e) {
-            if (e.keyCode === 13) {
-                this.doSignin();
-            }
+        localPasswordSignin_Enter: function (e) {
+            this.doSignin();
         },
-        localPasswordSignup_KeyUp: function (e) {
-            if (e.keyCode === 13) {
-                this.doSignup();
-            }
+        localPasswordSignup_Enter: function (e) {
+            this.doSignup();
         },
         doSignin: function () {
             if (this.signin.email.trim() === '' || this.signin.password.trim() === '') {
@@ -547,6 +629,12 @@ var vueApp = new Vue({
         //},
         formatSetToFullName(set) {
             switch (set) {
+                case 'JMP':
+                    return 'Jumpstart';
+                case 'M21':
+                    return 'Core 2021';
+                case 'IKO':
+                    return 'Ikoria: Lair of Behemoths';
                 case 'THB':
                     return 'Theros: Beyond Death';
                 case 'ELD':
@@ -567,6 +655,10 @@ var vueApp = new Vue({
                     return 'Rivals of Ixalan';
                 case 'XLN':
                     return 'Ixalan';
+                case 'AKR':
+                    return 'Amonkhet Remastered';
+                case 'ZNR':
+                    return 'Zendikar Rising';
             }
 
             return set;
@@ -582,6 +674,9 @@ var vueApp = new Vue({
             } else if (pageName === pageDraftBeforeBoosters) {
                 this.refreshDraftsCalculator();
             }
+
+            if (pageName === pageStatsLimited)
+                this.refreshStatsLimited();
 
             if (typeof doPushState === 'undefined')
                 doPushState = true;
@@ -718,7 +813,6 @@ var vueApp = new Vue({
                 vueApp.loadData('changeAccountUserId', false);
 
                 if (statuscode === 200) {
-                    vueApp.showModalChangeAccountUserId = false;
                     vueApp.registerUser();
                 }
                 else {
@@ -838,6 +932,12 @@ var vueApp = new Vue({
                 if (pageName === pageLands)
                     this.getLands();
 
+                if (pageName === pageCustomDraftRatings)
+                    this.getCustomDraftRatings();
+
+                if (pageName === pageMissingJumpstart)
+                    this.getMissingJumpstart();
+
                 if (routeParts[0] !== 'my' && routeParts.length > 1) {
                     prm = routeParts[1];
                     switch (pageName) {
@@ -867,6 +967,7 @@ var vueApp = new Vue({
                 this.isAppLoaded = true;
                 sendAjaxGet('/api/User/Collection', (statuscode, body) => {
                     vueApp.loadData('collectionGet', false);
+                    this.showModalAdPreorder = false;
                     vueApp.modelUser.collection = JSON.parse(body);
 
                     if (this.getTotalWildcards() > 0) {
@@ -911,20 +1012,54 @@ var vueApp = new Vue({
                 vueApp.modelMasteryPass = JSON.parse(body);
             });
         },
-        calculateDraftGemsWon(nbDrafts) {
-            var floor = this.modelDraftsCalculator.gemsPerWin[Math.floor(this.modelDraftsCalculator.winsPerDraft)];
-            var ceiling = this.modelDraftsCalculator.gemsPerWin[Math.ceil(this.modelDraftsCalculator.winsPerDraft)];
+        calculateDraftGemsWon(calcForRares) {
+            var draftTypeSelected = this.modelDraftsCalculator[this.modelDraftsCalculator.draftTypeSelected];
+            var playset = calcForRares ? draftTypeSelected.result.expectedNbDraftsToPlaysetRares : draftTypeSelected.result.expectedNbDraftsToPlaysetMythics;
+            var nbDrafts = Math.ceil(playset);
+
+            var floor = draftTypeSelected.gemsPerWin[Math.floor(draftTypeSelected.winsPerDraft)];
+            var ceiling = draftTypeSelected.gemsPerWin[Math.ceil(draftTypeSelected.winsPerDraft)];
+
             return (floor + ceiling) / 2 * nbDrafts;
         },
+        calculateDraftGoldCost(calcForRares) {
+            var draftTypeSelected = this.modelDraftsCalculator[this.modelDraftsCalculator.draftTypeSelected];
+            var playset = calcForRares ? draftTypeSelected.result.expectedNbDraftsToPlaysetRares : draftTypeSelected.result.expectedNbDraftsToPlaysetMythics;
+
+            var goldCost = Math.ceil(playset) * draftTypeSelected.costGold;
+            return goldCost;
+        },
+        calculateDraftGemsCost(calcForRares) {
+            var draftTypeSelected = this.modelDraftsCalculator[this.modelDraftsCalculator.draftTypeSelected];
+            var playset = calcForRares ? draftTypeSelected.result.expectedNbDraftsToPlaysetRares : draftTypeSelected.result.expectedNbDraftsToPlaysetMythics;
+
+            var gemsCost = Math.ceil(playset) * draftTypeSelected.costGems;
+            return gemsCost;
+        },
+        calculateDraftGoldSaved(calcForRares) {
+            var draftTypeSelected = this.modelDraftsCalculator[this.modelDraftsCalculator.draftTypeSelected];
+            var playset = calcForRares ? draftTypeSelected.result.expectedNbDraftsToPlaysetRares : draftTypeSelected.result.expectedNbDraftsToPlaysetMythics;
+
+            var goldSaved = this.calculateDraftGemsWon(Math.ceil(playset)) / draftTypeSelected.costGems * draftTypeSelected.costGold;
+            return goldSaved;
+        },
         resetDraftCalculator() {
-            this.modelDraftsCalculator.winsPerDraft = 3;
-            this.modelDraftsCalculator.raresPerDraft = this.modelDraftsCalculator.defaultValues.raresPerDraft;
-            this.modelDraftsCalculator.mythicsPerDraft = this.modelDraftsCalculator.defaultValues.mythicsPerDraft;
-            this.modelDraftsCalculator.packsPerDraft = this.modelDraftsCalculator.defaultValues.packsPerDraft;
+            this.modelDraftsCalculator.quickDraft.winsPerDraft = this.modelDraftsCalculator.quickDraft.defaultValues.winsPerDraft;
+            this.modelDraftsCalculator.quickDraft.raresPerDraft = this.modelDraftsCalculator.quickDraft.defaultValues.raresPerDraft;
+            this.modelDraftsCalculator.quickDraft.mythicsPerDraft = this.modelDraftsCalculator.quickDraft.defaultValues.mythicsPerDraft;
+            this.modelDraftsCalculator.quickDraft.packsPerDraft = this.modelDraftsCalculator.quickDraft.defaultValues.packsPerDraft;
+
+            this.modelDraftsCalculator.premierDraft.winsPerDraft = this.modelDraftsCalculator.premierDraft.defaultValues.winsPerDraft;
+            this.modelDraftsCalculator.premierDraft.raresPerDraft = this.modelDraftsCalculator.premierDraft.defaultValues.raresPerDraft;
+            this.modelDraftsCalculator.premierDraft.mythicsPerDraft = this.modelDraftsCalculator.premierDraft.defaultValues.mythicsPerDraft;
+            this.modelDraftsCalculator.premierDraft.packsPerDraft = this.modelDraftsCalculator.premierDraft.defaultValues.packsPerDraft;
+
             this.modelDraftsCalculator.additionalPacks = 0;
             this.refreshDraftsCalculator();
         },
         refreshDraftsCalculator() {
+            if (this.modelDraftsCalculator.setSelected === '') return;
+
             //if (typeof initRequest === 'undefined') initRequest = true;
 
             var request = "/api/User/DraftBoostersCriticalPoint";
@@ -935,18 +1070,24 @@ var vueApp = new Vue({
                 "?set=" +
                 this.modelDraftsCalculator.setSelected +
                 "&raresPerDraft=" +
-                this.modelDraftsCalculator.raresPerDraft +
+                this.modelDraftsCalculator[this.modelDraftsCalculator.draftTypeSelected].raresPerDraft +
                 "&mythicsPerDraft=" +
-                this.modelDraftsCalculator.mythicsPerDraft +
+                this.modelDraftsCalculator[this.modelDraftsCalculator.draftTypeSelected].mythicsPerDraft +
                 "&packsPerDraft=" +
-                this.modelDraftsCalculator.packsPerDraft +
+                this.modelDraftsCalculator[this.modelDraftsCalculator.draftTypeSelected].packsPerDraft +
                 "&additionalPacks=" +
                 (parseInt(this.modelDraftsCalculator.additionalPacks) || 0);
 
             this.loadData(pageDraftBeforeBoosters, true);
             sendAjaxGet(request, (statuscode, body) => {
                 vueApp.loadData(pageDraftBeforeBoosters, false);
-                vueApp.modelDraftsCalculator.result = JSON.parse(body).result;
+                if (statuscode === 401) {
+                    vueApp.modelDraftsCalculator.setSelected = '';
+                    vueApp.showModalDraftCalculator = true;
+                }
+                else {
+                    vueApp.modelDraftsCalculator[this.modelDraftsCalculator.draftTypeSelected].result = JSON.parse(body).result;
+                }
             });
         },
         refreshUserHistory() {
@@ -958,6 +1099,13 @@ var vueApp = new Vue({
                 vueApp.modelUserHistorySelected = {};
                 vueApp.modelUserHistoryMatchSelected = {};
                 vueApp.loadData('userHistory', false);
+            });
+        },
+        refreshStatsLimited() {
+            this.loadData(pageStatsLimited, true);
+            sendAjaxGet('/api/User/statsLimited', (statuscode, body) => {
+                vueApp.modelUserStatsLimited = JSON.parse(body);
+                vueApp.loadData(pageStatsLimited, false);
             });
         },
         refreshUserHistoryForDate(date) {
@@ -1147,6 +1295,24 @@ var vueApp = new Vue({
 
             return computed;
         },
+        getMissingJumpstart() {
+            this.loadData('getMissingJumpstart', true);
+            var request = "/api/User/jumpstartmissing";
+            request +=
+                "?onlyStandard=" + this.modelJumpstartInputs.onlyStandard +
+                "&landWeighting=" + this.modelJumpstartInputs.landWeighting;
+
+            sendAjaxGet(request, (statuscode, body) => {
+                vueApp.loadData('getMissingJumpstart', false);
+                var data = JSON.parse(body);
+                if (statuscode === 200) {
+                    vueApp.modelJumpstartMissing = data;
+                }
+                else {
+                    alert(data.error);
+                }
+            });
+        },
         getLands() {
             this.loadData('getLands', true);
             sendAjaxGet('/api/Misc/Lands', (statuscode, body) => {
@@ -1193,6 +1359,32 @@ var vueApp = new Vue({
                 }
             });
         }, 2000),
+        saveCustomDraftRating(cardInfo) {
+            var body = {
+                idArena: cardInfo.card.idArena,
+                note: cardInfo.note,
+                rating: parseInt(cardInfo.rating)
+            };
+            sendAjaxPut('/api/User/CustomDraftRating', body, null, (statuscode, body) => {
+                if (statuscode !== 200) {
+                    var data = JSON.parse(body);
+                    alert(data.error);
+                }
+            });
+        },
+        getCustomDraftRatings() {
+            this.loadData('getCustomDraftRatings', true);
+            sendAjaxGet('/api/User/customDraftRatingsForDisplay', (statuscode, body) => {
+                vueApp.loadData('getCustomDraftRatings', false);
+                var data = JSON.parse(body);
+                if (statuscode === 200) {
+                    vueApp.modelCustomDraftRatings = data;
+                }
+                else {
+                    alert(data.error);
+                }
+            });
+        },
         filterCollection() {
             var format = this.modelUserCollectionFiltered.filters.format.trim();
             var card = this.modelUserCollectionFiltered.filters.card.trim();
@@ -1811,6 +2003,8 @@ var vueApp = new Vue({
 
             if (key.indexOf('-arenastandard') >= 0) name = name + ' (Arena)';
             if (key.indexOf('-standard') >= 0) name = name + ' (Standard)';
+            if (key.indexOf('-historicbo1') >= 0) name = name + ' (Historic Bo1)';
+            if (key.indexOf('-historicbo3') >= 0) name = name + ' (Historic Bo3)';
 
             name = name.charAt(0).toUpperCase() + name.slice(1);
 
@@ -1936,7 +2130,7 @@ var vueApp = new Vue({
         },
         sendMessage() {
             vueApp.loadData('sendMessage', true);
-            sendAjaxPost('/api/Misc/Message', { Message: this.contactMessage }, null, (statuscode, body) => {
+            sendAjaxPost('/api/Misc/Message', { Message: this.contactEmail + ': ' + this.contactMessage }, null, (statuscode, body) => {
                 vueApp.loadData('sendMessage', false);
                 if (statuscode === 200) {
                     alert('Message sent!');
@@ -1957,6 +2151,9 @@ var vueApp = new Vue({
                     alert(data.error);
                 }
             });
+        },
+        hideDH() {
+            this.dhTopAd = false;
         },
         resetNotifications() {
             this.modelUser.notificationsInactive = [];
@@ -2012,6 +2209,9 @@ var vueApp = new Vue({
         }
     },
     computed: {
+        statsLimitedFiltered: function () {
+            return this.currentPageStatsLimitedIsSealed ? this.modelUserStatsLimited.Sealed : this.modelUserStatsLimited.Draft;
+        },
         isLoadingSomething: function () {
             return this.isAppLoaded === false || this.isLoadingData('collectionPost') || this.isLoadingData('collectionGet') || this.isLoadingLotsOfDecks();
         },
@@ -2061,7 +2261,8 @@ var vueApp = new Vue({
             return info.reduce((a, b) => a.concat(b), []).reduce((a, b) => { a[b.id] = b.url; return a; }, {});
         },
         isPagePublic: function () {
-            return this.currentPage !== pageInventory &&
+            return this.currentPage !== pageInventory && 
+                this.currentPage !== pageStatsLimited &&
                 this.currentPage !== pageMasteryPass &&
                 this.currentPage !== pageDraftBeforeBoosters &&
                 this.currentPage !== pageBacklog &&

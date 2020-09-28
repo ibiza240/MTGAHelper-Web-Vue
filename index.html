@@ -5,9 +5,10 @@
     <meta name="description" content="MTGA Tracker for your Magic Arena collection. Get your Magic Arena decks, draft pick ratings, keep up with the Arena meta and a lot more.">
     <meta name="og:title" property="og:title" content="MTGAHelper - The ultimate collection tracker for Magic: The Gathering Arena. Get your Magic decks here">
     <meta name="og:description" property="og:description" content="MTGA Tracker for your Magic Arena collection. Get your Magic Arena decks, draft pick ratings, keep up with the Arena meta and a lot more.">
-    <meta property="og:image" content="https://www.mtgahelper.com/images/wcC.png" />
+    <meta property="og:image" content="https://www.mtgahelper.com/images/icon2.png" />
 
-    <link rel="icon" type="image/png" href="/images/wcC.png" />
+    <link rel="icon" type="image/png" href="/images/icon2.png" />
+    <link href="//cdn.jsdelivr.net/npm/keyrune@latest/css/keyrune.css" rel="stylesheet" type="text/css" />
     <script src="js/common.js"></script>
     <script src="js/util.js"></script>
     <script src="js/ajax.js"></script>
@@ -76,6 +77,8 @@
             background-color: #000;
             background-repeat: no-repeat;
             background-size: contain;
+            background-position: center;
+            color:#FFF;
         }
 
         img.iconMana {
@@ -306,6 +309,13 @@
         .horizontalItem {
             display: inline-block;
         }
+
+        .ss-grad.ss-common.white-stroke {
+            -webkit-text-stroke: 0.01rem #DDD !important;
+            background: -webkit-gradient(linear, left top, right top, color-stop(1%, #000), color-stop(50%, #302b2c), color-stop(100%, #000));
+            background: -webkit-linear-gradient(left, #000 1%, #302b2c 50%, #000 100%);
+            -webkit-background-clip: text;
+        }
     </style>
 </head>
 <body>
@@ -314,7 +324,7 @@
             <nav class="navbar is-fixed-top" role="navigation" aria-label="main navigation" style="min-height:unset;">
                 <div class="navbar-brand" style="min-height:unset;">
                     <!--v-on:click="loadPage(pageHome);"-->
-                    <img class="is-hidden-desktop-only" src="/images/wcC.png">
+                    <img class="is-hidden-desktop-only" src="/images/icon2.png" style="height:3rem;">
 
                     <!--<a class="navbar-item" v-bind:class="currentSection === sectionGeneral ? 'bold' : ''" @click.prevent="currentSection = sectionGeneral">
                         <i class="fas fa-bullhorn is-size-5" style="margin-right:0.2rem;"></i>
@@ -400,6 +410,12 @@
                 </div>
                 <div id="navbarTop" class="navbar-menu" v-bind:class="navbarBurgerActive ? 'is-active' : ''">
                     <div class="navbar-end">
+                        <!--<div class="navbar-item has-text-centered tooltip is-tooltip-bottom"
+                             data-tooltip="Purchase Magic paper products and help supporting the service" style="padding:0 inherit;">
+                            <a v-on:click="showModalAdPreorder = true">
+                                <img src="/images/preorder-IKO.png" style="width:52px; vertical-align:middle;" />
+                            </a>
+                        </div>
                         <div class="navbar-item has-text-centered tooltip is-tooltip-bottom is-tooltip-multiline"
                              v-bind:data-tooltip="topAds[0].tooltip" style="padding:0 inherit;">
                             <a v-bind:href="topAds[0].href" target="_blank">
@@ -411,8 +427,13 @@
                             <a v-bind:href="topAd.href" target="_blank">
                                 <img v-bind:src="topAd.img" v-bind:alt="topAd.text" style="height:52px; vertical-align:middle;" />
                             </a>
+                        </div>-->
+                        <div class="navbar-item tooltip is-tooltip-bottom is-tooltip-multiline" data-tooltip="Purchase your games or Magic: The Gathering paper products on GameNerdz and help improve the MTGAHelper services ❤">
+                            <a href="https://www.gamenerdz.com/magic-the-gathering-zendikar-rising-collector-booster-box-preorder?aff=42" rel="nofollow" target="_blank">
+                                <img src="/images/set-ZNR.png" alt="Amazon.com: Magic: The Gathering Core Set 2021 (M21) Collector ..." />
+                            </a>
                         </div>
-                        <div v-if="modelUser.isSupporter" class="navbar-item has-text-centered is-hidden-desktop-only tooltip is-tooltip-bottom" data-tooltip="Thank you so much for being a Patreon supporter">
+                        <div v-if="modelUser.isSupporter" class="navbar-item has-text-centered is-hidden-desktop-only tooltip is-tooltip-bottom" data-tooltip="Thanks for being a supporter and making the difference">
                             <i class="fas fa-heart" style="color: rgb(191, 0, 0);"></i>
                         </div>
                         <!--<template v-if="currentSection === sectionMyData">
@@ -445,7 +466,7 @@
                                 </a>
                             </div>
                         </div>
-                        <div v-if="modelUser.collection.cards.length > 0" class="navbar-item" style="width:18.25rem;">
+                        <div v-if="modelUser.collection.cards.length > 0" class="navbar-item">
                             <div style="width: 100%; display:flex; align-items:center; justify-content:flex-end;">
                                 <template v-if="navBarInfo === 'rank'">
                                     <span v-if="modelUser.collection.constructedRank.class === null">&nbsp;</span>
@@ -524,6 +545,10 @@
                                     <i class="far fa-calendar-alt" style="margin-right:0.5rem; width:1rem;"></i>
                                     History
                                 </a>
+                                <a href="/my/statsLimited" class="navbar-item" v-bind:class="currentPage === pageStatsLimited ? 'bold' : ''" @click.prevent="loadPage(pageStatsLimited);">
+                                    <i class="fas fa-dumbbell" style="margin-right:0.5rem; width:1rem;"></i>
+                                    Limited Stats
+                                </a>
                                 <hr class="navbar-divider">
                                 <a href="/my/decks" class="navbar-item" @click.prevent="loadPage(pageCustomDecks);">
                                     <i class="far fa-file" style="margin-right:0.5rem; width:1rem;"></i>
@@ -547,7 +572,7 @@
                                     Decks to play
                                 </a>
                                 <a href="/my/missingCardsSummary" class="navbar-item" v-bind:class="currentPage === pageDashboardSummary ? 'bold' : ''" @click.prevent="loadPage(pageDashboardSummary);">
-                                    <img v-bind:src="'/images/' + (modelDashboard.summary.length === 0 ? 'THB' : modelDashboard.summary[0].Key) + '-booster.png'" style="margin-right:0.5rem; width:1rem;" />
+                                    <img v-bind:src="'/images/' + (modelDashboard.summary.length === 0 ? 'M21' : modelDashboard.summary[0].Key) + '-booster.png'" style="margin-right:0.5rem; width:1rem;" />
                                     Boosters to open
                                 </a>
                                 <a href="/my/missingCardsDetails" class="navbar-item" v-bind:class="currentPage === pageDashboardDetails ? 'bold' : ''" @click.prevent="loadPage(pageDashboardDetails);">
@@ -571,6 +596,10 @@
                                     <i class="fas fa-traffic-light" style="font-size:1.1rem; margin-right:0.6rem;"></i>
                                     Drafts vs boosters
                                 </a>
+                                <!--<a href="/missingJumpstart" class="navbar-item" v-bind:class="currentPage === pageMissingJumpstart ? 'bold' : ''" @click.prevent="if (modelJumpstartMissing.length === 0) { getMissingJumpstart(); } loadPage(pageMissingJumpstart);">
+                                    <i class="ss ss-grad ss-2x white-stroke ss-jmp ss-mythic" style="margin-right:0.4rem;"></i>
+                                    Missing Jumpstart cards
+                                </a>-->
                             </div>
                         </div>
                         <div class="navbar-item has-dropdown is-hoverable">
@@ -585,6 +614,10 @@
                                 <a href="/lands" class="navbar-item" v-bind:class="currentPage === pageLands ? 'bold' : ''" @click.prevent="if (modelLands.length === 0) { getLands(); } loadPage(pageLands);">
                                     <img src="https://img.scryfall.com/cards/border_crop/front/0/2/023d333b-14f2-40ad-bb76-8b9e38040f89.jpg?1562730596" style="margin-right:0.5rem; width:1rem;" />
                                     Lands
+                                </a>
+                                <a v-if="modelAccount.isAuthenticated" href="/my/draftRatings" class="navbar-item" v-bind:class="currentPage === pageCustomDraftRatings ? 'bold' : ''" @click.prevent="if (modelCustomDraftRatings.length === 0) { getCustomDraftRatings(); } loadPage(pageCustomDraftRatings);">
+                                    <i class="fas fa-list-ol" style="margin-right:0.5rem; width:1rem;"></i>
+                                    Draft ratings
                                 </a>
                             </div>
                         </div>
@@ -610,7 +643,23 @@
                 </div>
 
             </nav>-->
-            <div style="margin-top:4rem;">
+            <div style="margin-top:55px;">
+                <div v-if="modelUser.isSupporter === false && dhTopAd && modelUser.nbLogin >= 5" class="columns is-size-7 is-vcentered is-gapless is-marginless">
+                    <div style="padding:1rem !important;" class="column has-text-centered">
+                        <a href="https://paypal.me/mtgahelper" target="_blank">
+                            <img src="https://www.paypalobjects.com/webstatic/icon/pp32.png" style="height:1.2rem;" />
+                        </a>
+                        &nbsp;
+                        <a href="https://www.patreon.com/mtgahelper" target="_blank" style="color:#f96854 !important;">
+                            <img src="https://c5.patreon.com/external/favicon/favicon-32x32.png?v=69kMELnXkB" style="height:1rem;" alt="Patreon" />
+                            &nbsp;
+                            <span style="line-height:2rem;">Please consider supporting this project for keeping it ad-free</span>
+                        </a>
+                        <i class="fas fa-heart" style="color:#bf0000;"></i>
+                        <span>Check out <a href="/articles/SupporterPerks" @click.prevent="modelArticleSelected = modelArticles.filter((i) => i.id === 'SupporterPerks')[0]; loadPage(pageArticleSelected, true, 'SupporterPerks');">this article</a> for more details</span>
+                        <button class="delete" v-on:click="hideDH()"></button>
+                    </div>
+                </div>
                 <template v-if="modelUser.collection.cards.length === 0 && isLoadingData('collectionGet') === false && isPagePublic === false">
                     <div class="hero herobg1 is-info">
                         <div class="hero-body">
@@ -618,10 +667,12 @@
                                 MTGAHelper &mdash; The ultimate collection tracker for Magic: The Gathering Arena
                             </h2>
                             <div style="margin-left:4rem;">
-                                <a class="button" href="https://github.com/ibiza240/MTGAHelper-Windows-Client/raw/master/MTGAHelperTracker.msi">Start by installing the Tracker</a>
+                                <a class="button" href="https://www.mtgahelper.com/download/MTGAHelperTracker.msi">Start by installing the Tracker</a>
                                 <br />
                                 <span style="text-shadow: 4px 4px 10px #000000;">
-                                    or upload your file manually by using the <strong>Import</strong> button in the navigation bar at the top
+                                    Please read the <a style="color:aquamarine;" href="https://joestradingpost.weebly.com/blahg/mtgahelper-installation" target="_blank">installation guide</a> if you have any problems running the program
+                                    <br />
+                                    or <a style="color:aquamarine;" href="https://discord.gg/GTd3RMd" target="_blank">join the Discord server</a> to have a chat and get help!
                                 </span>
                             </div>
                         </div>
@@ -698,8 +749,8 @@
                         Always stay updated on Magic: The Gathering Arena
                     </h4>
                     <!--<h5 class="subtitle is-5">
-                        Choose which sources of news to follow and stay updated in the glimpse of an eye
-                    </h5>-->
+            Choose which sources of news to follow and stay updated in the glimpse of an eye
+        </h5>-->
                     <div class="columns is-multiline">
                         <div class="column is-one-quarter" v-for="news in modelNews">
                             <div class="box" v-bind:class="news.type.replace(/ /g, '')">
@@ -733,43 +784,16 @@
                     </div>
                 </div>
                 <!--<div v-else-if="currentPage === pageStreams">
-                    <h4 class="title is-4">
-                        Streams
-                    </h4>
-                    Coming up
-                </div>-->
+        <h4 class="title is-4">
+            Streams
+        </h4>
+        Coming up
+    </div>-->
                 <div v-else-if="currentPage === pageArticles">
                     <h4 class="title is-4">
                         Some useful readings for players of Magic: The Gathering Arena
                     </h4>
                     <div class="columns is-multiline">
-                        
-                        <div class="column is-2">
-                            <div class="box">
-                                <article>
-                                    <div>
-                                        <a href="https://joestradingpost.weebly.com/blahg/arena-collection-drafting-how-to-thb" target="_blank">
-                                            <img src="https://img.scryfall.com/cards/art_crop/front/7/2/726e8b29-13e9-4138-b6a9-d2a0d8188d1c.jpg?1578533240">
-                                        </a>
-                                    </div>
-                                    <div class="media-content">
-                                        <div class="content">
-                                            <h6 class="title is-6">
-                                                <a href="https://joestradingpost.weebly.com/blahg/arena-collection-drafting-how-to-thb" target="_blank">
-                                                    Arena Collection Drafting - How To (THB)
-                                                </a>
-                                            </h6>
-                                            <p>
-                                                <a href="https://joestradingpost.weebly.com/blahg/arena-collection-drafting-how-to-thb" target="_blank">
-                                                    Read about how to build a large collection for your constructed needs through an optimal system!
-                                                </a>
-                                            </p>
-                                            <h7 class="subtitle is-7" style="margin-bottom:0;">{{moment('2020-02-05').fromNow()}}</h7>
-                                        </div>
-                                    </div>
-                                </article>
-                            </div>
-                        </div>
                         <div class="column is-2">
                             <div class="box">
                                 <article>
@@ -790,33 +814,6 @@
                                                     Confused about how to install the MTGAHelper tracker? Read this handy guide!
                                                 </a>
                                             </p>
-                                            <h7 class="subtitle is-7" style="margin-bottom:0;">{{moment('2020-02-03').fromNow()}}</h7>
-                                        </div>
-                                    </div>
-                                </article>
-                            </div>
-                        </div>
-                        <div class="column is-2">
-                            <div class="box">
-                                <article>
-                                    <div>
-                                        <a href="https://joestradingpost.weebly.com/mtg-arena.html" target="_blank">
-                                            <img src="https://img.scryfall.com/cards/art_crop/front/3/7/37ed04d3-cfa1-4778-aea6-b4c2c29e6e0a.jpg?1559959382">
-                                        </a>
-                                    </div>
-                                    <div class="media-content">
-                                        <div class="content">
-                                            <h6 class="title is-6">
-                                                <a href="https://joestradingpost.weebly.com/mtg-arena.html" target="_blank">
-                                                    Arena Finance
-                                                </a>
-                                            </h6>
-                                            <p>
-                                                <a href="https://joestradingpost.weebly.com/mtg-arena.html" target="_blank">
-                                                    A collection of insightful articles about MTGA Economics
-                                                </a>
-                                            </p>
-                                            <h7 class="subtitle is-7" style="margin-bottom:0;">{{moment('2020-01-16').fromNow()}}</h7>
                                         </div>
                                     </div>
                                 </article>
@@ -842,7 +839,31 @@
                                                     Read this short post to learn more about how all the tools available here are connected together
                                                 </a>
                                             </p>
-                                            <h7 class="subtitle is-7" style="margin-bottom:0;">{{moment('2019-08-11').fromNow()}}</h7>
+                                        </div>
+                                    </div>
+                                </article>
+                            </div>
+                        </div>
+                        <div class="column is-2">
+                            <div class="box">
+                                <article>
+                                    <div>
+                                        <a href="https://www.patreon.com/posts/mtgahelper-deck-41528547" target="_blank">
+                                            <img src="https://c1.scryfall.com/file/scryfall-cards/art_crop/front/1/e/1ee86efa-248e-4251-b734-f8ad3e8a0344.jpg?1562732370">
+                                        </a>
+                                    </div>
+                                    <div class="media-content">
+                                        <div class="content">
+                                            <h6 class="title is-6">
+                                                <a href="https://www.patreon.com/posts/mtgahelper-deck-41528547" target="_blank">
+                                                    MTGAHelper Deck Analysis (Advanced stats)
+                                                </a>
+                                            </h6>
+                                            <p>
+                                                <a href="https://www.patreon.com/posts/mtgahelper-deck-41528547" target="_blank">
+                                                    Learn about a very powerful feature that often gets overlooked on the MTGA Decks page: <strong>Advanced stats</strong>
+                                                </a>
+                                            </p>
                                         </div>
                                     </div>
                                 </article>
@@ -868,7 +889,58 @@
                                                     {{article.description}}
                                                 </a>
                                             </p>
-                                            <h7 class="subtitle is-7" style="margin-bottom:0;">{{moment(article.datePosted).fromNow()}}</h7>
+                                        </div>
+                                    </div>
+                                </article>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="columns is-multiline">
+                        <div class="column is-2">
+                            <div class="box">
+                                <article>
+                                    <div>
+                                        <a href="https://joestradingpost.weebly.com/blahg/arena-collection-drafting-how-to-thb" target="_blank">
+                                            <img src="https://img.scryfall.com/cards/art_crop/front/7/2/726e8b29-13e9-4138-b6a9-d2a0d8188d1c.jpg?1578533240">
+                                        </a>
+                                    </div>
+                                    <div class="media-content">
+                                        <div class="content">
+                                            <h6 class="title is-6">
+                                                <a href="https://joestradingpost.weebly.com/blahg/arena-collection-drafting-how-to-thb" target="_blank">
+                                                    Arena Collection Drafting - How To
+                                                </a>
+                                            </h6>
+                                            <p>
+                                                <a href="https://joestradingpost.weebly.com/blahg/arena-collection-drafting-how-to-thb" target="_blank">
+                                                    Read about how to build a large collection for your constructed needs through an optimal system!
+                                                </a>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </article>
+                            </div>
+                        </div>
+                        <div class="column is-2">
+                            <div class="box">
+                                <article>
+                                    <div>
+                                        <a href="https://joestradingpost.weebly.com/mtg-arena1.html" target="_blank">
+                                            <img src="https://img.scryfall.com/cards/art_crop/front/3/7/37ed04d3-cfa1-4778-aea6-b4c2c29e6e0a.jpg?1559959382">
+                                        </a>
+                                    </div>
+                                    <div class="media-content">
+                                        <div class="content">
+                                            <h6 class="title is-6">
+                                                <a href="https://joestradingpost.weebly.com/mtg-arena1.html" target="_blank">
+                                                    Arena Finance
+                                                </a>
+                                            </h6>
+                                            <p>
+                                                <a href="https://joestradingpost.weebly.com/mtg-arena.html" target="_blank">
+                                                    A collection of insightful articles about MTGA Economics
+                                                </a>
+                                            </p>
                                         </div>
                                     </div>
                                 </article>
@@ -994,7 +1066,7 @@
                         </span>
                     </div>
                     <div v-else class="wrapper-tablescroll">
-                        <table class="table is-narrow is-hoverable is-striped">
+                        <table class="table is-narrow is-fullwidth is-hoverable is-striped">
                             <thead>
                                 <tr>
                                     <th>Name</th>
@@ -1058,17 +1130,18 @@
                                     Main ({{displayTotalCards(modelDeckSelected.cardsMain)}} cards)
                                 </h4>
                                 <!--<table class="table is-narrow cardFrame">-->
-                                <table class="table is-narrow deck">
+                                <table class="table is-fullwidth is-narrow deck">
                                     <tbody v-for="t in modelDeckSelected.cardsMain.groupBy('type')">
                                         <tr>
-                                            <td class="spacer" colspan="3">
+                                            <td class="spacer" colspan="2">
                                                 <h5 class="title is-5">
                                                     {{t.key}} ({{displayTotalCards(t.values)}})
                                                 </h5>
                                             </td>
                                         </tr>
                                         <tr v-for="c in t.values">
-                                            <td v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageCardUrl)" style="padding-left:3rem;">
+                                            <td v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageCardUrl)">
+                                                <i style="padding:0 2rem 0 0;" v-bind:class="'ss ss-fw ss-grad ss ss-' + c.set.toLowerCase() + ' ss-' + c.rarity.toLowerCase()"></i>
                                                 <!--<div v-bind:style="'background-size:100% 100%;background-image:url(\'images/frame' + c.color[0] + '.jpg\');'">-->
                                                 <img width="24" height="24" v-bind:alt="c.name" v-bind:src="c.imageThumbnail" />
                                                 <span class="cardHover">
@@ -1078,45 +1151,42 @@
                                             <td>
                                                 <img v-for="mana in parseManaCost(c.manaCost)" v-bind:src="'/images/manaIcons/' + mana + '.png'" />
                                             </td>
-                                            <td>
-                                                {{c.set}}
-                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
                             <div class="column">
-                                <h4 class="title is-4" style="margin-bottom:0.5rem;">
-                                    Sideboard ({{displayTotalCards(modelDeckSelected.cardsSideboard)}} cards)
-                                </h4>
-                                <p v-if="modelDeckSelected.cardsSideboard.length === 0">
-                                    (No Sideboard)
-                                </p>
-                                <table v-else class="table is-narrow deck">
-                                    <tbody v-for="t in modelDeckSelected.cardsSideboard.groupBy('type')">
-                                        <tr>
-                                            <td class="spacer" colspan="3">
-                                                <h5 class="title is-5">
-                                                    {{t.key}} ({{displayTotalCards(t.values)}})
-                                                </h5>
-                                            </td>
-                                        </tr>
-                                        <tr v-for="c in t.values">
-                                            <td v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageCardUrl)" style="padding-left:3rem;">
-                                                <img width="24" height="24" v-bind:alt="c.name" v-bind:src="c.imageThumbnail" />
-                                                <span v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageCardUrl)" class="cardHover">
-                                                    {{c.amount}}x {{c.name}}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <img v-for="mana in parseManaCost(c.manaCost)" v-bind:src="'/images/manaIcons/' + mana + '.png'" />
-                                            </td>
-                                            <td>
-                                                {{c.set}}
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                <div v-for="zone in modelDeckSelected.cardsNotMainByZone">
+                                    <h4 class="title is-4" style="margin-bottom:0.5rem;">
+                                        {{zone.Key}} <span v-if="displayTotalCards(zone.Value) !== 1">({{displayTotalCards(zone.Value)}} cards)</span>
+                                    </h4>
+                                    <p v-if="zone.Value.length === 0">
+                                        (No {{zone.Key}})
+                                    </p>
+                                    <table v-else class="table is-fullwidth is-narrow deck">
+                                        <tbody v-for="t in zone.Value.groupBy('type')">
+                                            <tr>
+                                                <td class="spacer" colspan="2">
+                                                    <h5 class="title is-5">
+                                                        {{t.key}} ({{displayTotalCards(t.values)}})
+                                                    </h5>
+                                                </td>
+                                            </tr>
+                                            <tr v-for="c in t.values">
+                                                <td v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageCardUrl)">
+                                                    <i style="padding:0 2rem 0 0;" v-bind:class="'ss ss-fw ss-grad ss ss-' + c.set.toLowerCase() + ' ss-' + c.rarity.toLowerCase()"></i>
+                                                    <img width="24" height="24" v-bind:alt="c.name" v-bind:src="c.imageThumbnail" />
+                                                    <span v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageCardUrl)" class="cardHover">
+                                                        {{c.amount}}x {{c.name}}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <img v-for="mana in parseManaCost(c.manaCost)" v-bind:src="'/images/manaIcons/' + mana + '.png'" />
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
                                 <hr />
                                 <div>
                                     <figure>
@@ -1223,8 +1293,101 @@
                             </div>
                         </div>
                     </div>
+                </div>
+                <div v-else-if="currentPage === pageStatsLimited">
+                    <h4 class="title is-4">
+                        Stats (Limited)
+                    </h4>
+                    <div v-if="isLoadingData(pageStatsLimited)">
+                        <span class="button is-loading"></span>
+                        This can take some time to load with a lot of matches...
+                    </div>
+                    <template v-else>
+                        <div class="columns">
+                            <div class="column">
+                                <button v-on:click="currentPageStatsLimitedIsSealed = false"
+                                        class="button is-fullwidth is-rounded" v-bind:class="[currentPageStatsLimitedIsSealed === false ? 'is-info' : '']">
+                                    Draft
+                                </button>
+                            </div>
+                            <div class="column">
+                                <button v-on:click="currentPageStatsLimitedIsSealed = true"
+                                        class="button is-fullwidth is-rounded" v-bind:class="[currentPageStatsLimitedIsSealed ? 'is-info' : '']">
+                                    Sealed
+                                </button>
+                            </div>
+                        </div>
 
-
+                        <h4 class="title is-4">
+                            {{currentPageStatsLimitedIsSealed ? 'Sealed' : 'Draft'}}
+                        </h4>
+                        <div>
+                            <div class="columns is-multiline">
+                                <div v-for="summary in statsLimitedFiltered.summary" class="column is-one-quarter">
+                                    <div style="margin:0.5rem;">
+                                        <div class="darkTable has-text-centered" v-bind:style="'padding:1rem 0.5rem; background-position: top center; background-size: 218px 339px; background-image: url(/images/set-' + summary.set + '-pack.png); background-repeat:no-repeat; color:#ffffff;'">
+                                            <h5 style="color:#ffffff; margin:0;">{{summary.set}}</h5>
+                                            {{summary.draftType}}
+                                            <br />
+                                            <br />
+                                            {{summary.eventsCount}} run{{summary.eventsCount !== 1 ? 's' : ''}}
+                                            <br />
+                                            {{numeral(summary.winCountAverage).format('0.0')}} average wins
+                                            <br />
+                                            {{numeral(summary.winRate).format('0.0%')}} win-rate
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <h4 style="margin-top:2rem;">Details</h4>
+                        <table class="table is-fullwidth is-striped">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        Event
+                                    </th>
+                                    <th>
+                                        Outcome
+                                    </th>
+                                    <th>
+                                        Date start
+                                    </th>
+                                    <th>
+                                        Date finish
+                                    </th>
+                                    <!--<th>
+                    Entry fee
+                </th>
+                <th>
+                    Reward
+                </th>-->
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="event in statsLimitedFiltered.details">
+                                    <td>
+                                        {{event.set}} {{event.draftType}}
+                                    </td>
+                                    <td>
+                                        {{event.winCount}}-{{event.lossCount}}
+                                    </td>
+                                    <td>
+                                        {{moment(event.dateStart).format('YYYY-MM-DD HH:mm:ss')}}
+                                    </td>
+                                    <td>
+                                        {{moment(event.dateEnd).format('YYYY-MM-DD HH:mm:ss')}}
+                                    </td>
+                                    <!--<td>
+                    10,000 G
+                </td>
+                <td>
+                    Gems, Cards
+                </td>-->
+                                </tr>
+                            </tbody>
+                        </table>
+                    </template>
                 </div>
                 <div v-else-if="currentPage === pageCollection">
                     <span v-if="isLoadingData('collectionGet')" class="button is-loading"></span>
@@ -1280,7 +1443,7 @@
                                                 v-on:click="modelUserCollectionFiltered.filters.set = set.name; modelUserCollectionFiltered.filters.rarity = rarity; filterCollection();">
                                                 <td class="has-text-centered tooltip is-size-7" style="width:50%; vertical-align:middle;"
                                                     v-bind:data-tooltip="modelUser.collection.cards.filter(i => i.notInBooster === false && i.set === set.name && i.rarity === rarity).reduce(function(a, b) { return a + b.amount; }, 0) + ' / ' + modelSets.filter(function(i) { return i.name === set.name && i.rarity === rarity; }).reduce(function(a, b) { return a + b.totalCards; }, 0) * 4">
-                                                    <img v-bind:src="'/images/' + set.name + '-' + rarity.substring(0,1) + '.png'" />
+                                                    <i v-bind:class="'ss ss-grad ss-' + (set.name.startsWith('M1') || set.name.startsWith('M2') ? '3' : '2') + 'x white-stroke ss-' + set.name.toLowerCase() + ' ss-' + rarity.toLowerCase()"></i>
                                                 </td>
                                                 <td style="width:50%;">
                                                     <div style="margin:0.25rem;">
@@ -1416,9 +1579,10 @@
                             </p>
                         </div>
                         <div class="horizontalItems">
-                            <ul class="horizontalItem" style="height: 600px; display: flex; flex-direction: column; flex-wrap: wrap;">
-                                <li v-for="c in modelUserCollectionFiltered.filtered.filter((i) => currentPageCollectionColor === 'Multicolor' ? i.color.length > 1 && i.color !== 'Land' : i.color === currentPageCollectionColor)"
-                                    v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageCardUrl)" class="cardHover" style="list-style-type: none;">
+                            <ul class="horizontalItem" style="height: 600px; margin-left:50px; display: flex; flex-direction: column; flex-wrap: wrap;">
+                                <li class="tooltip is-tooltip-left cardHover" v-bind:data-tooltip="c.set" style="list-style-type: none;"
+                                    v-for="c in modelUserCollectionFiltered.filtered.filter((i) => currentPageCollectionColor === 'Multicolor' ? i.color.length > 1 && i.color !== 'Land' : i.color === currentPageCollectionColor)"
+                                    v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageCardUrl)">
                                     {{c.amount}}x {{c.name}}
                                     <span v-if="c.notInBooster" class="tooltip" data-tooltip="This card cannot be obtained in booster packs">
                                         <i class="fas fa-exclamation-triangle"></i>
@@ -1433,9 +1597,9 @@
                         <div class="column is-half-desktop" v-bind:class="[modelMtgaDeckSelected.deckId === '' ? '' : 'is-hidden-touch', ]">
                             <h4 class="title is-4">MTGA Decks</h4>
                             <!--<p v-if="modelUser.nbLogin > 10">
-                                <i class="fas fa-info-circle"></i>
-                                Disclaimer: Unless you are a supporter, your data will be reset at the release of a new set
-                            </p>-->
+                    <i class="fas fa-info-circle"></i>
+                    Disclaimer: Unless you are a supporter, your data will be reset at the release of a new set
+                </p>-->
                             <div v-if="isLoadingData(pageMtgaDecks)">
                                 <span class="button is-loading"></span>
                                 This can take some time to load with a lot of matches...
@@ -1445,36 +1609,36 @@
                             </div>
                             <div v-else>
                                 <!--<table class="table is-narrow">
-            <thead>
-                <tr>
-                    <th colspan="5">Filters <span class="smallText gray">(Press Enter)</span></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>
-                        <div class="field">
-                            <div class="control">
-                                <label class="label is-small">
-                                    Source
-                                    <span class="icon has-text-info tooltip" style="height:inherit; cursor:pointer;"
-                                          data-tooltip="Go configure sources of decks" v-on:click="loadPage(pageScrapers)">
-                                        <i class="fas fa-info-circle"></i>
-                                    </span>
-                                </label>
-                                <select class="input is-small" v-model="modelUserDecks.filters.scraperTypeId" v-on:change="filterDecks();">
-                                    <option v-for="source in ['(All)'].concat(modelUserDecks.decks.map((i) => i.scraperTypeId).filter((value, index, self) => self.indexOf(value) === index).sort())"
-                                            v-bind:value="source">
-                                        {{ formatScraperKey(source, true) }}
-                                    </option>
-                                </select>
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>-->
-                                <table class="table is-narrow is-hoverable is-striped">
+                        <thead>
+                            <tr>
+                                <th colspan="5">Filters <span class="smallText gray">(Press Enter)</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="field">
+                                        <div class="control">
+                                            <label class="label is-small">
+                                                Source
+                                                <span class="icon has-text-info tooltip" style="height:inherit; cursor:pointer;"
+                                                      data-tooltip="Go configure sources of decks" v-on:click="loadPage(pageScrapers)">
+                                                    <i class="fas fa-info-circle"></i>
+                                                </span>
+                                            </label>
+                                            <select class="input is-small" v-model="modelUserDecks.filters.scraperTypeId" v-on:change="filterDecks();">
+                                                <option v-for="source in ['(All)'].concat(modelUserDecks.decks.map((i) => i.scraperTypeId).filter((value, index, self) => self.indexOf(value) === index).sort())"
+                                                        v-bind:value="source">
+                                                    {{ formatScraperKey(source, true) }}
+                                                </option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>-->
+                                <table class="table is-narrow is-fullwidth is-hoverable is-striped">
                                     <thead>
                                         <tr>
                                             <th>&nbsp;</th>
@@ -1482,11 +1646,12 @@
                                             <th>Most played format</th>
                                             <th class="has-text-centered">Win rate</th>
                                             <th class="has-text-centered">Last played</th>
+                                            <th class="has-text-centered">More stats!</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr v-for="s in modelMtgaDecksSummary" v-on:click="getMtgaDeck(s)" v-bind:class="[s.deckId === modelMtgaDeckSelected.deckId ? 'is-selected' : '']">
-                                            <td style="line-height:0;">
+                                            <td style="line-height:0; width:48px;">
                                                 <img v-if="s.deckImage !== ''" v-bind:src="s.deckImage" wi v-bind:alt="s.deckName" width="48" />
                                             </td>
                                             <td>
@@ -1509,6 +1674,11 @@
                                             <td class="has-text-centered">
                                                 {{(s.winRateNbMatches === 0 ? 'N/A' : s.lastPlayed)}}
                                             </td>
+                                            <td class="has-text-centered">
+                                                <a class="hyperlink" v-bind:href="'/mtgaDeckAnalysis.html?deckId=' + s.deckId" target="_blank">
+                                                    <i class="fas fa-dice-d6"></i>
+                                                </a>
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -1529,7 +1699,7 @@
                                         <img v-if="modelMtgaDeckSelected.deckImage !== ''" v-bind:src="modelMtgaDeckSelected.deckImage" v-bind:alt="modelMtgaDeckSelected.deckName" style="height:200px;" />
                                     </div>
                                     <div class="column">
-                                        <table class="table is-narrow">
+                                        <table class="table is-fullwidth is-narrow">
                                             <thead>
                                                 <tr>
                                                     <th>
@@ -1598,17 +1768,18 @@
                                                 Main ({{displayTotalCards(modelMtgaDeckSelected.cardsMain)}} cards)
                                             </h4>
                                             <!--<table class="table is-narrow cardFrame">-->
-                                            <table class="table is-narrow deck">
+                                            <table class="table is-fullwidth is-narrow deck">
                                                 <tbody v-for="t in modelMtgaDeckSelected.cardsMain.groupBy('type')">
                                                     <tr>
-                                                        <td class="spacer" colspan="3">
+                                                        <td class="spacer" colspan="2">
                                                             <h5 class="title is-5">
                                                                 {{t.key}} ({{displayTotalCards(t.values)}})
                                                             </h5>
                                                         </td>
                                                     </tr>
                                                     <tr v-for="c in t.values">
-                                                        <td v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageCardUrl)" style="padding-left:3rem;">
+                                                        <td v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageCardUrl)">
+                                                            <i style="padding:0 2rem 0 0;" v-bind:class="'ss ss-fw ss-grad ss ss-' + c.set.toLowerCase() + ' ss-' + c.rarity.toLowerCase()"></i>
                                                             <!--<div v-bind:style="'background-size:100% 100%;background-image:url(\'images/frame' + c.color[0] + '.jpg\');'">-->
                                                             <img width="24" height="24" v-bind:alt="c.name" v-bind:src="c.imageThumbnail" />
                                                             <span class="cardHover">
@@ -1618,45 +1789,42 @@
                                                         <td>
                                                             <img v-for="mana in parseManaCost(c.manaCost)" v-bind:src="'/images/manaIcons/' + mana + '.png'" />
                                                         </td>
-                                                        <td>
-                                                            {{c.set}}
-                                                        </td>
                                                     </tr>
                                                 </tbody>
                                             </table>
                                         </div>
                                         <div class="column is-narrow is-half">
-                                            <h4 class="title is-4" style="margin-bottom:0.5rem;">
-                                                Sideboard ({{displayTotalCards(modelMtgaDeckSelected.cardsSideboard)}} cards)
-                                            </h4>
-                                            <p v-if="modelMtgaDeckSelected.cardsSideboard.length === 0">
-                                                (No Sideboard)
-                                            </p>
-                                            <table v-else class="table is-narrow deck">
-                                                <tbody v-for="t in modelMtgaDeckSelected.cardsSideboard.groupBy('type')">
-                                                    <tr>
-                                                        <td class="spacer" colspan="3">
-                                                            <h5 class="title is-5">
-                                                                {{t.key}} ({{displayTotalCards(t.values)}})
-                                                            </h5>
-                                                        </td>
-                                                    </tr>
-                                                    <tr v-for="c in t.values">
-                                                        <td v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageCardUrl)" style="padding-left:3rem;">
-                                                            <img width="24" height="24" v-bind:alt="c.name" v-bind:src="c.imageThumbnail" />
-                                                            <span v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageCardUrl)" class="cardHover">
-                                                                {{c.amount}}x {{c.name}}
-                                                            </span>
-                                                        </td>
-                                                        <td>
-                                                            <img v-for="mana in parseManaCost(c.manaCost)" v-bind:src="'/images/manaIcons/' + mana + '.png'" />
-                                                        </td>
-                                                        <td>
-                                                            {{c.set}}
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
+                                            <div v-for="zone in modelMtgaDeckSelected.cardsNotMainByZone">
+                                                <h4 class="title is-4" style="margin-bottom:0.5rem;">
+                                                    {{zone.Key}} <span v-if="displayTotalCards(zone.Value) !== 1">({{displayTotalCards(zone.Value)}} cards)</span>
+                                                </h4>
+                                                <p v-if="zone.Value.length === 0">
+                                                    (No {{zone.Key}})
+                                                </p>
+                                                <table v-else class="table is-fullwidth is-narrow deck">
+                                                    <tbody v-for="t in zone.Value.groupBy('type')">
+                                                        <tr>
+                                                            <td class="spacer" colspan="2">
+                                                                <h5 class="title is-5">
+                                                                    {{t.key}} ({{displayTotalCards(t.values)}})
+                                                                </h5>
+                                                            </td>
+                                                        </tr>
+                                                        <tr v-for="c in t.values">
+                                                            <td v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageCardUrl)">
+                                                                <i style="padding:0 2rem 0 0;" v-bind:class="'ss ss-fw ss-grad ss ss-' + c.set.toLowerCase() + ' ss-' + c.rarity.toLowerCase()"></i>
+                                                                <img width="24" height="24" v-bind:alt="c.name" v-bind:src="c.imageThumbnail" />
+                                                                <span v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageCardUrl)" class="cardHover">
+                                                                    {{c.amount}}x {{c.name}}
+                                                                </span>
+                                                            </td>
+                                                            <td>
+                                                                <img v-for="mana in parseManaCost(c.manaCost)" v-bind:src="'/images/manaIcons/' + mana + '.png'" />
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                             <hr />
                                             <div>
                                                 <figure>
@@ -1710,7 +1878,7 @@
                                     <h4 class="title is-4">
                                         Matches played
                                     </h4>
-                                    <table class="table is-hoverable">
+                                    <table class="table is-fullwidth is-hoverable">
                                         <thead>
                                             <tr>
                                                 <th>
@@ -1780,7 +1948,7 @@
                                 </li>
                             </ul>
                         </nav>
-                        <table class="table is-narrow is-hoverable is-striped">
+                        <table class="table is-fullwidth is-narrow is-hoverable is-striped">
                             <thead>
                                 <tr>
                                     <th>
@@ -1905,15 +2073,15 @@
                                         </div>
                                     </td>
                                     <!--<td>
-                                        <span v-if="h.constructedRank === 'N/A'">&nbsp;</span>
-                                        <span v-else class="tooltip is-tooltip-left" v-bind:data-tooltip="'Constructed ' + h.constructedRank.split('_').slice(0,2).join(' ')">
-                                            <img v-bind:src="'/images/ranks/constructed/' + h.constructedRank.split('_').slice(0,2).join('_') + '.png'" class="wc" />
-                                        </span>
-                                        <span v-if="h.limitedRank === 'N/A'">&nbsp;</span>
-                                        <span v-else class="tooltip is-tooltip-left" v-bind:data-tooltip="'Limited ' + h.limitedRank.split('_').slice(0,2).join(' ')">
-                                            <img v-bind:src="'/images/ranks/limited/' + h.limitedRank.split('_').slice(0,2).join('_') + '.png'" class="wc" />
-                                        </span>
-                                    </td>-->
+                            <span v-if="h.constructedRank === 'N/A'">&nbsp;</span>
+                            <span v-else class="tooltip is-tooltip-left" v-bind:data-tooltip="'Constructed ' + h.constructedRank.split('_').slice(0,2).join(' ')">
+                                <img v-bind:src="'/images/ranks/constructed/' + h.constructedRank.split('_').slice(0,2).join('_') + '.png'" class="wc" />
+                            </span>
+                            <span v-if="h.limitedRank === 'N/A'">&nbsp;</span>
+                            <span v-else class="tooltip is-tooltip-left" v-bind:data-tooltip="'Limited ' + h.limitedRank.split('_').slice(0,2).join(' ')">
+                                <img v-bind:src="'/images/ranks/limited/' + h.limitedRank.split('_').slice(0,2).join('_') + '.png'" class="wc" />
+                            </span>
+                        </td>-->
                                 </tr>
                             </tbody>
                         </table>
@@ -1946,46 +2114,46 @@
                                     </button>
                                 </div>
                                 <!--<div class="column">
-                                    <button v-on:click="currentPageHistory = pageHistoryRankUpdates"
-                                            class="button is-fullwidth is-rounded" v-bind:class="[currentPageHistory === pageHistoryRankUpdates ? 'is-info' : '']">
-                                        Rank updates
-                                    </button>
-                                </div>-->
+                        <button v-on:click="currentPageHistory = pageHistoryRankUpdates"
+                                class="button is-fullwidth is-rounded" v-bind:class="[currentPageHistory === pageHistoryRankUpdates ? 'is-info' : '']">
+                            Rank updates
+                        </button>
+                    </div>-->
                             </div>
                             <!--<div v-if="currentPageHistory === pageHistoryRankUpdates">
-                                <h5 class="title is-5" v-if="modelUserHistorySelected2.rankUpdates.length === 0">
-                                    No rank updates
-                                </h5>
-                                <table v-else class="table is-narrow">
-                                    <thead>
-                                        <tr>
-                                            <th>
-                                                Timestamp
-                                            </th>
-                                            <th>
-                                                Rank update
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="i in modelUserHistorySelected2.rankUpdates">
-                                            <td style="is-size-7">
-                                                {{moment(i.dateTime).format('YYYY-MM-DD HH:mm')}}
-                                            </td>
-                                            <td>
-                                                {{numeral(i.deltaSteps).format('+0,0')}}
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>-->
+                    <h5 class="title is-5" v-if="modelUserHistorySelected2.rankUpdates.length === 0">
+                        No rank updates
+                    </h5>
+                    <table v-else class="table is-narrow">
+                        <thead>
+                            <tr>
+                                <th>
+                                    Timestamp
+                                </th>
+                                <th>
+                                    Rank update
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="i in modelUserHistorySelected2.rankUpdates">
+                                <td style="is-size-7">
+                                    {{moment(i.dateTime).format('YYYY-MM-DD HH:mm')}}
+                                </td>
+                                <td>
+                                    {{numeral(i.deltaSteps).format('+0,0')}}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>-->
                             <div v-if="currentPageHistory === pageHistoryEconomyEvents">
                                 <h5 class="title is-5" v-if="modelUserHistorySelected2.economyEvents.length === 0">
                                     No inventory changes
                                 </h5>
                                 <div v-else class="columns">
                                     <div class="column">
-                                        <table class="table is-narrow">
+                                        <table class="table is-fullwidth is-narrow">
                                             <thead>
                                                 <tr>
                                                     <th>
@@ -2075,9 +2243,9 @@
                                                                         <img class="wc" src="/images/vault.png" />
                                                                     </span>
                                                                     <!--<span v-else-if="change.type === 'NewCards'" class="tooltip" v-bind:data-tooltip="Math.abs(change.amount) + ' card' + (change.amount == 1 ? '' : 's') + ' lost'">
-                                                                        {{numeral(change.amount).format('+0,0')}}
-                                                                        <img class="wc" v-bind:src="imgCardUnknown" />
-                                                                    </span>-->
+                                                            {{numeral(change.amount).format('+0,0')}}
+                                                            <img class="wc" v-bind:src="imgCardUnknown" />
+                                                        </span>-->
                                                                     <span v-else>
                                                                         {{change.value}}
                                                                         {{change.type}}
@@ -2128,7 +2296,7 @@
                                     <h5 class="title is-5">
                                         {{modelUserHistorySelected2.matches.length}} matches played
                                     </h5>
-                                    <table class="table is-narrow is-hoverable">
+                                    <table class="table is-fullwidth is-narrow is-hoverable">
                                         <thead>
                                             <tr>
                                                 <th>
@@ -2212,9 +2380,9 @@
                 </div>
                 <div v-else-if="currentPage === pageMatchDetails">
                     <!--<div v-if="typeof modelUserHistoryMatchSelected.startDateTime === 'undefined'">
-                        Select a match to view its game details
-                    </div>
-                    <div v-else>-->
+            Select a match to view its game details
+        </div>
+        <div v-else>-->
                     <div class="columns is-gapless" style="margin-bottom:0;">
                         <div class="column has-text-centered">
                             <div>
@@ -2280,12 +2448,12 @@
                                     You mulliganed {{g.mulliganCount}} times
                                     <div v-for="hand in g.startingHands">
                                         <!--<div class="columns is-multiline">
-                                            <div v-for="c in hand" class="column">
-                                                <span v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageCardUrl)" class="cardHover">
-                                                    <img v-bind:src="c.imageCardUrl" style="height:8rem;" />
-                                                </span>
-                                            </div>
-                                        </div>-->
+                                <div v-for="c in hand" class="column">
+                                    <span v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageCardUrl)" class="cardHover">
+                                        <img v-bind:src="c.imageCardUrl" style="height:8rem;" />
+                                    </span>
+                                </div>
+                            </div>-->
                                         <span v-for="c in hand" v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageCardUrl)" class="cardHover">
                                             <img v-bind:src="c.imageCardUrl" style="height:8rem;" />
                                         </span>
@@ -2462,22 +2630,17 @@
                             </div>
                             <span v-if="isLoadingData(pageDecksTracked)" class="button is-loading"></span>
                             <!--<div v-else-if="getScrapersFlattened().length === 0">
-                                <span class="button is-loading"></span>
-                                <span class="is-size-5">
-                                    (...Initializing...Please refresh in 1 minute...)
-                                </span>
-                            </div>-->
+                    <span class="button is-loading"></span>
+                    <span class="is-size-5">
+                        (...Initializing...Please refresh in 1 minute...)
+                    </span>
+                </div>-->
                             <div v-else class="wrapper-tablescroll">
-                                <table class="table is-narrow is-hoverable is-striped">
+                                <table class="table is-fullwidth is-narrow is-hoverable is-striped">
                                     <thead>
                                         <tr>
                                             <th>
-                                                Priority factor
-                                                <br />
-                                                <span class="icon has-text-info tooltip is-tooltip-multiline is-tooltip-right"
-                                                      data-tooltip="Set to 0 to stop tracking a deck. This factor is applied to the missing cards weight of the deck, if you consider some decks more important than others.">
-                                                    <i class="fas fa-info-circle"></i>
-                                                </span>
+                                                &nbsp;
                                             </th>
                                             <th>Name and source</th>
                                             <th>Color</th>
@@ -2489,18 +2652,9 @@
                                     <tbody>
                                         <tr v-for="iDeck in paginatedDecksTracked" v-on:click="getDeckTracked(iDeck.id)" v-bind:class="[iDeck.id === modelUserDeckSelected.id ? 'is-selected' : '']">
                                             <td class="textCenter">
-                                                <input type="text" autofill="off" v-model="iDeck.priorityFactor" size="1" v-on:change.stop="setDeckPriorityFactor(iDeck.id, iDeck.priorityFactor)" />
                                                 <span v-if="iDeck.priorityFactor > 0" class="tooltip is-tooltip-right" data-tooltip="Stop tracking this deck">
                                                     <span class="delete is-small" v-on:click.stop="stopTracking(iDeck.id)" style="margin-top:4px;"></span>
                                                 </span>
-                                                <div>
-                                                    <a :disabled="iDeck.priorityFactor <= 0" style="width:auto;" class="icon has-text-info" v-on:click.stop="setDeckPriorityFactor(iDeck.id, parseFloat(iDeck.priorityFactor) - 1)">
-                                                        <i class="far fa-caret-square-down"></i>
-                                                    </a>
-                                                    <a style="width:auto;" class="icon has-text-info" v-on:click.stop="setDeckPriorityFactor(iDeck.id, parseFloat(iDeck.priorityFactor) + 1)">
-                                                        <i class="far fa-caret-square-up"></i>
-                                                    </a>
-                                                </div>
                                             </td>
                                             <td>
                                                 {{iDeck.name}}
@@ -2644,7 +2798,7 @@
                                             Main ({{displayTotalCards(modelUserDeckSelected.cardsMain)}} cards)
                                         </h4>
                                         <!--<table class="table is-narrow cardFrame">-->
-                                        <table class="table is-narrow deck">
+                                        <table class="table is-fullwidth is-narrow deck">
                                             <tbody v-for="t in modelUserDeckSelected.cardsMain.groupBy('type')">
                                                 <tr>
                                                     <td class="spacer" colspan="4">
@@ -2673,6 +2827,7 @@
                                                         <span v-else>&nbsp;</span>
                                                     </td>
                                                     <td v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageCardUrl)">
+                                                        <i style="padding:0 1rem 0 0;" v-bind:class="'ss ss-fw ss-grad ss ss-' + c.set.toLowerCase() + ' ss-' + c.rarity.toLowerCase()"></i>
                                                         <!--<div v-bind:style="'background-size:100% 100%;background-image:url(\'images/frame' + c.color[0] + '.jpg\');'">-->
                                                         <img width="24" height="24" v-bind:alt="c.name" v-bind:src="c.imageThumbnail" />
                                                         <span class="cardHover">
@@ -2682,88 +2837,85 @@
                                                     <td>
                                                         <img v-for="mana in parseManaCost(c.manaCost)" v-bind:src="'/images/manaIcons/' + mana + '.png'" />
                                                     </td>
-                                                    <td>
-                                                        {{c.set}}
-                                                    </td>
                                                 </tr>
                                             </tbody>
                                         </table>
                                     </div>
                                     <div class="column">
-                                        <h4 class="title is-4" style="margin-bottom:0.5rem;">
-                                            Sideboard ({{displayTotalCards(modelUserDeckSelected.cardsSideboard)}} cards)
-                                        </h4>
-                                        <p v-if="modelUserDeckSelected.cardsSideboard.length === 0">
-                                            (No Sideboard)
-                                        </p>
-                                        <table v-else class="table is-narrow deck">
-                                            <tbody v-for="t in modelUserDeckSelected.cardsSideboard.groupBy('type')">
-                                                <tr>
-                                                    <td class="spacer" colspan="4">
-                                                        <h5 class="title is-5">
-                                                            {{t.key}} ({{displayTotalCards(t.values)}})
-                                                        </h5>
-                                                    </td>
-                                                </tr>
-                                                <tr v-for="c in t.values">
-                                                    <td class="nowrap">
-                                                        <span v-if="c.nbMissing > 0">
-                                                            {{c.nbMissing}}
-                                                            <span v-if="c.rarity === 'Mythic'" class="tooltip" data-tooltip="Mythic">
-                                                                <img class="wc" style="top:0;" src="/images/wcM.png" />
+                                        <div v-for="zone in modelUserDeckSelected.cardsNotMainByZone">
+                                            <h4 class="title is-4" style="margin-bottom:0.5rem;">
+                                                {{zone.Key}} <span v-if="displayTotalCards(zone.Value) !== 1">({{displayTotalCards(zone.Value)}} cards)</span>
+                                            </h4>
+                                            <p v-if="zone.Value.length === 0">
+                                                (No {{zone.Key}})
+                                            </p>
+                                            <table v-else class="table is-fullwidth is-narrow deck">
+                                                <tbody v-for="t in zone.Value.groupBy('type')">
+                                                    <tr>
+                                                        <td class="spacer" colspan="4">
+                                                            <h5 class="title is-5">
+                                                                {{t.key}} ({{displayTotalCards(t.values)}})
+                                                            </h5>
+                                                        </td>
+                                                    </tr>
+                                                    <tr v-for="c in t.values">
+                                                        <td class="nowrap">
+                                                            <span v-if="c.nbMissing > 0">
+                                                                {{c.nbMissing}}
+                                                                <span v-if="c.rarity === 'Mythic'" class="tooltip" data-tooltip="Mythic">
+                                                                    <img class="wc" style="top:0;" src="/images/wcM.png" />
+                                                                </span>
+                                                                <span v-else-if="c.rarity === 'Rare'" class="tooltip" data-tooltip="Rare">
+                                                                    <img class="wc" style="top:0;" src="/images/wcR.png" />
+                                                                </span>
+                                                                <span v-else-if="c.rarity === 'Uncommon'" class="tooltip" data-tooltip="Uncommon">
+                                                                    <img class="wc" style="top:0;" src="/images/wcU.png" />
+                                                                </span>
+                                                                <span v-else-if="c.rarity === 'Common'" class="tooltip" data-tooltip="Common">
+                                                                    <img class="wc" style="top:0;" src="/images/wcC.png" />
+                                                                </span>
                                                             </span>
-                                                            <span v-else-if="c.rarity === 'Rare'" class="tooltip" data-tooltip="Rare">
-                                                                <img class="wc" style="top:0;" src="/images/wcR.png" />
+                                                            <span v-else>&nbsp;</span>
+                                                        </td>
+                                                        <td v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageCardUrl)">
+                                                            <i style="padding:0 1rem 0 0;" v-bind:class="'ss ss-fw ss-grad ss ss-' + c.set.toLowerCase() + ' ss-' + c.rarity.toLowerCase()"></i>
+                                                            <img width="24" height="24" v-bind:alt="c.name" v-bind:src="c.imageThumbnail" />
+                                                            <span v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageCardUrl)" class="cardHover">
+                                                                {{c.amount}}x {{c.name}}
                                                             </span>
-                                                            <span v-else-if="c.rarity === 'Uncommon'" class="tooltip" data-tooltip="Uncommon">
-                                                                <img class="wc" style="top:0;" src="/images/wcU.png" />
-                                                            </span>
-                                                            <span v-else-if="c.rarity === 'Common'" class="tooltip" data-tooltip="Common">
-                                                                <img class="wc" style="top:0;" src="/images/wcC.png" />
-                                                            </span>
-                                                        </span>
-                                                        <span v-else>&nbsp;</span>
-                                                    </td>
-                                                    <td v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageCardUrl)">
-                                                        <img width="24" height="24" v-bind:alt="c.name" v-bind:src="c.imageThumbnail" />
-                                                        <span v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageCardUrl)" class="cardHover">
-                                                            {{c.amount}}x {{c.name}}
-                                                        </span>
-                                                    </td>
-                                                    <td>
-                                                        <img v-for="mana in parseManaCost(c.manaCost)" v-bind:src="'/images/manaIcons/' + mana + '.png'" />
-                                                    </td>
-                                                    <td>
-                                                        {{c.set}}
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
+                                                        </td>
+                                                        <td>
+                                                            <img v-for="mana in parseManaCost(c.manaCost)" v-bind:src="'/images/manaIcons/' + mana + '.png'" />
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
                                         <hr />
                                         <h4 class="title is-4">Missing cards summary</h4>
                                         <table class="table is-narrow" style=" margin:0 auto; width:14rem;">
                                             <tbody>
                                                 <tr class="nohover">
                                                     <td class="nowrap">
-                                                        {{modelUserDeckSelected.cardsMain.filter(i => i.rarity === 'Mythic').reduce(function(i, j) { return j.nbMissing + i; }, 0) + modelUserDeckSelected.cardsSideboard.filter(i => i.rarity === 'Mythic').reduce(function(i, j) { return j.nbMissing + i; }, 0)}}
+                                                        {{modelUserDeckSelected.cardsMain.filter(i => i.rarity === 'Mythic').reduce(function(i, j) { return j.nbMissing + i; }, 0) + modelUserDeckSelected.cardsNotMainByZone.reduce((a, b) => a.concat(b.Value), []).filter(i => i.rarity === 'Mythic').reduce(function(i, j) { return j.nbMissing + i; }, 0)}}
                                                         <span class="tooltip" data-tooltip="Mythic">
                                                             <img class="wc" src="/images/wcM.png" />
                                                         </span>
                                                     </td>
                                                     <td class="nowrap">
-                                                        {{modelUserDeckSelected.cardsMain.filter(i => i.rarity === 'Rare').reduce(function(i, j) { return j.nbMissing + i; }, 0) + modelUserDeckSelected.cardsSideboard.filter(i => i.rarity === 'Rare').reduce(function(i, j) { return j.nbMissing + i; }, 0)}}
+                                                        {{modelUserDeckSelected.cardsMain.filter(i => i.rarity === 'Rare').reduce(function(i, j) { return j.nbMissing + i; }, 0) + modelUserDeckSelected.cardsNotMainByZone.reduce((a, b) => a.concat(b.Value), []).filter(i => i.rarity === 'Rare').reduce(function(i, j) { return j.nbMissing + i; }, 0)}}
                                                         <span class="tooltip" data-tooltip="Rare">
                                                             <img class="wc" src="/images/wcR.png" />
                                                         </span>
                                                     </td>
                                                     <td class="nowrap">
-                                                        {{modelUserDeckSelected.cardsMain.filter(i => i.rarity === 'Uncommon').reduce(function(i, j) { return j.nbMissing + i; }, 0) + modelUserDeckSelected.cardsSideboard.filter(i => i.rarity === 'Uncommon').reduce(function(i, j) { return j.nbMissing + i; }, 0)}}
+                                                        {{modelUserDeckSelected.cardsMain.filter(i => i.rarity === 'Uncommon').reduce(function(i, j) { return j.nbMissing + i; }, 0) + modelUserDeckSelected.cardsNotMainByZone.reduce((a, b) => a.concat(b.Value), []).filter(i => i.rarity === 'Uncommon').reduce(function(i, j) { return j.nbMissing + i; }, 0)}}
                                                         <span class="tooltip" data-tooltip="Uncommon">
                                                             <img class="wc" src="/images/wcU.png" />
                                                         </span>
                                                     </td>
                                                     <td class="nowrap">
-                                                        {{modelUserDeckSelected.cardsMain.filter(i => i.rarity === 'Common').reduce(function(i, j) { return j.nbMissing + i; }, 0) + modelUserDeckSelected.cardsSideboard.filter(i => i.rarity === 'Common').reduce(function(i, j) { return j.nbMissing + i; }, 0)}}
+                                                        {{modelUserDeckSelected.cardsMain.filter(i => i.rarity === 'Common').reduce(function(i, j) { return j.nbMissing + i; }, 0) + modelUserDeckSelected.cardsNotMainByZone.reduce((a, b) => a.concat(b.Value), []).filter(i => i.rarity === 'Common').reduce(function(i, j) { return j.nbMissing + i; }, 0)}}
                                                         <span class="tooltip" data-tooltip="Common">
                                                             <img class="wc" src="/images/wcC.png" />
                                                         </span>
@@ -2781,7 +2933,10 @@
                                             </thead>
                                             <tbody>
                                                 <tr v-for="c in modelUserDeckSelected.compareResults">
-                                                    <td>{{c.set}}</td>
+                                                    <td>
+                                                        <i style="padding:0 2rem 0 0;" v-bind:class="'ss ss-fw ss-grad ss ss-' + c.set.toLowerCase()"></i>
+                                                        {{c.set}}
+                                                    </td>
                                                     <td class="has-text-right">{{c.nbMissing}}</td>
                                                     <td class="has-text-right">{{numeral(c.missingWeightTotal).format('0,0.0')}}</td>
                                                 </tr>
@@ -2878,7 +3033,7 @@
                         </div>
                         <div class="columns horizontalItems is-mobile">
                             <div v-for="(set, idx) in modelDashboard.summary.filter(i => modelSets.map(x => x.name).indexOf(i.Key) >= 0)"
-                                 class="column horizontalItem is-narrow" style="width:15.5rem;">
+                                 class="column horizontalItem is-narrow" style="width:15.5rem; margin-bottom:1rem;">
                                 <div v-bind:style="'padding:0.5rem; color:#eee; background: url(/images/set-' + set.Key + '-pack.png); background-repeat:no-repeat; background-size:cover; display:flex; flex-direction:column;'"
                                      class="box has-text-centered darkTable packInfo is-size-5 has-text-weight-bold">
                                     <div style="margin:0.5rem;">
@@ -2891,7 +3046,7 @@
                                                      v-bind:data-tooltip="'Missing ' + c.nbMissing + ' ' + (c.rarity === 'RareLand' ? ' Rare (Land)' : c.rarity === 'RareNonLand' ? ' Rare (Non-land)' : c.rarity) + ' weighting ' + numeral(c.missingWeight).format('0,0')">
                                                     <div class="level-item">
                                                         <span style="padding-right:0.5rem;">{{c.nbMissing}}</span>
-                                                        <img v-bind:src="'/images/' + set.Key + '-' + c.rarity.substring(0,1) + '.png'" />
+                                                        <i v-bind:class="'ss ss-grad white-stroke ss-fw' + (set.Key.startsWith('M1') || set.Key.startsWith('M2') ? ' ss-2x' : '') + ' ss-' + set.Key.toLowerCase() + ' ss-' + (c.rarity.startsWith('Rare') ? 'Rare' : c.rarity).toLowerCase()"></i>
                                                         <img v-if="c.rarity === 'RareLand'" style="filter: invert(100%); margin-left:0.5rem;" v-bind:src="iconLand" class="wcLarge" />
                                                     </div>
                                                 </div>
@@ -2924,9 +3079,9 @@
                     </div>
                     <div class="notification" style="margin-top:1rem;">
                         <span class="icon has-text-info"><i class="fas fa-info-circle"></i></span>
-                        Keep in mind that Guilds of Ravnica, Ravnica Allegiance, War of the Spark and M20 will rotate and can no longer be played in Standard in Fall 2020.
-
-                        Throne of Eldraine, Theros: Beyond Death, M21 and Ikoria: Lair of Behemoths will be legal in Standard until Fall 2021.
+                        Keep in mind that Throne of Eldraine, Theros: Beyond Death, Ikoria: Lair of Behemoths and Core 2021 will rotate and can no longer be played in Standard in Fall 2021.
+                        Zendikar Rising, Kaldheim, Strixhaven School of Mages and D&D Adventures in the Forgotten Realms
+                        will be legal in Standard until Fall 2022.
                     </div>
                 </div>
                 <div v-else-if="currentPage === pageDashboardDetails">
@@ -2980,7 +3135,7 @@
                                 </table>
                                 <span v-if="isLoadingData('dashboard')" class="button is-loading"></span>
                                 <div v-else class="wrapper-tablescroll">
-                                    <table class="table is-narrow is-bordered is-striped is-hoverable">
+                                    <table class="table is-narrow is-fullwidth is-bordered is-striped is-hoverable">
                                         <thead>
                                             <tr>
                                                 <th class="has-text-centered">Weight</th>
@@ -3041,7 +3196,7 @@
                                     <div v-else-if="modelDetailsCardSelected.decks.length === 0">
                                         (None)
                                     </div>
-                                    <table v-else class="table is-bordered is-striped is-narrow is-hoverable">
+                                    <table v-else class="table is-fullwidth is-bordered is-striped is-narrow is-hoverable">
                                         <thead>
                                             <tr>
                                                 <th>Deck</th>
@@ -3092,7 +3247,7 @@
                                         (None)
                                     </div>
                                     <div v-else>
-                                        <table v-if="scraperType.bySection.length > 0" class="table is-narrow is-size-7" style="background-color:unset;">
+                                        <table v-if="scraperType.bySection.length > 0" class="table is-fullwidth is-narrow is-size-7" style="background-color:unset;">
                                             <tbody>
                                                 <tr v-for="s in scraperType.bySection">
                                                     <td v-bind:class="[ s.isActivated? 'has-text-weight-bold' : '']" style="width:50%">
@@ -3131,7 +3286,7 @@
                                                 Retrieving decks, results will come in a few moments.
                                             </div>
                                         </template>
-                                        <table v-if="scraperType.byUser.length > 0" class="table is-narrow is-size-7" style="background-color:unset;">
+                                        <table v-if="scraperType.byUser.length > 0" class="table is-fullwidth is-narrow is-size-7" style="background-color:unset;">
                                             <tbody>
                                                 <tr v-for="s in scraperType.byUser">
                                                     <td v-bind:class="[ s.isActivated? 'has-text-weight-bold' : '']" style="width:50%">
@@ -3203,7 +3358,7 @@
                     </div>
                 </div>
                 <div v-else-if="currentPage === pageDraftBeforeBoosters">
-                    <img src="/images/draftsBeforeBoostersHeader.png" style="position:absolute; right:0; opacity:0.26;" />
+                    <!--<img src="/images/draftsBeforeBoostersHeader.png" style="position:absolute; right:0; opacity:0.22;" />-->
                     <div class="has-text-centered" style="margin-bottom:1rem;">
                         <h3 class="title is-3">
                             Drafts to complete before opening boosters
@@ -3231,6 +3386,18 @@
                                                 <span v-if="isLoadingData(pageDraftBeforeBoosters)" class="button is-loading"></span>
                                             </div>
                                         </div>
+                                        <div class="field">
+                                            <div class="control">
+                                                <label class="label is-small">Draft Type</label>
+                                                <span class="select">
+                                                    <select class="is-small" v-model="modelDraftsCalculator.draftTypeSelected" v-on:change="refreshDraftsCalculator();">
+                                                        <option value="premierDraft">Premier Draft</option>
+                                                        <option value="quickDraft">Quick Draft</option>
+                                                        <option value="traditionalDraft">Traditional Draft</option>
+                                                    </select>
+                                                </span>
+                                            </div>
+                                        </div>
                                         <div style="margin-top:2rem;">
                                             <div class="field">
                                                 <input type="text" class="input" style="width:129px"
@@ -3243,37 +3410,107 @@
                                             <h4 class="title is-4" style="margin-bottom:1rem;">
                                                 Expected per draft
                                             </h4>
-                                            <div style="margin-bottom:0.5rem;">
-                                                <input class="slider" step="0.5" min="0" max="7" type="range"
-                                                       v-model="modelDraftsCalculator.winsPerDraft" v-on:change="refreshDraftsCalculator()">
-                                                {{modelDraftsCalculator.winsPerDraft}} wins
-                                                <span class="icon has-text-info tooltip" data-tooltip="Average number of wins per draft">
-                                                    <i class="fas fa-info-circle"></i>
-                                                </span>
+                                            <div v-if="modelDraftsCalculator.draftTypeSelected === 'quickDraft'">
+                                                <div style="margin-bottom:0.5rem;">
+                                                    <input class="slider" step="0.5" min="0" max="7" type="range"
+                                                           v-model="modelDraftsCalculator.quickDraft.winsPerDraft" v-on:change="refreshDraftsCalculator()">
+                                                    {{modelDraftsCalculator.quickDraft.winsPerDraft}} wins
+                                                    <span class="icon has-text-info tooltip" data-tooltip="Average number of wins per draft">
+                                                        <i class="fas fa-info-circle"></i>
+                                                    </span>
+                                                </div>
+                                                <div style="margin-bottom:0.5rem;">
+                                                    <input class="slider" step="0.02" min="0" max="2" type="range"
+                                                           v-model="modelDraftsCalculator.quickDraft.packsPerDraft" v-on:change="refreshDraftsCalculator()">
+                                                    {{modelDraftsCalculator.quickDraft.packsPerDraft}} packs rewarded
+                                                    <span class="icon has-text-info tooltip" data-tooltip="Average packs rewarded per draft, depending on your winrate">
+                                                        <i class="fas fa-info-circle"></i>
+                                                    </span>
+                                                </div>
+                                                <div style="margin-bottom:0.5rem;">
+                                                    <input class="slider" step="0.5" min="0" max="10" type="range"
+                                                           v-model="modelDraftsCalculator.quickDraft.raresPerDraft" v-on:change="refreshDraftsCalculator()">
+                                                    {{modelDraftsCalculator.quickDraft.raresPerDraft}} new Rares acquired
+                                                    <span class="icon has-text-info tooltip" data-tooltip="Rares per draft of which you do not already own 4 copies">
+                                                        <i class="fas fa-info-circle"></i>
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <input class="slider" step="0.1" min="0" max="2" type="range"
+                                                           v-model="modelDraftsCalculator.quickDraft.mythicsPerDraft" v-on:change="refreshDraftsCalculator()">
+                                                    {{modelDraftsCalculator.quickDraft.mythicsPerDraft}} new Mythics acquired
+                                                    <span class="icon has-text-info tooltip" data-tooltip="Mythics per draft of which you do not already own 4 copies">
+                                                        <i class="fas fa-info-circle"></i>
+                                                    </span>
+                                                </div>
                                             </div>
-                                            <div style="margin-bottom:0.5rem;">
-                                                <input class="slider" step="0.05" min="0" max="2" type="range"
-                                                       v-model="modelDraftsCalculator.packsPerDraft" v-on:change="refreshDraftsCalculator()">
-                                                {{modelDraftsCalculator.packsPerDraft}} packs rewarded
-                                                <span class="icon has-text-info tooltip" data-tooltip="Average packs rewarded per draft, depending on your winrate">
-                                                    <i class="fas fa-info-circle"></i>
-                                                </span>
+                                            <div v-else-if="modelDraftsCalculator.draftTypeSelected === 'premierDraft'">
+                                                <div style="margin-bottom:0.5rem;">
+                                                    <input class="slider" step="0.5" min="0" max="7" type="range"
+                                                           v-model="modelDraftsCalculator.premierDraft.winsPerDraft" v-on:change="refreshDraftsCalculator()">
+                                                    {{modelDraftsCalculator.premierDraft.winsPerDraft}} wins
+                                                    <span class="icon has-text-info tooltip" data-tooltip="Average number of wins per draft">
+                                                        <i class="fas fa-info-circle"></i>
+                                                    </span>
+                                                </div>
+                                                <div style="margin-bottom:0.5rem;">
+                                                    <input class="slider" step="0.25" min="0" max="6" type="range"
+                                                           v-model="modelDraftsCalculator.premierDraft.packsPerDraft" v-on:change="refreshDraftsCalculator()">
+                                                    {{modelDraftsCalculator.premierDraft.packsPerDraft}} packs rewarded
+                                                    <span class="icon has-text-info tooltip" data-tooltip="Average packs rewarded per draft, depending on your winrate">
+                                                        <i class="fas fa-info-circle"></i>
+                                                    </span>
+                                                </div>
+                                                <div style="margin-bottom:0.5rem;">
+                                                    <input class="slider" step="0.5" min="0" max="10" type="range"
+                                                           v-model="modelDraftsCalculator.premierDraft.raresPerDraft" v-on:change="refreshDraftsCalculator()">
+                                                    {{modelDraftsCalculator.premierDraft.raresPerDraft}} new Rares acquired
+                                                    <span class="icon has-text-info tooltip" data-tooltip="Rares per draft of which you do not already own 4 copies">
+                                                        <i class="fas fa-info-circle"></i>
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <input class="slider" step="0.1" min="0" max="2" type="range"
+                                                           v-model="modelDraftsCalculator.premierDraft.mythicsPerDraft" v-on:change="refreshDraftsCalculator()">
+                                                    {{modelDraftsCalculator.premierDraft.mythicsPerDraft}} new Mythics acquired
+                                                    <span class="icon has-text-info tooltip" data-tooltip="Mythics per draft of which you do not already own 4 copies">
+                                                        <i class="fas fa-info-circle"></i>
+                                                    </span>
+                                                </div>
                                             </div>
-                                            <div style="margin-bottom:0.5rem;">
-                                                <input class="slider" step="0.5" min="0" max="10" type="range"
-                                                       v-model="modelDraftsCalculator.raresPerDraft" v-on:change="refreshDraftsCalculator()">
-                                                {{modelDraftsCalculator.raresPerDraft}} new Rares acquired
-                                                <span class="icon has-text-info tooltip" data-tooltip="Rares per draft of which you do not already own 4 copies">
-                                                    <i class="fas fa-info-circle"></i>
-                                                </span>
-                                            </div>
-                                            <div>
-                                                <input class="slider" step="0.1" min="0" max="2" type="range"
-                                                       v-model="modelDraftsCalculator.mythicsPerDraft" v-on:change="refreshDraftsCalculator()">
-                                                {{modelDraftsCalculator.mythicsPerDraft}} new Mythics acquired
-                                                <span class="icon has-text-info tooltip" data-tooltip="Mythics per draft of which you do not already own 4 copies">
-                                                    <i class="fas fa-info-circle"></i>
-                                                </span>
+                                            <div v-else-if="modelDraftsCalculator.draftTypeSelected === 'traditionalDraft'">
+                                                <div style="margin-bottom:0.5rem;">
+                                                    <input class="slider" step="0.5" min="0" max="3" type="range"
+                                                           v-model="modelDraftsCalculator.traditionalDraft.winsPerDraft" v-on:change="refreshDraftsCalculator()">
+                                                    {{modelDraftsCalculator.traditionalDraft.winsPerDraft}} wins
+                                                    <span class="icon has-text-info tooltip" data-tooltip="Average number of wins per draft">
+                                                        <i class="fas fa-info-circle"></i>
+                                                    </span>
+                                                </div>
+                                                <div style="margin-bottom:0.5rem;">
+                                                    <input class="slider" step="0.5" min="0" max="6" type="range"
+                                                           v-model="modelDraftsCalculator.traditionalDraft.packsPerDraft" v-on:change="refreshDraftsCalculator()">
+                                                    {{modelDraftsCalculator.traditionalDraft.packsPerDraft}} packs rewarded
+                                                    <span class="icon has-text-info tooltip" data-tooltip="Average packs rewarded per draft, depending on your winrate">
+                                                        <i class="fas fa-info-circle"></i>
+                                                    </span>
+                                                </div>
+                                                <div style="margin-bottom:0.5rem;">
+                                                    <input class="slider" step="0.5" min="0" max="10" type="range"
+                                                           v-model="modelDraftsCalculator.traditionalDraft.raresPerDraft" v-on:change="refreshDraftsCalculator()">
+                                                    {{modelDraftsCalculator.traditionalDraft.raresPerDraft}} new Rares acquired
+                                                    <span class="icon has-text-info tooltip" data-tooltip="Rares per draft of which you do not already own 4 copies">
+                                                        <i class="fas fa-info-circle"></i>
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <input class="slider" step="0.1" min="0" max="2" type="range"
+                                                           v-model="modelDraftsCalculator.traditionalDraft.mythicsPerDraft" v-on:change="refreshDraftsCalculator()">
+                                                    {{modelDraftsCalculator.traditionalDraft.mythicsPerDraft}} new Mythics acquired
+                                                    <span class="icon has-text-info tooltip" data-tooltip="Mythics per draft of which you do not already own 4 copies">
+                                                        <i class="fas fa-info-circle"></i>
+                                                    </span>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="field" style="margin-top:1rem;">
@@ -3284,18 +3521,19 @@
                                     </div>
                                 </div>
                                 <div class="level-item has-text-centered" style="padding-left:1rem;">
-                                    <span v-if="modelDraftsCalculator.result === null" class="button is-loading"></span>
+                                    <span v-if="modelDraftsCalculator.setSelected === ''">&nbsp;</span>
+                                    <span v-else-if="modelDraftsCalculator[modelDraftsCalculator.draftTypeSelected].result === null" class="button is-loading"></span>
                                     <div v-else style="display:block;">
                                         <div>
-                                            {{modelDraftsCalculator.result.nbRaresMissing}} <a v-on:click="showMissingRarity('Rare', modelDraftsCalculator.setSelected)">missing Rares</a>
+                                            {{modelDraftsCalculator[modelDraftsCalculator.draftTypeSelected].result.nbRaresMissing}} <a v-on:click="showMissingRarity('Rare', modelDraftsCalculator.setSelected)">missing Rares</a>
                                             <span class="is-size-7">(obtainable from boosters)</span>
                                         </div>
                                         <div>
-                                            {{modelDraftsCalculator.result.nbMythicsMissing}} <a v-on:click="showMissingRarity('Mythic', modelDraftsCalculator.setSelected)">missing Mythics</a>
+                                            {{modelDraftsCalculator[modelDraftsCalculator.draftTypeSelected].result.nbMythicsMissing}} <a v-on:click="showMissingRarity('Mythic', modelDraftsCalculator.setSelected)">missing Mythics</a>
                                             <span class="is-size-7">(obtainable from boosters)</span>
                                         </div>
                                         <div>
-                                            {{modelDraftsCalculator.result.infoRare.p}} unopened packs
+                                            {{modelDraftsCalculator[modelDraftsCalculator.draftTypeSelected].result.infoRare.p}} unopened packs
                                         </div>
                                         <hr />
                                         <h3 class="title is-3 has-text-weight-bold" style="color:#eee; margin-bottom:1rem;">
@@ -3303,53 +3541,66 @@
                                         </h3>
                                         <div class="has-text-weight-bold" style="color:#ddd;">
                                             <p style="margin:0;">
-                                                {{numeral(modelDraftsCalculator.result.expectedNbDraftsToPlaysetRares).format('0,0.0')}} for Rares playset
+                                                {{numeral(modelDraftsCalculator[modelDraftsCalculator.draftTypeSelected].result.expectedNbDraftsToPlaysetRares).format('0,0.0')}} for Rares playset
                                                 <span class="is-size-7">
                                                     (
-                                                    {{numeral(Math.ceil(modelDraftsCalculator.result.expectedNbDraftsToPlaysetRares) * 5000).format('0,0')}}
+                                                    {{numeral(calculateDraftGoldCost(true)).format('0,0')}}
                                                     <img src="/images/inventory_gold.png" class="wc" style="vertical-align:baseline;">
                                                     or
-                                                    {{numeral(Math.ceil(modelDraftsCalculator.result.expectedNbDraftsToPlaysetRares) * 750).format('0,0')}}
+                                                    {{numeral(calculateDraftGemsCost(true)).format('0,0')}}
                                                     <img src="/images/inventory_gem.png" class="wc" style="vertical-align:baseline;">
                                                     )
                                                 </span>
                                             </p>
                                             <p class="is-size-7">
                                                 You can expect to gain <em>roughly</em>
-                                                {{numeral(calculateDraftGemsWon(Math.ceil(modelDraftsCalculator.result.expectedNbDraftsToPlaysetRares))).format('0,0')}}
+                                                {{numeral(calculateDraftGemsWon(true)).format('0,0')}}
                                                 <img src="/images/inventory_gem.png" class="wc" style="vertical-align:baseline;">
                                                 from playing
-                                                {{Math.ceil(modelDraftsCalculator.result.expectedNbDraftsToPlaysetRares)}}
+                                                {{Math.ceil(modelDraftsCalculator[modelDraftsCalculator.draftTypeSelected].result.expectedNbDraftsToPlaysetRares)}}
                                                 drafts,
                                                 <br />
-                                                saving you {{numeral(calculateDraftGemsWon(Math.ceil(modelDraftsCalculator.result.expectedNbDraftsToPlaysetRares)) / 750 * 5000).format('0,0')}}
+                                                saving you {{numeral(calculateDraftGoldSaved(true)).format('0,0')}}
+                                                <img src="/images/inventory_gold.png" class="wc" style="vertical-align:baseline;">
+                                            </p>
+                                            <p class="is-size-7">
+                                                For a net cost of <em>roughly</em>
+                                                {{numeral(calculateDraftGemsCost(true) - calculateDraftGemsWon(true)).format('0,0')}}
+                                                <img src="/images/inventory_gem.png" class="wc" style="vertical-align:baseline;">
+                                                or {{numeral(calculateDraftGoldCost(true) - calculateDraftGoldSaved(true)).format('0,0')}}
                                                 <img src="/images/inventory_gold.png" class="wc" style="vertical-align:baseline;">
                                             </p>
                                         </div>
                                         <hr />
                                         <div class="has-text-weight-bold" style="color:#ddd;">
                                             <p class="is-marginless">
-                                                {{numeral(modelDraftsCalculator.result.expectedNbDraftsToPlaysetMythics).format('0,0.0')}} for Mythics playset
-
+                                                {{numeral(modelDraftsCalculator[modelDraftsCalculator.draftTypeSelected].result.expectedNbDraftsToPlaysetMythics).format('0,0.0')}} for Mythics playset
                                                 <span class="is-size-7">
                                                     (
-                                                    {{numeral(Math.ceil(modelDraftsCalculator.result.expectedNbDraftsToPlaysetMythics) * 5000).format('0,0')}}
+                                                    {{numeral(calculateDraftGoldCost(false)).format('0,0')}}
                                                     <img src="/images/inventory_gold.png" class="wc" style="vertical-align:baseline;">
                                                     or
-                                                    {{numeral(Math.ceil(modelDraftsCalculator.result.expectedNbDraftsToPlaysetMythics) * 750).format('0,0')}}
+                                                    {{numeral(calculateDraftGemsCost(false)).format('0,0')}}
                                                     <img src="/images/inventory_gem.png" class="wc" style="vertical-align:baseline;">
                                                     )
                                                 </span>
                                             </p>
                                             <p class="is-size-7">
                                                 You can expect to gain <em>roughly</em>
-                                                {{numeral(calculateDraftGemsWon(Math.ceil(modelDraftsCalculator.result.expectedNbDraftsToPlaysetMythics))).format('0,0')}}
+                                                {{numeral(calculateDraftGemsWon(false)).format('0,0')}}
                                                 <img src="/images/inventory_gem.png" class="wc" style="vertical-align:baseline;">
                                                 from playing
-                                                {{Math.ceil(modelDraftsCalculator.result.expectedNbDraftsToPlaysetMythics)}}
+                                                {{Math.ceil(modelDraftsCalculator[modelDraftsCalculator.draftTypeSelected].result.expectedNbDraftsToPlaysetMythics)}}
                                                 drafts,
                                                 <br />
-                                                saving you {{numeral(calculateDraftGemsWon(Math.ceil(modelDraftsCalculator.result.expectedNbDraftsToPlaysetMythics)) / 750 * 5000).format('0,0')}}
+                                                saving you {{numeral(calculateDraftGoldSaved(false)).format('0,0')}}
+                                                <img src="/images/inventory_gold.png" class="wc" style="vertical-align:baseline;">
+                                            </p>
+                                            <p class="is-size-7">
+                                                For a net cost of <em>roughly</em>
+                                                {{numeral(calculateDraftGemsCost(false) - calculateDraftGemsWon(false)).format('0,0')}}
+                                                <img src="/images/inventory_gem.png" class="wc" style="vertical-align:baseline;">
+                                                or {{numeral(calculateDraftGoldCost(false) - calculateDraftGoldSaved(false)).format('0,0')}}
                                                 <img src="/images/inventory_gold.png" class="wc" style="vertical-align:baseline;">
                                             </p>
                                         </div>
@@ -3359,7 +3610,7 @@
                         </div>
                     </div>
                     <hr />
-                    <div class="is-size-4" v-if="modelDraftsCalculator.result !== null">
+                    <div class="is-size-4" v-if="modelDraftsCalculator[modelDraftsCalculator.draftTypeSelected].result !== null">
                         <div class="columns is-centered">
                             <div class="column is-full-mobile is-full-tablet is-full-desktop is-three-quarters-widescreen is-half-fullhd has-text-centered">
                                 <h3 class="title is-3">Calculation details</h3>
@@ -3397,23 +3648,23 @@
                                             <tbody>
                                                 <tr>
                                                     <td>T =</td>
-                                                    <td>{{modelDraftsCalculator.result.infoRare.t}}</td>
+                                                    <td>{{modelDraftsCalculator[modelDraftsCalculator.draftTypeSelected].result.infoRare.t}}</td>
                                                 </tr>
                                                 <tr>
                                                     <td>P =</td>
-                                                    <td>{{modelDraftsCalculator.result.infoRare.p}}</td>
+                                                    <td>{{modelDraftsCalculator[modelDraftsCalculator.draftTypeSelected].result.infoRare.p}}</td>
                                                 </tr>
                                                 <tr>
                                                     <td>R =</td>
-                                                    <td>{{modelDraftsCalculator.result.infoRare.r}}</td>
+                                                    <td>{{modelDraftsCalculator[modelDraftsCalculator.draftTypeSelected].result.infoRare.r}}</td>
                                                 </tr>
                                                 <tr>
                                                     <td>N =</td>
-                                                    <td>{{modelDraftsCalculator.result.infoRare.n}}</td>
+                                                    <td>{{modelDraftsCalculator[modelDraftsCalculator.draftTypeSelected].result.infoRare.n}}</td>
                                                 </tr>
                                                 <tr>
                                                     <td>W =</td>
-                                                    <td>{{modelDraftsCalculator.result.infoRare.w}}</td>
+                                                    <td>{{modelDraftsCalculator[modelDraftsCalculator.draftTypeSelected].result.infoRare.w}}</td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -3428,23 +3679,23 @@
                                             <tbody>
                                                 <tr>
                                                     <td>T =</td>
-                                                    <td>{{modelDraftsCalculator.result.infoMythic.t}}</td>
+                                                    <td>{{modelDraftsCalculator[modelDraftsCalculator.draftTypeSelected].result.infoMythic.t}}</td>
                                                 </tr>
                                                 <tr>
                                                     <td>P =</td>
-                                                    <td>{{modelDraftsCalculator.result.infoMythic.p}}</td>
+                                                    <td>{{modelDraftsCalculator[modelDraftsCalculator.draftTypeSelected].result.infoMythic.p}}</td>
                                                 </tr>
                                                 <tr>
                                                     <td>R =</td>
-                                                    <td>{{modelDraftsCalculator.result.infoMythic.r}}</td>
+                                                    <td>{{modelDraftsCalculator[modelDraftsCalculator.draftTypeSelected].result.infoMythic.r}}</td>
                                                 </tr>
                                                 <tr>
                                                     <td>N =</td>
-                                                    <td>{{modelDraftsCalculator.result.infoMythic.n}}</td>
+                                                    <td>{{modelDraftsCalculator[modelDraftsCalculator.draftTypeSelected].result.infoMythic.n}}</td>
                                                 </tr>
                                                 <tr>
                                                     <td>W =</td>
-                                                    <td>{{modelDraftsCalculator.result.infoMythic.w}}</td>
+                                                    <td>{{modelDraftsCalculator[modelDraftsCalculator.draftTypeSelected].result.infoMythic.w}}</td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -3514,7 +3765,7 @@
                                         <div style="display:block">
                                             <div style="margin-bottom:1rem;">
                                                 <p>
-                                                    <input class="slider" step="1" min="0" max="10" type="range"
+                                                    <input class="slider" step="1" min="0" max="15" type="range"
                                                            v-model="modelMasteryPass.expectedDailyWins" v-on:change="refreshMasteryPass(false)">
                                                     {{modelMasteryPass.expectedDailyWins}} daily wins expected
                                                 </p>
@@ -3601,13 +3852,10 @@
                                         <div style="display:block; white-space:nowrap; color:#ddd;">
                                             <hr />
                                             <p>
-                                                Level ~45: Break-even value
+                                                Level 114: All free-to-play rewards
                                             </p>
                                             <p>
-                                                Level 78: All free-to-play rewards
-                                            </p>
-                                            <p>
-                                                Level 90: All mastery pass rewards
+                                                Level 130: All mastery pass rewards
                                             </p>
                                             <hr />
                                         </div>
@@ -3620,11 +3868,108 @@
                                     Rewards
                                 </h4>
                                 <div class="masteryPassRewards" style="margin:0.5rem auto;">
-                                    <img src="/images/masteryRewards/masteryTHB.jpg" alt="Mastery pass rewards (THB)" />
+                                    <img src="/images/masteryRewards/masteryZNR.jpg" alt="Mastery pass rewards (THB)" />
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>
+                <div v-else-if="currentPage === pageMissingJumpstart" class="has-text-centered">
+                    <h3 class="title is-3">
+                        <i class="ss ss-grad white-stroke ss-jmp ss-mythic" style="margin-right:0.4rem;"></i>
+                        Jumpstart theme packs Rares/Mythics calculator
+                    </h3>
+                    <h5 class="subtitle is-5">
+                        Themes here are ordered by priority you should open them for completing your collection the fastest
+                    </h5>
+
+                    <table class="table is-narrow" style="width:unset;">
+                        <tbody>
+                            <tr>
+                                <td style="vertical-align: bottom;">
+                                    <div class="field">
+                                        <div class="control">
+                                            <input type="checkbox" id="switchMissingJumpstartStandardOnly" name="switchMissingJumpstartStandardOnly" class="switch is-info is-rounded" v-model="modelJumpstartInputs.onlyStandard" v-on:change="getMissingJumpstart()">
+                                            <label for="switchMissingJumpstartStandardOnly">
+                                                {{modelJumpstartInputs.onlyStandard ? 'Consider only standard legal cards' : 'Consider historic and standard legal cards'}}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="field">
+                                        <div class="control">
+                                            <label class="label is-small">Land weighting</label>
+                                            <select class="input is-small" v-model="modelJumpstartInputs.landWeighting" v-on:change="getMissingJumpstart();">
+                                                <option v-for="w in modelJumpstartInputs.landWeightingList" v-bind:value="w">
+                                                    {{ w === 'SameAsRare' ? 'Same as a missing card' : w === 'MoreThanRare' ? 'Higher than a missing card' : w === 'Ignore' ? 'Do not consider the land' : w }}
+                                                </option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <span v-if="isLoadingData('getMissingJumpstart')" class="button is-loading"></span>
+                    <table v-else class="table is-bordered is-striped is-narrow">
+                        <thead>
+                            <tr>
+                                <th class="is-3">
+                                    Theme
+                                </th>
+                                <th class="is-1">
+                                    Priority
+                                </th>
+                                <th class="is-4">
+                                    <div class="columns">
+                                        <div class="column is-3">
+                                            Variant #
+                                        </div>
+                                        <div class="column is-3">
+                                            Variant Probability
+                                        </div>
+                                        <div class="column is-6">
+                                            Missing Rares/Mythics
+                                        </div>
+                                    </div>
+                                </th>
+                                <th class="is-2">
+                                    Missing Land
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="theme in modelJumpstartMissing">
+                                <td>
+                                    {{theme.themeName}}
+                                </td>
+                                <td>
+                                    {{theme.priority}}
+                                </td>
+                                <td>
+                                    <div v-for="t in theme.details" class="columns">
+                                        <div class="column is-3">
+                                            {{t.themeVariant}}
+                                        </div>
+                                        <div class="column is-3">
+                                            {{t.themeVariantProbabilityPct}}%
+                                        </div>
+                                        <div class="column is-6">
+                                            <span v-if=" t.missingCards.length === 0" style="font-style:italic;">No Standard cards in this pack</span>
+                                            <div v-else v-for="c in t.missingCards">
+                                                {{c.amount}} <span class="cardHover" v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageCardUrl)">{{c.name}}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    {{theme.missingLand.amount}} <span class="cardHover" v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(theme.missingLand.imageCardUrl)">{{theme.missingLand.name}}</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
                 <div v-else-if="currentPage === pageProfile">
                     <h4 class="title is-4">
@@ -3635,8 +3980,8 @@
                             <div class="column">
                                 <div v-if="modelAccount.isAuthenticated">
                                     <!--<p>
-                                        Id: <span>{{modelAccount.subjectId}}</span>
-                                    </p>-->
+                            Id: <span>{{modelAccount.subjectId}}</span>
+                        </p>-->
                                     <h5 class="subtitle is-5">
                                         Email: <span>{{modelAccount.email}}</span>
                                     </h5>
@@ -3650,12 +3995,12 @@
                             </div>
                             <div class="column">
                                 <!--<div>
-                                    <div class="field">
-                                        <input type="checkbox" id="switchTheme" name="switchTheme" class="switch" v-model="themeIsDark" v-on:change="saveTheme()">
-                                        <label for="switchTheme">{{themeIsDark ? 'Dark' : 'Light'}}</label>
-                                        theme
-                                    </div>
-                                </div>-->
+                        <div class="field">
+                            <input type="checkbox" id="switchTheme" name="switchTheme" class="switch" v-model="themeIsDark" v-on:change="saveTheme()">
+                            <label for="switchTheme">{{themeIsDark ? 'Dark' : 'Light'}}</label>
+                            theme
+                        </div>
+                    </div>-->
                                 <div v-if="modelUser.notificationsInactive.length > 0" style="margin-top:1rem;">
                                     <div class="field tooltip is-tooltip-left"
                                          v-bind:data-tooltip="'Reactivate the ' + modelUser.notificationsInactive.length + ' hidden notification' + (modelUser.notificationsInactive.length === 1 ? '' : 's')">
@@ -3808,6 +4153,52 @@
                         </div>
                     </div>
                 </div>
+                <div v-else-if="currentPage === pageCustomDraftRatings">
+                    <h4 class="title is-4">
+                        Your custom draft ratings and notes
+                    </h4>
+                    <h4 class="subtitle is-5">
+                        You can enter here your own limited ratings and notes for each card and they will show up in the DraftHelper while draft picking
+                    </h4>
+                    <div style="width:10rem">
+                        <div class="field">
+                            <div class="control">
+                                <label class="label is-small">Set</label>
+                                <select class="input is-small" v-model="modelCustomDraftRatingsFilterSet">
+                                    <option v-for="set in modelDraftsCalculator.sets" v-bind:value="set">
+                                        {{set}}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="columns is-multiline is-mobile">
+                            <div v-for="i in vueApp.modelCustomDraftRatings.filter((i) => { return i.card.set === modelCustomDraftRatingsFilterSet })"
+                                 class="column is-1-fullhd is-2-touch is-2-desktop" style="margin-bottom:1.5rem;">
+                                <div style="height:2rem; display: flex;" class="is-size-7">
+                                    <span style="align-self: flex-end;">{{i.card.name}}</span>
+                                </div>
+                                <img v-bind:src="i.card.imageCardUrl" v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(i.card.imageCardUrl)" />
+                                <select v-model="i.rating" style="width:100%;" v-on:change="saveCustomDraftRating(i)">
+                                    <option value=""></option>
+                                    <option value="0">0</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">8</option>
+                                    <option value="9">9</option>
+                                    <option value="10">10</option>
+                                </select>
+                                <input type="text" style="width:100%;" v-model="i.note" v-on:change="saveCustomDraftRating(i)" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div v-else-if="currentPage === pageAllCards">
                     <h4 class="title is-4">
                         All cards
@@ -3834,6 +4225,12 @@
                             <i class="fab fa-discord my-float" style="margin-top:10px;"></i>
                         </a>
                     </h6>
+                    <div class="field">
+                        <div class="control">
+                            <label class="label">Your email/id</label>
+                            <input type="text" class="input" v-model="contactEmail" />
+                        </div>
+                    </div>
                     <div class="field">
                         <div class="control">
                             <label class="label">Your message</label>
@@ -4076,22 +4473,22 @@
                     </div>
                 </div>
                 <!--<div>
-                    <script type="text/javascript">
-                        amzn_assoc_placement = "adunit0";
-                        amzn_assoc_search_bar = "true";
-                        amzn_assoc_tracking_id = "mtgahelper01-20";
-                        amzn_assoc_ad_mode = "search";
-                        amzn_assoc_ad_type = "smart";
-                        amzn_assoc_marketplace = "amazon";
-                        amzn_assoc_region = "US";
-                        amzn_assoc_title = "Shop Related Products";
-                        amzn_assoc_default_search_phrase = "magic gathering";
-                        amzn_assoc_default_category = "Toys";
-                        amzn_assoc_linkid = "a87ac82676c3ba7b04c95b390eccd4a8";
-                        amzn_assoc_default_browse_node = "165793011";
-                    </script>
-                    <script src="//z-na.amazon-adsystem.com/widgets/onejs?MarketPlace=US"></script>
-                </div>-->
+        <script type="text/javascript">
+            amzn_assoc_placement = "adunit0";
+            amzn_assoc_search_bar = "true";
+            amzn_assoc_tracking_id = "mtgahelper01-20";
+            amzn_assoc_ad_mode = "search";
+            amzn_assoc_ad_type = "smart";
+            amzn_assoc_marketplace = "amazon";
+            amzn_assoc_region = "US";
+            amzn_assoc_title = "Shop Related Products";
+            amzn_assoc_default_search_phrase = "magic gathering";
+            amzn_assoc_default_category = "Toys";
+            amzn_assoc_linkid = "a87ac82676c3ba7b04c95b390eccd4a8";
+            amzn_assoc_default_browse_node = "165793011";
+        </script>
+        <script src="//z-na.amazon-adsystem.com/widgets/onejs?MarketPlace=US"></script>
+    </div>-->
                 <div v-show="currentPage === pageBacklog">
                     <h4 class="title is-4">
                         Help determine what's next
@@ -4109,7 +4506,9 @@
                         <a v-on:click="loadPage(pageTerms)">Terms of use</a>
                         <a v-on:click="loadPage(pageContact)">Contact us</a>
                         <a v-on:click="loadPage(pageAbout)">About</a>
-                        <a href="https://github.com/ibiza240/MTGAHelper-Windows-Client/raw/master/MTGAHelperTracker.msi" target="_blank">Install the tracker</a>
+                        <a href="https://www.mtgahelper.com/download/MTGAHelperTracker.msi" target="_blank">Install the tracker</a>
+                        <a href="https://joestradingpost.weebly.com/blahg/mtgahelper-installation" target="_blank">Installation guide</a>
+                        <a href="https://github.com/ibiza240/MTGAHelper-Windows-Client" target="_blank">Github project</a>
                     </p>
                     <p>
                         All art is property of their respective artists and/or Wizards of the Coast Inc.
@@ -4131,32 +4530,29 @@
                 <span id="iconChangelog" class="float tooltip is-tooltip-left" data-tooltip="Changelog" style="right:103px;" v-on:click="loadPage(pageChangelog)">
                     <i class="fas fa-history my-float"></i>
                 </span>
-                <span id="iconBacklog" class="float tooltip is-tooltip-left" data-tooltip="Vote for the next features in December" style="right:53px;" v-on:click="loadPage(pageBacklog)">
-                    <i class="fas fa-laptop-code my-float"></i>
-                </span>
+                <!--<span id="iconBacklog" class="float tooltip is-tooltip-left" data-tooltip="Vote for the next features in December" style="right:53px;" v-on:click="loadPage(pageBacklog)">
+        <i class="fas fa-laptop-code my-float"></i>
+    </span>-->
                 <span class="float tooltip is-tooltip-left" data-tooltip="Support the project" style="z-index:2147483647;" v-on:click="showModalDonate = true">
                     <i class="fas fa-heart my-float" style="color:#bf0000;"></i>
                 </span>
-                <span class="float tooltip is-tooltip-left" data-tooltip="Purchase Magic paper products" style="z-index:2147483647; bottom:53px;" v-on:click="showModalAdPreorder = true">
-                    <img src="/images/preorder-THB.png" style="margin-top:15px;" />
-                </span>
                 <!-- MODALS -->
                 <!--<div class="modal" v-bind:class="showLoginModal ? 'is-active' : ''">
-                    <div class="modal-background" v-on:click="showLoginModal = false"></div>
-                    <div class="modal-content box">
-                        <div class="field is-grouped" style="justify-content: center;">
-                            <span class="is-size-4" style="margin-right:1rem;">User id:</span>
-                            <div class="field has-addons">
-                                <div class="control">
-                                    <input type="text" autofill="off" class="input" id="txtLoginId" v-on:change="tryToLoginWithUserId()" v-model="loginUserId"
-                                           placeholder="3e67ec9fee324e9fa39742d563fc95ab" style="width:24rem;" />
-                                </div>
-                                <div class="control"><button class="button is-link" v-on:click="tryToLoginWithUserId()">Go</button></div>
-                            </div>
-                        </div>
+        <div class="modal-background" v-on:click="showLoginModal = false"></div>
+        <div class="modal-content box">
+            <div class="field is-grouped" style="justify-content: center;">
+                <span class="is-size-4" style="margin-right:1rem;">User id:</span>
+                <div class="field has-addons">
+                    <div class="control">
+                        <input type="text" autofill="off" class="input" id="txtLoginId" v-on:change="tryToLoginWithUserId()" v-model="loginUserId"
+                               placeholder="3e67ec9fee324e9fa39742d563fc95ab" style="width:24rem;" />
                     </div>
-                    <button class="modal-close is-large" aria-label="close" v-on:click="showLoginModal = false"></button>
-                </div>-->
+                    <div class="control"><button class="button is-link" v-on:click="tryToLoginWithUserId()">Go</button></div>
+                </div>
+            </div>
+        </div>
+        <button class="modal-close is-large" aria-label="close" v-on:click="showLoginModal = false"></button>
+    </div>-->
                 <div class="modal" v-bind:class="showModalChangeAccountUserId ? 'is-active' : ''">
                     <div class="modal-background" v-on:click="showModalChangeAccountUserId = false"></div>
                     <div class="modal-content box">
@@ -4194,10 +4590,10 @@
                         <div class="field">
                             <div class="control">
                                 <label class="label">Format</label>
-                                <input v-model="exportCollectionFormat" class="input" v-bind:class="exportCollectionFormat.length === 0 ? 'is-danger' : 'is-success'" type="text" autofill="off" placeholder="$name,$amount,$rarity,$set,$number" />
+                                <input v-model="exportCollectionFormat" class="input" v-bind:class="exportCollectionFormat.length === 0 ? 'is-danger' : 'is-success'" type="text" autofill="off" placeholder="$name,$amount,$set,$number,$rarity,$type,$color,$color" />
                             </div>
                             <h7 class="title is-7">
-                                Choices: $name, $amount, $set, $number, $rarity, $type, $cmc
+                                Choices: $name, $amount, $set, $number, $rarity, $type, $cmc, $color
                             </h7>
                         </div>
                         <div class="field">
@@ -4248,7 +4644,7 @@
                             </a>)
                         </div>
                         <p>
-                            1. Find the <strong>output_log.txt</strong> file, for example go to the folder:
+                            1. Find the <strong>Player.log</strong> file, for example go to the folder:
                         </p>
                         <p>
                             <code>
@@ -4256,7 +4652,7 @@
                             </code>
                         </p>
                         <p style="margin-top:1rem;">
-                            2. <strong>Zip</strong> the output_log.txt file and send it here
+                            2. <strong>Zip</strong> the Player.log file and send it here
                         </p>
                         <div class="notification" style="padding: 0;">
                             <span class="icon has-text-info"><i class="fas fa-info-circle"></i></span>
@@ -4290,7 +4686,7 @@
                         </p>
                         <hr />
                         <p v-if="modelUser.isSupporter === false">
-                            On Windows: You can use the <a href="https://github.com/ibiza240/MTGAHelper-Windows-Client/raw/master/MTGAHelperTracker.msi">tracker program</a> to sync your log file with the server.
+                            On Windows: You can use the <a href="https://www.mtgahelper.com/download/MTGAHelperTracker.msi">tracker program</a> to sync your log file with the server.
                         </p>
                         <p v-if="modelUser.isSupporter === false">
                             On Linux/MacOS: You can use a <a href="https://github.com/ibiza240/MTGAHelper-Windows-Client/raw/master/MTGAHelper.ConsoleSync.exe.zip">portable console application</a> to sync your log file with the server.
@@ -4321,15 +4717,15 @@
                                 <div class="field">
                                     <div class="control">
                                         <label class="label is-small">Email</label>
-                                        <input id="txtSigninEmail" name="txtSigninInEmail"
+                                        <input id="txtSigninEmail" name="txtSigninInEmail" autocomplete="email"
                                                class="input is-small" type="email" v-model="signin.email" size="16" />
                                     </div>
                                 </div>
                                 <div class="field">
                                     <div class="control">
                                         <label class="label is-small">Password</label>
-                                        <input class="input is-small" type="password" v-model="signin.password" size="16"
-                                               v-on:keyup="localPasswordSignin_KeyUp" />
+                                        <input id="txtPassword" class="input is-small" type="password" v-model="signin.password" size="16"
+                                               v-on:keyup.enter="localPasswordSignin_Enter" autocomplete="current-password" />
                                     </div>
                                 </div>
                                 <div class="level">
@@ -4357,7 +4753,7 @@
                                     <div class="control">
                                         <label class="label is-small">Password</label>
                                         <input class="input is-small" type="password" v-model="signup.password" size="16"
-                                               v-on:keyup="localPasswordSignup_KeyUp" />
+                                               v-on:keyup.enter="localPasswordSignup_Enter" autocomplete="new-password" />
                                     </div>
                                 </div>
                                 <div>
@@ -4384,22 +4780,8 @@
                     <div class="modal-content box">
                         <h4 class="title is-4">
                             <i class="fas fa-heart" style="color:#a10000;"></i>
-                            Help improve MTGAHelper
+                            Contribute at keeping MTGAHelper ad-free forever
                         </h4>
-                        <h5 class="subtitle is-5" style="padding-left:2rem;">
-                            We would love to deliver blazing fast responsiveness
-                            <i class="fas fa-bolt" style="color:gold;"></i>
-                        </h5>
-                        <div>
-                        </div>
-                        <div class="has-text-centered" style="margin: 1rem;">
-                            <span class="is-size-7">
-                                Monthly objective for ideal servers availability: 85 / 100$
-                            </span>
-                            <div style="margin-top:0.2rem">
-                                <progress class="progress" value="85" max="100">85%</progress>
-                            </div>
-                        </div>
                         <div class="columns" style="margin-top:1rem;">
                             <div class="column">
                                 If you would like to support this service monthly, you can do so with
@@ -4411,22 +4793,24 @@
                             </div>
                         </div>
                         <hr />
-                        <h5 class="title is-5" style="margin-bottom:3rem;">
+                        <h5 class="title is-5">
                             Other ways to help MTGAHelper
                         </h5>
-                        <div style="position:absolute; left: 13px; bottom:10.5rem;">
-                            <a href="http://www.gamenerdz.com?aff=42">
-                                <img src="/images/gamenerdz.png" title="GameNerdz" alt="GameNerdz" style="height:20px; vertical-align: middle;">
-                                Use this referral link when shopping on GameNerdz (best prices for paper Magic)
-                            </a>
+                        <div>
+                            <i class="fas fa-share-alt"></i>
+                            <strong>Help the community grow</strong> &#8212; Share or recommend this resource
                         </div>
                         <div>
                             <a target="_blank" href="https://www.amazon.com?tag=mtgahelper01-20">
                                 <i class="fab fa-amazon"></i> Use this referral link when shopping on <strong>Amazon</strong>
                             </a>
                         </div>
-                        <div style="margin-top:0.5rem"><i class="fas fa-share-alt"></i> <strong>Help the community grow</strong>: Share or recommend this resource</div>
-                        <div style="margin-top:0.5rem"><i class="fas fa-mouse-pointer"></i> Whitelist this site from your ad-blocker. Even if there are no ads xD</div>
+                        <div>
+                            <a href="http://www.gamenerdz.com?aff=42">
+                                <img src="/images/gamenerdz.png" title="GameNerdz" alt="GameNerdz" style="height:20px; vertical-align: middle;">
+                                Use this referral link when shopping on GameNerdz (best prices for paper Magic)
+                            </a>
+                        </div>
                         <div style="margin-top:1.5rem">
                             <h4 class="title is-4" style="margin-bottom:0;">
                                 A huge thanks to everyone supporting this project
@@ -4434,15 +4818,33 @@
                         </div>
                     </div>
                 </div>
-                <!--<div class="modal modalTopLevel" v-bind:class="showModalAdPreorder ? 'is-active' : ''">
-                    <div class="modal-background" v-on:click="showModalAdPreorder = false"></div>
-                    <div class="modal-content box" style="background:url('https://mtgazone.com/wp-content/uploads/2019/10/thb_1080p_en.jpg');">
-                        <a href="https://www.amazon.com/s/ref=as_li_ss_tl?k=theros+beyond+death&crid=17QA8XOE3K3X1&sprefix=theros+beyond+,aps,141&ref=nb_sb_ss_i_1_14&linkCode=ll2&tag=mtgahelper01-20&linkId=e0759fb97f5e27a906df976a6396aadf&language=en_US">
-                            <h2 class="title is-2">Pre-order your Magic: The Gathering Teros Beyond Death Booster Box</h2>
-                            <h4 class="subtitle is-4">and help support MTGAHelper ❤</h4>
-                        </a>
+                <div class="modal modalTopLevel" v-bind:class="showModalDraftCalculator? 'is-active' : ''">
+                    <div class="modal-background" v-on:click="showModalDraftCalculator = false"></div>
+                    <div class="modal-content box">
+                        <h4 class="title is-4">
+                            Draft vs Boosters tool with the latest set ({{modelDraftsCalculator.sets[1]}})
+                        </h4>
+                        <p>
+                            Consider becoming a supporter to gain access to this tool for the latest set on top of helping evolve this project even further!
+                        </p>
+                        <p>
+                            Check out <a href="/articles/SupporterPerks" @click.prevent="modelArticleSelected = modelArticles.filter((i) => i.id === 'SupporterPerks')[0]; loadPage(pageArticleSelected, true, 'SupporterPerks'); showModalDraftCalculator = false;">this article</a> for more details
+                        </p>
+                        <p>
+                            Thanks!
+                            <i class="fas fa-heart" style="color:#a10000;"></i>
+                        </p>
                     </div>
-                </div>-->
+                </div>
+                <!--<div class="modal modalTopLevel" v-bind:class="showModalAdPreorder ? 'is-active' : ''">
+        <div class="modal-background" v-on:click="showModalAdPreorder = false"></div>
+        <div class="modal-content box" style="background:url('https://mtgazone.com/wp-content/uploads/2019/10/thb_1080p_en.jpg');">
+            <a href="https://www.amazon.com/s/ref=as_li_ss_tl?k=theros+beyond+death&crid=17QA8XOE3K3X1&sprefix=theros+beyond+,aps,141&ref=nb_sb_ss_i_1_14&linkCode=ll2&tag=mtgahelper01-20&linkId=e0759fb97f5e27a906df976a6396aadf&language=en_US">
+                <h2 class="title is-2">Pre-order your Magic: The Gathering Teros Beyond Death Booster Box</h2>
+                <h4 class="subtitle is-4">and help support MTGAHelper ❤</h4>
+            </a>
+        </div>
+    </div>-->
                 <div class="modal modal-fx-fadeInScale"
                      v-bind:class="[showModalAdPreorder || isLoadingSomething ? 'is-active' : '']">
                     <div class="modal-background" style="background-image:url('/images/loadingBg.jpg'); background-size:cover;"></div>
@@ -4455,38 +4857,42 @@
                                 see how you can help by clicking on the button on the bottom right. Thanks!
                             </p>
                         </div>
-                        <div v-if="showModalAdPreorder"
-                             style="background:#fff; color:#000; border:solid 2px #52575c; padding:2rem; border-bottom-left-radius:10px; border-bottom-right-radius:10px; border-top-left-radius:10px; border-top-right-radius:10px;">
+                        <!--<div v-if="showModalAdPreorder"
+                 style="background:#fff; color:#000; padding:2rem; border-bottom-left-radius:10px; border-bottom-right-radius:10px; border-top-left-radius:10px; border-top-right-radius:10px;">
 
-                            <h3 style="color:#000;" class="title is-3">
-                                Purchase your games or Magic: The Gathering paper products on
-                                <a href="https://www.gamenerdz.com/search.php?search_query=theros&section=product&aff=42" rel="nofollow" target="_blank" style="color:#00F">
-                                    GameNerdz
-                                </a>
-                            </h3>
-                            <h4 style="color:#000;" class="subtitle is-4">
-                                and help improve the MTGAHelper services
-                                <span style="color:#f00;">❤</span>
-                            </h4>
+                <h3 style="color:#000;" class="title is-3">
+                    Purchase your games or Magic: The Gathering paper products on
+                    <a href="https://www.gamenerdz.com/search.php?search_query=theros&section=product&aff=42" rel="nofollow" target="_blank" style="color:#00F">
+                        GameNerdz
+                    </a>
+                </h3>
+                <h4 style="color:#000;" class="subtitle is-4">
+                    and help improve the MTGAHelper services
+                    <span style="color:#f00;">❤</span>
+                </h4>
 
-                            <div class="level">
-                                <div class="level-item">
-                                    <a href="https://www.gamenerdz.com/magic-the-gathering-theros-beyond-death-booster-box-preorder?aff=42" rel="nofollow" target="_blank">
-                                        <img src="https://images-na.ssl-images-amazon.com/images/I/51cn2m%2BZuPL._SL250_.jpg" />
-                                    </a>
-
-                                    <a href="https://www.gamenerdz.com/magic-the-gathering-theros-beyond-death-bundle-preorder?aff=42" rel="nofollow" target="_blank">
-                                        <img src="https://images-na.ssl-images-amazon.com/images/I/51PHN4jH4%2BL._SL250_.jpg" />
-                                    </a>
-
-                                    <a href="https://www.gamenerdz.com/magic-the-gathering-game-night-2019?aff=42" rel="nofollow" target="_blank">
-                                        <img style="height:192px;" src="https://cdn11.bigcommerce.com/s-ua4dd/images/stencil/480x420/products/39474/83902/wocc62710__06007.1572048907.jpg?c=2" />
-                                    </a>
-                                </div>
-                            </div>
+                <div class="level">
+                    <div class="level-item">
+                        <div style="text-align:center;">
+                            Best price! 90$
+                            <br />
+                            <a href="https://www.gamenerdz.com/magic-the-gathering-ikoria-lair-of-behemoths-booster-box-preorder?aff=42" rel="nofollow" target="_blank">
+                                <img src="https://cdn11.bigcommerce.com/s-ua4dd/images/stencil/242x310/products/40902/87485/WOCC7417__62569.1581445427.jpg" />
+                            </a>
                         </div>
+
+                        <a href="https://www.gamenerdz.com/magic-the-gathering-theros-beyond-death-booster-box-preorder?aff=42" rel="nofollow" target="_blank">
+                            <img src="https://images-na.ssl-images-amazon.com/images/I/51cn2m%2BZuPL._SL250_.jpg" />
+                        </a>
+
+                        <a href="https://www.gamenerdz.com/magic-the-gathering-game-night-2019?aff=42" rel="nofollow" target="_blank">
+                            <img style="height:192px;" src="https://cdn11.bigcommerce.com/s-ua4dd/images/stencil/480x420/products/39474/83902/wocc62710__06007.1572048907.jpg?c=2" />
+                        </a>
                     </div>
-                    <button v-if="showModalAdPreorder" class="modal-close is-large" aria-label="close" v-on:click="showModalAdPreorder = false" />
+                </div>
+            </div>-->
+                    </div>
+                    <!--<button v-if="showModalAdPreorder" class="modal-close is-large" aria-label="close" v-on:click="showModalAdPreorder = false" />-->
                 </div>
             </div>
         </div>
@@ -4500,8 +4906,9 @@
                         see how you can help by clicking on the button on the bottom right. Thanks!
                     </p>
                 </div>
-                <div v-if="showModalAdPreorder"
-                     style="background:#fff; color:#000; border:solid 2px #52575c; padding:2rem; border-bottom-left-radius:10px; border-bottom-right-radius:10px; border-top-left-radius:10px; border-top-right-radius:10px;">
+
+                <!--v-if="showModalAdPreorder"-->
+                <div v-if="modelUser.isSupporter !== true" style="background:#fff; color:#000; padding:2rem; border-bottom-left-radius:10px; border-bottom-right-radius:10px; border-top-left-radius:10px; border-top-right-radius:10px;">
 
                     <h3 style="color:#000;" class="title is-3">
                         Purchase your games or Magic: The Gathering paper products on
@@ -4515,16 +4922,18 @@
                     </h4>
                     <div class="level">
                         <div class="level-item">
-                            <a href="https://www.gamenerdz.com/magic-the-gathering-theros-beyond-death-booster-box-preorder?aff=42" rel="nofollow" target="_blank">
-                                <img src="https://images-na.ssl-images-amazon.com/images/I/51cn2m%2BZuPL._SL250_.jpg" />
+                            <div style="text-align:center;">
+                                <a href="https://www.gamenerdz.com/magic-the-gathering-zendikar-rising-collector-booster-box-preorder?aff=42" rel="nofollow" target="_blank">
+                                    <img src="https://cdn11.bigcommerce.com/s-ua4dd/images/stencil/480x420/products/42652/91338/71HjzRvsQmL__52064.1595894206.jpg?c=2" width="280" />
+                                </a>
+                            </div>
+
+                            <a href="https://www.gamenerdz.com/magic-the-gathering-core-2021-collector-booster-box-preorder?aff=42" rel="nofollow" target="_blank">
+                                <img src="data:image/jpeg;base64,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" alt="Amazon.com: Magic: The Gathering Core Set 2021 (M21) Collector ..."/>
                             </a>
 
-                            <a href="https://www.gamenerdz.com/magic-the-gathering-theros-beyond-death-bundle-preorder?aff=42" rel="nofollow" target="_blank">
-                                <img src="https://images-na.ssl-images-amazon.com/images/I/51PHN4jH4%2BL._SL250_.jpg" />
-                            </a>
-
-                            <a href="https://www.gamenerdz.com/magic-the-gathering-game-night-2019?aff=42" rel="nofollow" target="_blank">
-                                <img style="height:192px;" src="https://cdn11.bigcommerce.com/s-ua4dd/images/stencil/480x420/products/39474/83902/wocc62710__06007.1572048907.jpg?c=2" />
+                            <a href="https://www.gamenerdz.com/sword-sorcery-ancient-chronicles-preorder?aff=42" rel="nofollow" target="_blank">
+                                <img style="height:192px;" src="/images/SnS.png" width="320" />
                             </a>
                         </div>
                     </div>
