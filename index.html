@@ -56,6 +56,10 @@
             z-index: 2000000001 !important;
         }
 
+        img.fiftypct {
+            width: 50%;
+        }
+
         .cardFrame {
             color: #000 !important;
         }
@@ -78,7 +82,7 @@
             background-repeat: no-repeat;
             background-size: contain;
             background-position: center;
-            color:#FFF;
+            color: #FFF;
         }
 
         img.iconMana {
@@ -124,7 +128,8 @@
                 font-weight: normal;
             }
 
-        div.Aetherhub h6, div.Aetherhub h6 a {
+        div.CardGameBase h6, div.CardGameBase h6 a {
+            color: #81a0d6;
         }
 
         .is-hoverable {
@@ -242,8 +247,6 @@
                 z-index: -1;
             }*/
 
-
-
         ul.paginator {
             display: inline;
             padding: 0;
@@ -297,7 +300,6 @@
             background: #209cee !important;
         }
 
-
         .horizontalItems {
             position: relative;
             width: 100%;
@@ -346,6 +348,10 @@
                        v-bind:class="currentPage === pageMeta ? 'bold' : ''" @click.prevent="loadPage(pageMeta);" data-tooltip="Be competitive">
                         Meta
                     </a>
+                    <!--<a href="/calendar" class="navbar-item tooltip is-tooltip-right is-size-7-desktop is-size-6-widescreen"
+                       v-bind:class="currentPage === pageCalendar ? 'bold' : ''" @click.prevent="loadPage(pageCalendar);" data-tooltip="See which MTGA events are going on">
+                        Events Calendar
+                    </a>-->
                     <a href="/decks" class="navbar-item tooltip is-tooltip-right is-size-7-desktop is-size-6-widescreen"
                        v-bind:class="currentPage === pageDecks ? 'bold' : ''" @click.prevent="loadPage(pageDecks);" data-tooltip="Browse all decks">
                         Decks
@@ -428,9 +434,10 @@
                                 <img v-bind:src="topAd.img" v-bind:alt="topAd.text" style="height:52px; vertical-align:middle;" />
                             </a>
                         </div>-->
-                        <div class="navbar-item tooltip is-tooltip-bottom is-tooltip-multiline" data-tooltip="Purchase your games or Magic: The Gathering paper products on GameNerdz and help improve the MTGAHelper services ❤">
-                            <a href="https://www.gamenerdz.com/magic-the-gathering-zendikar-rising-collector-booster-box-preorder?aff=42" rel="nofollow" target="_blank">
-                                <img src="/images/set-ZNR.png" alt="Amazon.com: Magic: The Gathering Core Set 2021 (M21) Collector ..." />
+                        <!--<div class="navbar-item tooltip is-tooltip-bottom is-tooltip-multiline" data-tooltip="Purchase your games or Magic: The Gathering paper products on GameNerdz and help improve the MTGAHelper services ❤">-->
+                        <div class="navbar-item tooltip is-tooltip-bottom is-tooltip-multiline" data-tooltip="Order your MTG paper products and help improve the MTGAHelper services ❤">
+                            <a href="https://www.gamenerdz.com/magic-the-gathering?aff=42" rel="nofollow" target="_blank">
+                                <img src="/images/set-MID.png" />
                             </a>
                         </div>
                         <div v-if="modelUser.isSupporter" class="navbar-item has-text-centered is-hidden-desktop-only tooltip is-tooltip-bottom" data-tooltip="Thanks for being a supporter and making the difference">
@@ -519,7 +526,6 @@
                                     <i class="fas fa-ellipsis-h" style="margin-left:0.8rem; cursor:pointer; color:white;"
                                        v-on:click="navBarInfo = navBarInfos[(navBarInfos.indexOf(navBarInfo) + 1) % navBarInfos.length]"></i>
                                 </span>
-
                             </div>
                         </div>
                         <div class="navbar-item has-dropdown is-hoverable">
@@ -572,7 +578,7 @@
                                     Decks to play
                                 </a>
                                 <a href="/my/missingCardsSummary" class="navbar-item" v-bind:class="currentPage === pageDashboardSummary ? 'bold' : ''" @click.prevent="loadPage(pageDashboardSummary);">
-                                    <img v-bind:src="'/images/' + (modelDashboard.summary.length === 0 ? 'M21' : modelDashboard.summary[0].Key) + '-booster.png'" style="margin-right:0.5rem; width:1rem;" />
+                                    <img v-bind:src="'/images/' + (modelDashboard.summary.length === 0 ? 'M21' : modelDashboard.summary[0].key) + '-booster.png'" style="margin-right:0.5rem; width:1rem;" />
                                     Boosters to open
                                 </a>
                                 <a href="/my/missingCardsDetails" class="navbar-item" v-bind:class="currentPage === pageDashboardDetails ? 'bold' : ''" @click.prevent="loadPage(pageDashboardDetails);">
@@ -611,7 +617,7 @@
                                     <i class="fas fa-user-cog" style="margin-right:0.5rem; width:1rem;"></i>
                                     Profile
                                 </a>
-                                <a href="/lands" class="navbar-item" v-bind:class="currentPage === pageLands ? 'bold' : ''" @click.prevent="if (modelLands.length === 0) { getLands(); } loadPage(pageLands);">
+                                <a href="/lands" class="navbar-item" v-bind:class="currentPage === pageLands ? 'bold' : ''" @click.prevent="loadLandsIfNeeded">
                                     <img src="https://img.scryfall.com/cards/border_crop/front/0/2/023d333b-14f2-40ad-bb76-8b9e38040f89.jpg?1562730596" style="margin-right:0.5rem; width:1rem;" />
                                     Lands
                                 </a>
@@ -641,7 +647,6 @@
                 <div class="navbar-brand">
                     Test
                 </div>
-
             </nav>-->
             <div style="margin-top:55px;">
                 <div v-if="modelUser.isSupporter === false && dhTopAd && modelUser.nbLogin >= 5" class="columns is-size-7 is-vcentered is-gapless is-marginless">
@@ -749,8 +754,8 @@
                         Always stay updated on Magic: The Gathering Arena
                     </h4>
                     <!--<h5 class="subtitle is-5">
-            Choose which sources of news to follow and stay updated in the glimpse of an eye
-        </h5>-->
+                        Choose which sources of news to follow and stay updated in the glimpse of an eye
+                    </h5>-->
                     <div class="columns is-multiline">
                         <div class="column is-one-quarter" v-for="news in modelNews">
                             <div class="box" v-bind:class="news.type.replace(/ /g, '')">
@@ -784,11 +789,11 @@
                     </div>
                 </div>
                 <!--<div v-else-if="currentPage === pageStreams">
-        <h4 class="title is-4">
-            Streams
-        </h4>
-        Coming up
-    </div>-->
+                    <h4 class="title is-4">
+                        Streams
+                    </h4>
+                    Coming up
+                </div>-->
                 <div v-else-if="currentPage === pageArticles">
                     <h4 class="title is-4">
                         Some useful readings for players of Magic: The Gathering Arena
@@ -925,14 +930,14 @@
                             <div class="box">
                                 <article>
                                     <div>
-                                        <a href="https://joestradingpost.weebly.com/mtg-arena1.html" target="_blank">
+                                        <a href="https://joestradingpost.weebly.com/mtg-arena.html" target="_blank">
                                             <img src="https://img.scryfall.com/cards/art_crop/front/3/7/37ed04d3-cfa1-4778-aea6-b4c2c29e6e0a.jpg?1559959382">
                                         </a>
                                     </div>
                                     <div class="media-content">
                                         <div class="content">
                                             <h6 class="title is-6">
-                                                <a href="https://joestradingpost.weebly.com/mtg-arena1.html" target="_blank">
+                                                <a href="https://joestradingpost.weebly.com/mtg-arena.html" target="_blank">
                                                     Arena Finance
                                                 </a>
                                             </h6>
@@ -966,6 +971,26 @@
                         Meta
                     </h4>
                     Coming up
+                </div>
+                <div v-else-if="currentPage === pageCalendar" class="is-size-4">
+                    <h2 class="title is-2" style="margin:1rem 0;">
+                        MTGA Events Calendar
+                    </h2>
+                    <table class="table is-striped">
+                        <tbody>
+                            <tr v-for="i in modelCalendar">
+                                <td class="is-paddingless">
+                                    <img v-bind:src="i.image" style="height:4rem;" />
+                                </td>
+                                <td>
+                                    {{i.title}}
+                                </td>
+                                <td>
+                                    {{i.dateRange}}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
                 <div v-else-if="currentPage === pageDecks">
                     <h4 class="title is-4">
@@ -1158,13 +1183,13 @@
                             <div class="column">
                                 <div v-for="zone in modelDeckSelected.cardsNotMainByZone">
                                     <h4 class="title is-4" style="margin-bottom:0.5rem;">
-                                        {{zone.Key}} <span v-if="displayTotalCards(zone.Value) !== 1">({{displayTotalCards(zone.Value)}} cards)</span>
+                                        {{zone.key}} <span v-if="displayTotalCards(zone.value) !== 1">({{displayTotalCards(zone.value)}} cards)</span>
                                     </h4>
-                                    <p v-if="zone.Value.length === 0">
-                                        (No {{zone.Key}})
+                                    <p v-if="zone.value.length === 0">
+                                        (No {{zone.key}})
                                     </p>
                                     <table v-else class="table is-fullwidth is-narrow deck">
-                                        <tbody v-for="t in zone.Value.groupBy('type')">
+                                        <tbody v-for="t in zone.value.groupBy('type')">
                                             <tr>
                                                 <td class="spacer" colspan="2">
                                                     <h5 class="title is-5">
@@ -1238,9 +1263,9 @@
                     </div>
                 </div>
                 <div v-else-if="currentPage === pageInventory">
-                    <h4 class="title is-4">
+                    <h2 class="title is-2 has-text-centered">
                         Inventory
-                    </h4>
+                    </h2>
 
                     <div class="columns is-mobile has-text-centered is-size-5 has-text-weight-bold">
                         <div class="column">
@@ -1287,12 +1312,126 @@
                             <h5 class="title is-5">
                                 Boosters
                             </h5>
-                            <div v-for="b in modelUser.collection.inventory.boosters" class="tooltip" v-bind:data-tooltip="b.set">
+                            <span v-for="b in modelUser.collection.inventory.boosters" class="tooltip" style="margin:0 0.4rem;" v-bind:data-tooltip="b.set">
                                 {{b.count}}
                                 <img v-bind:src="'/images/' + b.set + '-booster.png'" v-bind:alt="b.set" class="wcLarge" />
-                            </div>
+                            </span>
                         </div>
                     </div>
+                    <div v-if="isLoadingData(loadEconomicReports)" class="has-text-centered">
+                        <span class="button is-loading"></span>
+                        Loading economic reports...
+                    </div>
+                    <template v-else-if="Object.keys(modelUserEconomy).length > 0">
+                        <hr />
+                        <h2 class="title is-2 has-text-centered">
+                            Economic Reports by Set
+                        </h2>
+                        <div v-for="(data, set) in modelUserEconomy" style="margin-bottom:1rem;">
+                            <h2 class="title is-2 has-text-centered">
+                                {{formatSetToFullName(set)}} ({{set}})
+                            </h2>
+                            <div class="columns is-multiline">
+                                <div v-for="(details, itemType) in data" class="column is-3 has-text-centered">
+                                    <h4 class="title is-4 has-text-centered">
+                                        <span v-if="itemType !== 'Wildcard' && itemType !== 'NewCards' && itemType !== 'Booster'">
+                                            {{numeral((itemType === 'Vault' ? 0.01 : 1) * details.gains.reduce((a, b) => a += b.variation, 0) + (itemType === 'Vault' ? 0.01 : 1) * details.spendings.reduce((a, b) => a += b.variation, 0)).format(itemType === 'Vault' ? '+0,0.0%' :  '+0,0')}}
+                                        </span>
+                                        <img v-if="itemType === 'Gems'" src="/images/inventory_gem.png" class="wcLarge">
+                                        <img v-else-if="itemType === 'Gold'" src="/images/inventory_gold.png" class="wcLarge">
+                                        <img v-else-if="itemType === 'Xp'" src="/images/xp.png" class="wcLarge">
+                                        <span v-else-if="itemType === 'Vault'"><img src="/images/vault.png" class="wcLarge"></span>
+                                        <span v-else-if="itemType === 'Booster'">
+                                            <!--boosters
+                                            ({{numeral(details.gains.reduce((a, b) => a += b.variation, 0)).format('+0,0')}}
+                                            /
+                                            {{numeral(details.spendings.reduce((a, b) => a += b.variation, 0)).format('+0,0')}})-->
+                                            Boosters
+                                        </span>
+                                        <span v-else-if="itemType === 'Wildcard' || itemType === 'NewCards'">
+                                            <span v-for="r in ['Mythic', 'Rare', 'Uncommon', 'Common']" style="margin:0 0.5rem;">
+                                                {{numeral(details.gains.filter(c => c.value === r).reduce((a, b) => a += b.variation, 0) + details.spendings.filter(c => c.value === r).reduce((a, b) => a += b.variation, 0)).format('+0,0')}}
+                                                <img v-bind:src="'/images/wc' + r[0] + '.png'" class="wcLarge">
+                                            </span>
+                                            <br />
+                                            <span v-if="itemType === 'Wildcard'">wildcards</span>
+                                            <span v-else-if="itemType === 'NewCards'">new cards</span>
+                                        </span>
+                                    </h4>
+
+                                    <table class="table is-striped" style="margin:0 auto;">
+                                        <!--<thead>
+                                            <tr>
+                                                <th>Context</th>
+                                                <th>Total</th>
+                                            </tr>
+                                        </thead>-->
+                                        <tbody>
+                                            <tr v-for="g in details.gains">
+                                                <td>
+                                                    {{g.context}}
+                                                </td>
+                                                <td class="has-text-right">
+                                                    +{{itemType === 'Vault' ? numeral(g.variation / 100).format('0.0%') : numeral(g.variation).format('0,0')}}
+                                                    <img v-if="itemType === 'Gems'" src="/images/inventory_gem.png" class="wcLarge">
+                                                    <img v-else-if="itemType === 'Gold'" src="/images/inventory_gold.png" class="wcLarge">
+                                                    <img v-else-if="itemType === 'Xp'" src="/images/xp.png" class="wcLarge">
+                                                    <span v-else-if="itemType === 'Vault'"><img src="/images/vault.png" class="wcLarge"></span>
+                                                    <img v-else-if="itemType === 'Wildcard' || itemType === 'NewCards'" v-bind:src="'/images/wc' + g.value[0] + '.png'" class="wcLarge">
+                                                    <span v-else-if="itemType === 'Booster' && g.value !== null" class="tooltip" v-bind:data-tooltip="'+' + g.variation + ' ' + g.value">
+                                                        <img v-bind:src="'/images/' + g.value + '-booster.png'" v-bind:alt="g.value" class="wc" />
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            <tr v-for="s in details.spendings">
+                                                <td>{{s.context}}</td>
+                                                <td class="has-text-right">
+                                                    {{itemType === 'Vault' ? numeral(s.variation / 100).format('0.0%') : numeral(s.variation).format('0,0')}}
+                                                    <img v-if="itemType === 'Gems'" src="/images/inventory_gem.png" class="wcLarge">
+                                                    <img v-else-if="itemType === 'Gold'" src="/images/inventory_gold.png" class="wcLarge">
+                                                    <img v-else-if="itemType === 'Xp'" src="/images/xp.png" class="wcLarge">
+                                                    <span v-else-if="itemType === 'Vault'"><img src="/images/vault.png" class="wcLarge"></span>
+                                                    <img v-else-if="itemType === 'Wildcard' || itemType === 'NewCards'" v-bind:src="'/images/wc' + s.value[0] + '.png'" class="wcLarge">
+                                                    <span v-else-if="itemType === 'Booster' && s.value !== null" class="tooltip" v-bind:data-tooltip="s.variation + ' ' + s.value">
+                                                        <img v-bind:src="'/images/' + s.value + '-booster.png'" v-bind:alt="s.value" class="wc" />
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <hr />
+                        </div>
+                        <div v-if="modelUser.isSupporter === false" class="columns">
+                            <div class="column is-one-half is-size-7">
+                                <div style="margin:0.5rem;">
+                                    <div class="darkTable has-text-centered" style="padding:1rem 0.5rem;">
+                                        <p>
+                                            Data from the 3 most recent expansions will always be available,
+                                            but older data will occasionally be purged in order to keep storage costs on track.
+                                        </p>
+                                        <p>
+                                            Check out <a href="/articles/SupporterPerks" @click.prevent="modelArticleSelected = modelArticles.filter((i) => i.id === 'SupporterPerks')[0]; loadPage(pageArticleSelected, true, 'SupporterPerks'); showModalDraftCalculator = false;">this article</a> for more details
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="column is-one-half is-size-7">
+                                <div style="margin:0.5rem;">
+                                    <div class="darkTable has-text-centered" style="padding:1rem 0.5rem;">
+                                        <p>
+                                            Consider becoming a supporter to keep/restore all your data forever on top of helping evolve this project even further!
+                                        </p>
+                                        <p>
+                                            Thanks!
+                                            <i class="fas fa-heart" style="color:#a10000;"></i>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
                 </div>
                 <div v-else-if="currentPage === pageStatsLimited">
                     <h4 class="title is-4">
@@ -1338,6 +1477,35 @@
                                         </div>
                                     </div>
                                 </div>
+                                <!-- -->
+                                <template v-if="modelUser.isSupporter === false">
+                                    <div class="column is-one-half is-size-7">
+                                        <div style="margin:0.5rem;">
+                                            <div class="darkTable has-text-centered" style="padding:1rem 0.5rem;">
+                                                <p>
+                                                    Data from the 3 most recent expansions will always be available,
+                                                    but older data will occasionally be purged in order to keep storage costs on track.
+                                                </p>
+                                                <p>
+                                                    Check out <a href="/articles/SupporterPerks" @click.prevent="modelArticleSelected = modelArticles.filter((i) => i.id === 'SupporterPerks')[0]; loadPage(pageArticleSelected, true, 'SupporterPerks'); showModalDraftCalculator = false;">this article</a> for more details
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="column is-one-half is-size-7">
+                                        <div style="margin:0.5rem;">
+                                            <div class="darkTable has-text-centered" style="padding:1rem 0.5rem;">
+                                                <p>
+                                                    Consider becoming a supporter to keep/restore all your data forever on top of helping evolve this project even further!
+                                                </p>
+                                                <p>
+                                                    Thanks!
+                                                    <i class="fas fa-heart" style="color:#a10000;"></i>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
                             </div>
                         </div>
                         <h4 style="margin-top:2rem;">Details</h4>
@@ -1357,11 +1525,11 @@
                                         Date finish
                                     </th>
                                     <!--<th>
-                    Entry fee
-                </th>
-                <th>
-                    Reward
-                </th>-->
+                                        Entry fee
+                                    </th>
+                                    <th>
+                                        Reward
+                                    </th>-->
                                 </tr>
                             </thead>
                             <tbody>
@@ -1379,11 +1547,11 @@
                                         {{moment(event.dateEnd).format('YYYY-MM-DD HH:mm:ss')}}
                                     </td>
                                     <!--<td>
-                    10,000 G
-                </td>
-                <td>
-                    Gems, Cards
-                </td>-->
+                                        10,000 G
+                                    </td>
+                                    <td>
+                                        Gems, Cards
+                                    </td>-->
                                 </tr>
                             </tbody>
                         </table>
@@ -1424,42 +1592,53 @@
                             </p>
                         </div>
                         <div class="columns horizontalItems is-mobile">
-                            <div class="column is-narrow horizontalItem" style="width:15.5rem;" v-for="set in computeSets()">
-                                <div class="box has-text-centered darkTable" v-bind:style="'padding-left:0.5rem; padding-right:0.5rem; background: url(/images/set-' + set.name + '-pack.png); background-repeat:no-repeat; background-size:cover;'">
-                                    <img v-bind:src="'/images/set-' + set.name + '.png'" v-on:click="modelUserCollectionFiltered.filters.set = set.name; modelUserCollectionFiltered.filters.rarity = ''; filterCollection();" style="cursor:pointer;" />
-                                    <div class="has-text-weight-bold" style="margin:0.25rem;">
-                                        <div style="color:#eee;">
-                                            {{set.nbOwned}}
-                                            /
-                                            {{set.nbTotal}}
+                            <div v-for="set in computeSets()">
+                                <div v-if="modelUser.collection.inventory.boosters.length > 0" class="has-text-centered">
+                                    <span v-if="set.name === 'STA'">
+                                        &nbsp;
+                                    </span>
+                                    <span v-else>
+                                        {{(modelUser.collection.inventory.boosters.filter(i => i.set === set.name)[0] || { count: 0}).count}} unopened pack(s)
+                                    </span>
+                                </div>
+                                <div class="column is-narrow horizontalItem" style="width:15.5rem;">
+                                    <div class="box has-text-centered darkTable" v-bind:style="'padding-left:0.5rem; padding-right:0.5rem; background: url(/images/set-' + set.name + '-pack.png); background-repeat:no-repeat; background-size:cover;'">
+                                        <img v-bind:src="'/images/set-' + set.name + '.png'" v-on:click="modelUserCollectionFiltered.filters.set = set.name; modelUserCollectionFiltered.filters.rarity = ''; filterCollection();" style="cursor:pointer;" v-bind:class="set.name === 'STA' ? 'fiftypct' : ''" />
+                                        <div v-if="set.name === 'STA'">Mystical Archive</div>
+                                        <div class="has-text-weight-bold" style="margin:0.25rem;">
+                                            <div style="color:#eee;">
+                                                {{set.nbOwned}}
+                                                /
+                                                {{set.nbTotal}}
+                                            </div>
+                                            <div class="is-size-7" style="margin-top:-0.2rem;">
+                                                {{numeral(set.pct).format('0.00%')}}
+                                            </div>
                                         </div>
-                                        <div class="is-size-7" style="margin-top:-0.2rem;">
-                                            {{numeral(set.pct).format('0.00%')}}
-                                        </div>
+                                        <table class="table is-narrow darkTable" style="margin:0 auto;">
+                                            <tbody>
+                                                <tr v-for="rarity in ['Mythic', 'Rare', 'Uncommon', 'Common']" style="cursor:pointer;"
+                                                    v-on:click="modelUserCollectionFiltered.filters.set = set.name; modelUserCollectionFiltered.filters.rarity = rarity; filterCollection();">
+                                                    <td class="has-text-centered tooltip is-size-7" style="width:50%; vertical-align:middle;"
+                                                        v-bind:data-tooltip="modelUser.collection.cards.filter(i => i.notInBooster === false && i.set === set.name && i.rarity === rarity).reduce(function(a, b) { return a + b.amount; }, 0) + ' / ' + modelSets.filter(function(i) { return i.name === set.name && i.rarity === rarity; }).reduce(function(a, b) { return a + b.totalCards; }, 0) * 4">
+                                                        <i v-bind:class="'ss ss-grad ss-' + (set.name.startsWith('M1') || set.name.startsWith('M2') ? '3' : '2') + 'x white-stroke ss-' + set.name.toLowerCase() + ' ss-' + rarity.toLowerCase()"></i>
+                                                    </td>
+                                                    <td style="width:50%;">
+                                                        <div style="margin:0.25rem;">
+                                                            <div>
+                                                                {{modelUser.collection.cards.filter(i => i.notInBooster === false && i.set === set.name && i.rarity === rarity).reduce(function(a, b) { return a + b.amount; }, 0) }}
+                                                                /
+                                                                {{modelSets.filter(function(i) { return i.name === set.name && i.rarity === rarity; }).reduce(function(a, b) { return a + b.totalCards; }, 0) * 4}}
+                                                            </div>
+                                                            <div class="is-size-7" style="color:#bcbcbc; margin-top:-0.2rem;">
+                                                                {{getCompletionPct(set.name, rarity)}}
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
                                     </div>
-                                    <table class="table is-narrow darkTable" style="margin:0 auto;">
-                                        <tbody>
-                                            <tr v-for="rarity in ['Mythic', 'Rare', 'Uncommon', 'Common']" style="cursor:pointer;"
-                                                v-on:click="modelUserCollectionFiltered.filters.set = set.name; modelUserCollectionFiltered.filters.rarity = rarity; filterCollection();">
-                                                <td class="has-text-centered tooltip is-size-7" style="width:50%; vertical-align:middle;"
-                                                    v-bind:data-tooltip="modelUser.collection.cards.filter(i => i.notInBooster === false && i.set === set.name && i.rarity === rarity).reduce(function(a, b) { return a + b.amount; }, 0) + ' / ' + modelSets.filter(function(i) { return i.name === set.name && i.rarity === rarity; }).reduce(function(a, b) { return a + b.totalCards; }, 0) * 4">
-                                                    <i v-bind:class="'ss ss-grad ss-' + (set.name.startsWith('M1') || set.name.startsWith('M2') ? '3' : '2') + 'x white-stroke ss-' + set.name.toLowerCase() + ' ss-' + rarity.toLowerCase()"></i>
-                                                </td>
-                                                <td style="width:50%;">
-                                                    <div style="margin:0.25rem;">
-                                                        <div>
-                                                            {{modelUser.collection.cards.filter(i => i.notInBooster === false && i.set === set.name && i.rarity === rarity).reduce(function(a, b) { return a + b.amount; }, 0) }}
-                                                            /
-                                                            {{modelSets.filter(function(i) { return i.name === set.name && i.rarity === rarity; }).reduce(function(a, b) { return a + b.totalCards; }, 0) * 4}}
-                                                        </div>
-                                                        <div class="is-size-7" style="color:#bcbcbc; margin-top:-0.2rem;">
-                                                            {{numeral(modelUser.collection.cards.filter(i => i.notInBooster === false && i.set === set.name && i.rarity === rarity).reduce(function(a, b) { return a + b.amount; }, 0) / (modelSets.filter(function(i) { return i.name === set.name && i.rarity === rarity; }).reduce(function(a, b) { return a + b.totalCards; }, 0) * 4)).format('0.00%')}}
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
                                 </div>
                             </div>
                         </div>
@@ -1597,9 +1776,9 @@
                         <div class="column is-half-desktop" v-bind:class="[modelMtgaDeckSelected.deckId === '' ? '' : 'is-hidden-touch', ]">
                             <h4 class="title is-4">MTGA Decks</h4>
                             <!--<p v-if="modelUser.nbLogin > 10">
-                    <i class="fas fa-info-circle"></i>
-                    Disclaimer: Unless you are a supporter, your data will be reset at the release of a new set
-                </p>-->
+                                <i class="fas fa-info-circle"></i>
+                                Disclaimer: Unless you are a supporter, your data will be reset at the release of a new set
+                            </p>-->
                             <div v-if="isLoadingData(pageMtgaDecks)">
                                 <span class="button is-loading"></span>
                                 This can take some time to load with a lot of matches...
@@ -1609,43 +1788,51 @@
                             </div>
                             <div v-else>
                                 <!--<table class="table is-narrow">
-                        <thead>
-                            <tr>
-                                <th colspan="5">Filters <span class="smallText gray">(Press Enter)</span></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>
-                                    <div class="field">
-                                        <div class="control">
-                                            <label class="label is-small">
-                                                Source
-                                                <span class="icon has-text-info tooltip" style="height:inherit; cursor:pointer;"
-                                                      data-tooltip="Go configure sources of decks" v-on:click="loadPage(pageScrapers)">
-                                                    <i class="fas fa-info-circle"></i>
-                                                </span>
-                                            </label>
-                                            <select class="input is-small" v-model="modelUserDecks.filters.scraperTypeId" v-on:change="filterDecks();">
-                                                <option v-for="source in ['(All)'].concat(modelUserDecks.decks.map((i) => i.scraperTypeId).filter((value, index, self) => self.indexOf(value) === index).sort())"
-                                                        v-bind:value="source">
-                                                    {{ formatScraperKey(source, true) }}
-                                                </option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>-->
+                                    <thead>
+                                        <tr>
+                                            <th colspan="5">Filters <span class="smallText gray">(Press Enter)</span></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <div class="field">
+                                                    <div class="control">
+                                                        <label class="label is-small">
+                                                            Source
+                                                            <span class="icon has-text-info tooltip" style="height:inherit; cursor:pointer;"
+                                                                  data-tooltip="Go configure sources of decks" v-on:click="loadPage(pageScrapers)">
+                                                                <i class="fas fa-info-circle"></i>
+                                                            </span>
+                                                        </label>
+                                                        <select class="input is-small" v-model="modelUserDecks.filters.scraperTypeId" v-on:change="filterDecks();">
+                                                            <option v-for="source in ['(All)'].concat(modelUserDecks.decks.map((i) => i.scraperTypeId).filter((value, index, self) => self.indexOf(value) === index).sort())"
+                                                                    v-bind:value="source">
+                                                                {{ formatScraperKey(source, true) }}
+                                                            </option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>-->
                                 <table class="table is-narrow is-fullwidth is-hoverable is-striped">
                                     <thead>
                                         <tr>
                                             <th>&nbsp;</th>
-                                            <th>Deck name / Color</th>
-                                            <th>Most played format</th>
-                                            <th class="has-text-centered">Win rate</th>
-                                            <th class="has-text-centered">Last played</th>
+                                            <th>
+                                                <span class="button is-text" v-on:click="sortDecks('mtgaDecks', 'deckName')">Deck name / Color</span>
+                                            </th>
+                                            <th>
+                                                <span class="button is-text" v-on:click="sortDecks('mtgaDecks', 'winRateNbMatches')">Most played format</span>
+                                            </th>
+                                            <th class="has-text-centered">
+                                                <span class="button is-text" v-on:click="sortDecks('mtgaDecks', 'winRate')">Win rate</span>
+                                            </th>
+                                            <th class="has-text-centered">
+                                                <span class="button is-text" v-on:click="sortDecks('mtgaDecks', 'lastPlayed')">Last played</span>
+                                            </th>
                                             <th class="has-text-centered">More stats!</th>
                                         </tr>
                                     </thead>
@@ -1796,13 +1983,13 @@
                                         <div class="column is-narrow is-half">
                                             <div v-for="zone in modelMtgaDeckSelected.cardsNotMainByZone">
                                                 <h4 class="title is-4" style="margin-bottom:0.5rem;">
-                                                    {{zone.Key}} <span v-if="displayTotalCards(zone.Value) !== 1">({{displayTotalCards(zone.Value)}} cards)</span>
+                                                    {{zone.key}} <span v-if="displayTotalCards(zone.value) !== 1">({{displayTotalCards(zone.value)}} cards)</span>
                                                 </h4>
-                                                <p v-if="zone.Value.length === 0">
-                                                    (No {{zone.Key}})
+                                                <p v-if="zone.value.length === 0">
+                                                    (No {{zone.key}})
                                                 </p>
                                                 <table v-else class="table is-fullwidth is-narrow deck">
-                                                    <tbody v-for="t in zone.Value.groupBy('type')">
+                                                    <tbody v-for="t in zone.value.groupBy('type')">
                                                         <tr>
                                                             <td class="spacer" colspan="2">
                                                                 <h5 class="title is-5">
@@ -1911,8 +2098,8 @@
                                                 </td>
                                                 <td>
                                                     {{m.opponentName}}
-                                                    <span class="tooltip is-tooltip-left" v-bind:data-tooltip="m.opponentRank.replace('_', ' ')">
-                                                        <img v-bind:src="'/images/ranks/constructed/' + m.opponentRank + '.png'" class="wc" />
+                                                    <span class="tooltip is-tooltip-left" v-bind:data-tooltip="m.opponentRank">
+                                                        <img v-bind:src="'/images/ranks/constructed/' + m.opponentRankImg + '.png'" class="wc" />
                                                     </span>
                                                     <br />
                                                     <img v-for="c in m.opponentDeckColors.split('')" v-bind:src="iconMana[c]" class="iconMana" />
@@ -1984,7 +2171,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="h in modelUserHistory.history2" v-on:click="refreshUserHistoryForDate(h.date)">
+                                <tr v-for="h in modelUserHistory.history2" v-on:click="currentPageHistory = pageHistoryEconomyEvents; refreshUserHistoryForDate(h.date);">
                                     <td>
                                         {{moment(h.date).format('YYYY-MM-DD')}}
                                     </td>
@@ -2041,12 +2228,12 @@
                                         </span>
                                     </td>
                                     <td class="has-text-centered">
-                                        <span v-for="booster in h.boostersChange" class="tooltip" v-bind:data-tooltip="numeral(booster.Value).format('+0,0') + ' ' + booster.Key">
-                                            {{numeral(booster.Value).format('+0,0')}}
-                                            <img v-bind:src="'/images/' + booster.Key + '-booster.png'" v-bind:alt="booster.Key" class="wc" />
+                                        <span v-for="booster in h.boostersChange" class="tooltip" v-bind:data-tooltip="numeral(booster.value).format('+0,0') + ' ' + booster.key">
+                                            {{numeral(booster.value).format('+0,0')}}
+                                            <img v-bind:src="'/images/' + booster.key + '-booster.png'" v-bind:alt="booster.key" class="wc" />
                                         </span>
                                     </td>
-                                    <td class="has-text-centered">
+                                    <td class="has-text-centered" v-on:click.stop="currentPageHistory = pageHistoryMatches; refreshUserHistoryForDate(h.date);">
                                         <span>
                                             {{h.wins}}
                                             -
@@ -2073,15 +2260,15 @@
                                         </div>
                                     </td>
                                     <!--<td>
-                            <span v-if="h.constructedRank === 'N/A'">&nbsp;</span>
-                            <span v-else class="tooltip is-tooltip-left" v-bind:data-tooltip="'Constructed ' + h.constructedRank.split('_').slice(0,2).join(' ')">
-                                <img v-bind:src="'/images/ranks/constructed/' + h.constructedRank.split('_').slice(0,2).join('_') + '.png'" class="wc" />
-                            </span>
-                            <span v-if="h.limitedRank === 'N/A'">&nbsp;</span>
-                            <span v-else class="tooltip is-tooltip-left" v-bind:data-tooltip="'Limited ' + h.limitedRank.split('_').slice(0,2).join(' ')">
-                                <img v-bind:src="'/images/ranks/limited/' + h.limitedRank.split('_').slice(0,2).join('_') + '.png'" class="wc" />
-                            </span>
-                        </td>-->
+                                        <span v-if="h.constructedRank === 'N/A'">&nbsp;</span>
+                                        <span v-else class="tooltip is-tooltip-left" v-bind:data-tooltip="'Constructed ' + h.constructedRank.split('_').slice(0,2).join(' ')">
+                                            <img v-bind:src="'/images/ranks/constructed/' + h.constructedRank.split('_').slice(0,2).join('_') + '.png'" class="wc" />
+                                        </span>
+                                        <span v-if="h.limitedRank === 'N/A'">&nbsp;</span>
+                                        <span v-else class="tooltip is-tooltip-left" v-bind:data-tooltip="'Limited ' + h.limitedRank.split('_').slice(0,2).join(' ')">
+                                            <img v-bind:src="'/images/ranks/limited/' + h.limitedRank.split('_').slice(0,2).join('_') + '.png'" class="wc" />
+                                        </span>
+                                    </td>-->
                                 </tr>
                             </tbody>
                         </table>
@@ -2092,7 +2279,13 @@
                         <button class="button is-small" v-on:click="loadPage(pageHistory)">Back to List</button>
                     </div>
                     <h4 class="title is-4" style="margin-top:0;">
+                        <a class="button" v-on:click="refreshUserHistoryForDate(moment(modelUserHistorySelected2.date).add(-1, 'day'))">
+                            &lt; Previous day
+                        </a>
                         History for {{moment(modelUserHistorySelected2.date).format('YYYY-MM-DD')}}
+                        <a class="button" v-on:click="refreshUserHistoryForDate(moment(modelUserHistorySelected2.date).add(1, 'day'))">
+                            Next day &gt;
+                        </a>
                     </h4>
                     <span v-if="isLoadingData('userHistoryForDate')" class="button is-loading"></span>
                     <template v-else>
@@ -2114,39 +2307,39 @@
                                     </button>
                                 </div>
                                 <!--<div class="column">
-                        <button v-on:click="currentPageHistory = pageHistoryRankUpdates"
-                                class="button is-fullwidth is-rounded" v-bind:class="[currentPageHistory === pageHistoryRankUpdates ? 'is-info' : '']">
-                            Rank updates
-                        </button>
-                    </div>-->
+                                    <button v-on:click="currentPageHistory = pageHistoryRankUpdates"
+                                            class="button is-fullwidth is-rounded" v-bind:class="[currentPageHistory === pageHistoryRankUpdates ? 'is-info' : '']">
+                                        Rank updates
+                                    </button>
+                                </div>-->
                             </div>
                             <!--<div v-if="currentPageHistory === pageHistoryRankUpdates">
-                    <h5 class="title is-5" v-if="modelUserHistorySelected2.rankUpdates.length === 0">
-                        No rank updates
-                    </h5>
-                    <table v-else class="table is-narrow">
-                        <thead>
-                            <tr>
-                                <th>
-                                    Timestamp
-                                </th>
-                                <th>
-                                    Rank update
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="i in modelUserHistorySelected2.rankUpdates">
-                                <td style="is-size-7">
-                                    {{moment(i.dateTime).format('YYYY-MM-DD HH:mm')}}
-                                </td>
-                                <td>
-                                    {{numeral(i.deltaSteps).format('+0,0')}}
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>-->
+                                <h5 class="title is-5" v-if="modelUserHistorySelected2.rankUpdates.length === 0">
+                                    No rank updates
+                                </h5>
+                                <table v-else class="table is-narrow">
+                                    <thead>
+                                        <tr>
+                                            <th>
+                                                Timestamp
+                                            </th>
+                                            <th>
+                                                Rank update
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="i in modelUserHistorySelected2.rankUpdates">
+                                            <td style="is-size-7">
+                                                {{moment(i.dateTime).format('YYYY-MM-DD HH:mm')}}
+                                            </td>
+                                            <td>
+                                                {{numeral(i.deltaSteps).format('+0,0')}}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>-->
                             <div v-if="currentPageHistory === pageHistoryEconomyEvents">
                                 <h5 class="title is-5" v-if="modelUserHistorySelected2.economyEvents.length === 0">
                                     No inventory changes
@@ -2243,9 +2436,9 @@
                                                                         <img class="wc" src="/images/vault.png" />
                                                                     </span>
                                                                     <!--<span v-else-if="change.type === 'NewCards'" class="tooltip" v-bind:data-tooltip="Math.abs(change.amount) + ' card' + (change.amount == 1 ? '' : 's') + ' lost'">
-                                                            {{numeral(change.amount).format('+0,0')}}
-                                                            <img class="wc" v-bind:src="imgCardUnknown" />
-                                                        </span>-->
+                                                                        {{numeral(change.amount).format('+0,0')}}
+                                                                        <img class="wc" v-bind:src="imgCardUnknown" />
+                                                                    </span>-->
                                                                     <span v-else>
                                                                         {{change.value}}
                                                                         {{change.type}}
@@ -2331,7 +2524,7 @@
                                         <tbody>
                                             <tr v-for="(m, idx) in modelUserHistorySelected2.matches" v-bind:class="[modelUserHistoryMatchSelected === m ? 'is-selected' : '']" v-on:click="viewMatchDetails(m);">
                                                 <td>
-                                                    {{idx+1}}
+                                                    {{modelUserHistorySelected2.matches.length - idx}}
                                                 </td>
                                                 <td>
                                                     {{m.eventName}}
@@ -2348,8 +2541,8 @@
                                                 <td>
                                                     <img v-for="c in m.opponentDeckColors.split('')" v-bind:src="iconMana[c]" class="iconMana" />
                                                     {{m.opponentName}}
-                                                    <span class="tooltip is-tooltip-left" v-bind:data-tooltip="m.opponentRank.replace('_', ' ')">
-                                                        <img v-bind:src="'/images/ranks/constructed/' + m.opponentRank + '.png'" class="wc" />
+                                                    <span class="tooltip is-tooltip-left" v-bind:data-tooltip="m.opponentRank">
+                                                        <img v-bind:src="'/images/ranks/constructed/' + m.opponentRankImg + '.png'" class="wc" />
                                                     </span>
                                                 </td>
                                                 <td class="has-text-centered">
@@ -2380,9 +2573,28 @@
                 </div>
                 <div v-else-if="currentPage === pageMatchDetails">
                     <!--<div v-if="typeof modelUserHistoryMatchSelected.startDateTime === 'undefined'">
-            Select a match to view its game details
-        </div>
-        <div v-else>-->
+                        Select a match to view its game details
+                    </div>
+                    <div v-else>-->
+                    <div class="has-text-centered" v-if="typeof modelUserHistorySelected2.matches !== 'undefined'">
+                        <a class="button"
+                           v-on:click="currentPage = pageHistorySelected">
+                            Back to History for {{moment(modelUserHistorySelected2.date).format('YYYY-MM-DD')}}
+                        </a>
+                        <a class="button"
+                           v-if="modelUserHistorySelected2.matches.map(i => i.matchId).indexOf(modelUserHistoryMatchSelected.matchId) < modelUserHistorySelected2.matches.length - 1"
+                           v-on:click="viewMatchDetails(modelUserHistorySelected2.matches[modelUserHistorySelected2.matches.map(i => i.matchId).indexOf(modelUserHistoryMatchSelected.matchId) + 1])">
+                            &lt; Previous match
+                        </a>
+                        <span class="is-size-4">
+                            Match #{{modelUserHistorySelected2.matches.length - modelUserHistorySelected2.matches.map(i => i.matchId).indexOf(modelUserHistoryMatchSelected.matchId)}} of {{moment(modelUserHistorySelected2.date).format('YYYY-MM-DD')}}
+                        </span>
+                        <a class="button"
+                           v-if="modelUserHistorySelected2.matches.map(i => i.matchId).indexOf(modelUserHistoryMatchSelected.matchId) > 0"
+                           v-on:click="viewMatchDetails(modelUserHistorySelected2.matches[modelUserHistorySelected2.matches.map(i => i.matchId).indexOf(modelUserHistoryMatchSelected.matchId) - 1])">
+                            Next match &gt;
+                        </a>
+                    </div>
                     <div class="columns is-gapless" style="margin-bottom:0;">
                         <div class="column has-text-centered">
                             <div>
@@ -2413,8 +2625,8 @@
                         </div>
                         <div class="column has-text-centered">
                             <h4 class="title is-4" style="margin-top:0.5rem;">
-                                <span class="tooltip is-tooltip-left" v-bind:data-tooltip="modelUserHistoryMatchSelected.opponentRank.replace('_', ' ')">
-                                    <img v-bind:src="'/images/ranks/constructed/' + modelUserHistoryMatchSelected.opponentRank + '.png'" style="height:1.5rem;" />
+                                <span class="tooltip is-tooltip-left" v-bind:data-tooltip="modelUserHistoryMatchSelected.opponentRank">
+                                    <img v-bind:src="'/images/ranks/constructed/' + modelUserHistoryMatchSelected.opponentRankImg + '.png'" style="height:1.5rem;" />
                                 </span>
                                 {{modelUserHistoryMatchSelected.opponentName}}
                                 <img v-for="c in modelUserHistoryMatchSelected.opponentDeckColors.split('')" v-bind:src="iconMana[c]" class="iconManaHeading" />
@@ -2448,12 +2660,12 @@
                                     You mulliganed {{g.mulliganCount}} times
                                     <div v-for="hand in g.startingHands">
                                         <!--<div class="columns is-multiline">
-                                <div v-for="c in hand" class="column">
-                                    <span v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageCardUrl)" class="cardHover">
-                                        <img v-bind:src="c.imageCardUrl" style="height:8rem;" />
-                                    </span>
-                                </div>
-                            </div>-->
+                                            <div v-for="c in hand" class="column">
+                                                <span v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageCardUrl)" class="cardHover">
+                                                    <img v-bind:src="c.imageCardUrl" style="height:8rem;" />
+                                                </span>
+                                            </div>
+                                        </div>-->
                                         <span v-for="c in hand" v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(c.imageCardUrl)" class="cardHover">
                                             <img v-bind:src="c.imageCardUrl" style="height:8rem;" />
                                         </span>
@@ -2462,6 +2674,12 @@
                                 </div>
                             </div>
                             <div class="column is-full-touch">
+                                <!--{{g.actionLog.length}} events
+                                <div>
+                                    <div v-for="ge in g.actionLog">
+                                        {{ge.asText}} {{ge.cardGrpId}}
+                                    </div>
+                                </div>-->
                                 <h5 class="title is-5">By Turn</h5>
 
                                 <div class="columns is-multiline" style="margin-top:1rem;">
@@ -2630,11 +2848,11 @@
                             </div>
                             <span v-if="isLoadingData(pageDecksTracked)" class="button is-loading"></span>
                             <!--<div v-else-if="getScrapersFlattened().length === 0">
-                    <span class="button is-loading"></span>
-                    <span class="is-size-5">
-                        (...Initializing...Please refresh in 1 minute...)
-                    </span>
-                </div>-->
+                                <span class="button is-loading"></span>
+                                <span class="is-size-5">
+                                    (...Initializing...Please refresh in 1 minute...)
+                                </span>
+                            </div>-->
                             <div v-else class="wrapper-tablescroll">
                                 <table class="table is-fullwidth is-narrow is-hoverable is-striped">
                                     <thead>
@@ -2644,9 +2862,13 @@
                                             </th>
                                             <th>Name and source</th>
                                             <th>Color</th>
-                                            <th>Date</th>
+                                            <th>
+                                                <span class="button is-text" v-on:click="sortDecks('tracked', 'dateCreated')">Date</span>
+                                            </th>
                                             <th>Missing wildcards</th>
-                                            <th>Missing cards<br />weight</th>
+                                            <th>
+                                                <span class="button is-text" v-on:click="sortDecks('tracked', 'missingWeight')">Missing cards<br />weight</span>
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -2844,13 +3066,13 @@
                                     <div class="column">
                                         <div v-for="zone in modelUserDeckSelected.cardsNotMainByZone">
                                             <h4 class="title is-4" style="margin-bottom:0.5rem;">
-                                                {{zone.Key}} <span v-if="displayTotalCards(zone.Value) !== 1">({{displayTotalCards(zone.Value)}} cards)</span>
+                                                {{zone.key}} <span v-if="displayTotalCards(zone.value) !== 1">({{displayTotalCards(zone.value)}} cards)</span>
                                             </h4>
-                                            <p v-if="zone.Value.length === 0">
-                                                (No {{zone.Key}})
+                                            <p v-if="zone.value.length === 0">
+                                                (No {{zone.key}})
                                             </p>
                                             <table v-else class="table is-fullwidth is-narrow deck">
-                                                <tbody v-for="t in zone.Value.groupBy('type')">
+                                                <tbody v-for="t in zone.value.groupBy('type')">
                                                     <tr>
                                                         <td class="spacer" colspan="4">
                                                             <h5 class="title is-5">
@@ -2897,25 +3119,25 @@
                                             <tbody>
                                                 <tr class="nohover">
                                                     <td class="nowrap">
-                                                        {{modelUserDeckSelected.cardsMain.filter(i => i.rarity === 'Mythic').reduce(function(i, j) { return j.nbMissing + i; }, 0) + modelUserDeckSelected.cardsNotMainByZone.reduce((a, b) => a.concat(b.Value), []).filter(i => i.rarity === 'Mythic').reduce(function(i, j) { return j.nbMissing + i; }, 0)}}
+                                                        {{modelUserDeckSelected.cardsMain.filter(i => i.rarity === 'Mythic').reduce(function(i, j) { return j.nbMissing + i; }, 0) + modelUserDeckSelected.cardsNotMainByZone.reduce((a, b) => a.concat(b.value), []).filter(i => i.rarity === 'Mythic').reduce(function(i, j) { return j.nbMissing + i; }, 0)}}
                                                         <span class="tooltip" data-tooltip="Mythic">
                                                             <img class="wc" src="/images/wcM.png" />
                                                         </span>
                                                     </td>
                                                     <td class="nowrap">
-                                                        {{modelUserDeckSelected.cardsMain.filter(i => i.rarity === 'Rare').reduce(function(i, j) { return j.nbMissing + i; }, 0) + modelUserDeckSelected.cardsNotMainByZone.reduce((a, b) => a.concat(b.Value), []).filter(i => i.rarity === 'Rare').reduce(function(i, j) { return j.nbMissing + i; }, 0)}}
+                                                        {{modelUserDeckSelected.cardsMain.filter(i => i.rarity === 'Rare').reduce(function(i, j) { return j.nbMissing + i; }, 0) + modelUserDeckSelected.cardsNotMainByZone.reduce((a, b) => a.concat(b.value), []).filter(i => i.rarity === 'Rare').reduce(function(i, j) { return j.nbMissing + i; }, 0)}}
                                                         <span class="tooltip" data-tooltip="Rare">
                                                             <img class="wc" src="/images/wcR.png" />
                                                         </span>
                                                     </td>
                                                     <td class="nowrap">
-                                                        {{modelUserDeckSelected.cardsMain.filter(i => i.rarity === 'Uncommon').reduce(function(i, j) { return j.nbMissing + i; }, 0) + modelUserDeckSelected.cardsNotMainByZone.reduce((a, b) => a.concat(b.Value), []).filter(i => i.rarity === 'Uncommon').reduce(function(i, j) { return j.nbMissing + i; }, 0)}}
+                                                        {{modelUserDeckSelected.cardsMain.filter(i => i.rarity === 'Uncommon').reduce(function(i, j) { return j.nbMissing + i; }, 0) + modelUserDeckSelected.cardsNotMainByZone.reduce((a, b) => a.concat(b.value), []).filter(i => i.rarity === 'Uncommon').reduce(function(i, j) { return j.nbMissing + i; }, 0)}}
                                                         <span class="tooltip" data-tooltip="Uncommon">
                                                             <img class="wc" src="/images/wcU.png" />
                                                         </span>
                                                     </td>
                                                     <td class="nowrap">
-                                                        {{modelUserDeckSelected.cardsMain.filter(i => i.rarity === 'Common').reduce(function(i, j) { return j.nbMissing + i; }, 0) + modelUserDeckSelected.cardsNotMainByZone.reduce((a, b) => a.concat(b.Value), []).filter(i => i.rarity === 'Common').reduce(function(i, j) { return j.nbMissing + i; }, 0)}}
+                                                        {{modelUserDeckSelected.cardsMain.filter(i => i.rarity === 'Common').reduce(function(i, j) { return j.nbMissing + i; }, 0) + modelUserDeckSelected.cardsNotMainByZone.reduce((a, b) => a.concat(b.value), []).filter(i => i.rarity === 'Common').reduce(function(i, j) { return j.nbMissing + i; }, 0)}}
                                                         <span class="tooltip" data-tooltip="Common">
                                                             <img class="wc" src="/images/wcC.png" />
                                                         </span>
@@ -2995,16 +3217,17 @@
                     </div>
                 </div>
                 <div v-else-if="currentPage === pageDashboardSummary">
-                    <template v-if="modelDashboard.summary.length > 0">
+                    <span v-if="isLoadingData(loadDashboardSummary)" class="button is-loading"></span>
+                    <template v-else-if="modelDashboard.summary.length > 0">
                         <h4 class="title is-4">
                             Consider opening
-                            <span style="font-weight:bold;">{{formatSetToFullName(modelDashboard.summary[0].Key)}}</span>
+                            <span style="font-weight:bold;">{{formatSetToFullName(modelDashboard.summary[0].key)}}</span>
                             packs
                         </h4>
                         <h5 class="subtitle is-5">
-                            You are currently requiring {{modelDashboard.summary[0].Value.reduce((a, b) => a += b.nbMissing, 0)}} cards from this set,
-                            worth a total weight of {{numeral(modelDashboard.summary[0].Value.reduce((a, b) => a += b.missingWeight, 0)).format('0,0')}}
-                            <span class="icon has-text-info tooltip" style="cursor:pointer;" data-tooltip="Weight?" v-on:click="currentPage=pageProfile"><i class="fas fa-info-circle"></i></span>
+                            You are currently requiring {{modelDashboard.summary[0].value.data.reduce((a, b) => a += b.nbMissing, 0)}} cards from this set,
+                            worth a total weight of {{numeral(modelDashboard.summary[0].value.data.reduce((a, b) => a += b.missingWeight, 0)).format('0,0')}}
+                            <span class="icon has-text-info tooltip" style="cursor:pointer;" data-tooltip="Click to see your weight settings" v-on:click="currentPage=pageProfile"><i class="fas fa-info-circle"></i></span>
                         </h5>
                     </template>
                     <h4 v-else class="title is-4">
@@ -3021,7 +3244,21 @@
                             </p>
                         </div>
                     </div>
-                    <span v-if="isLoadingData('dashboard')" class="button is-loading"></span>
+                    <div class="level">
+                        <div class="level-left">
+                            <div class="level-item">
+                                <button class="button is-rounded" v-bind:class="{ 'is-info': modelDashboard.summarySortOrder === 'totalWeight' }" v-on:click="sortDashboardSummary('totalWeight')">
+                                    Sort by total weight
+                                </button>
+                            </div>
+                            <div class="level-item" style="margin-left:0.5rem;">
+                                <button class="button is-rounded" v-bind:class="{ 'is-info': modelDashboard.summarySortOrder === 'ev' }" v-on:click="sortDashboardSummary('ev')">
+                                    Sort by expected value
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <span v-if="isLoadingData(loadDashboardSummary)" class="button is-loading"></span>
                     <div v-else-if="modelDashboard.summary.length === 0" style="margin-bottom:1.5rem;">No data available</div>
                     <div v-else>
                         <div v-if="isNotificationActive('tipHScrollDashboardSets')" class="notification is-hidden-desktop" style="margin-top:1em;">
@@ -3032,21 +3269,27 @@
                             </p>
                         </div>
                         <div class="columns horizontalItems is-mobile">
-                            <div v-for="(set, idx) in modelDashboard.summary.filter(i => modelSets.map(x => x.name).indexOf(i.Key) >= 0)"
+                            <div v-for="(set, idx) in modelDashboard.summary.filter(i => modelSets.map(x => x.name).indexOf(i.key) >= 0)"
                                  class="column horizontalItem is-narrow" style="width:15.5rem; margin-bottom:1rem;">
-                                <div v-bind:style="'padding:0.5rem; color:#eee; background: url(/images/set-' + set.Key + '-pack.png); background-repeat:no-repeat; background-size:cover; display:flex; flex-direction:column;'"
+                                <h4 class="is-4 has-text-centered">
+                                    {{numeral(set.value.expectedValue).format('0,0')}} EV
+                                    <span data-tooltip="Expected Value on average of how much weight your next pack from this set is worth" class="icon has-text-info tooltip is-tooltip-multiline is-tooltip-bottom">
+                                        <i class="fas fa-info-circle"></i>
+                                    </span>
+                                </h4>
+                                <div v-bind:style="'padding:0.5rem; color:#eee; background: url(/images/set-' + set.key + '-pack.png); background-repeat:no-repeat; background-size:cover; display:flex; flex-direction:column;'"
                                      class="box has-text-centered darkTable packInfo is-size-5 has-text-weight-bold">
                                     <div style="margin:0.5rem;">
-                                        <img v-bind:src="'/images/set-' + set.Key + '.png'" v-on:click="openDashboardDetails(set.Key, '')" style="cursor:pointer; align-self: center; margin-bottom:0.3rem;" />
-                                        <div v-for="c in set.Value" class="" style="margin-bottom:0.4rem;">
+                                        <img v-bind:src="'/images/set-' + set.key + '.png'" v-on:click="openDashboardDetails(set.key, '')" style="cursor:pointer; align-self: center; margin-bottom:0.3rem;" />
+                                        <div v-for="c in set.value.data" class="" style="margin-bottom:0.4rem;">
                                             <div class="level">
                                                 <div class="level-left tooltip" style="cursor:pointer;"
-                                                     v-on:click="openDashboardDetails(set.Key, c.rarity)"
-                                                     v-bind:class="idx === 0 ? ' is-tooltip-right' : idx === modelDashboard.summary.filter(i => modelSets.map(x => x.name).indexOf(i.Key) >= 0).length - 1 ? 'is-tooltip-left' : ''"
+                                                     v-on:click="openDashboardDetails(set.key, c.rarity)"
+                                                     v-bind:class="idx === 0 ? ' is-tooltip-right' : idx === modelDashboard.summary.filter(i => modelSets.map(x => x.name).indexOf(i.key) >= 0).length - 1 ? 'is-tooltip-left' : ''"
                                                      v-bind:data-tooltip="'Missing ' + c.nbMissing + ' ' + (c.rarity === 'RareLand' ? ' Rare (Land)' : c.rarity === 'RareNonLand' ? ' Rare (Non-land)' : c.rarity) + ' weighting ' + numeral(c.missingWeight).format('0,0')">
                                                     <div class="level-item">
                                                         <span style="padding-right:0.5rem;">{{c.nbMissing}}</span>
-                                                        <i v-bind:class="'ss ss-grad white-stroke ss-fw' + (set.Key.startsWith('M1') || set.Key.startsWith('M2') ? ' ss-2x' : '') + ' ss-' + set.Key.toLowerCase() + ' ss-' + (c.rarity.startsWith('Rare') ? 'Rare' : c.rarity).toLowerCase()"></i>
+                                                        <i v-bind:class="'ss ss-grad white-stroke ss-fw' + (set.key.startsWith('M1') || set.key.startsWith('M2') ? ' ss-2x' : '') + ' ss-' + set.key.toLowerCase() + ' ss-' + (c.rarity.startsWith('Rare') ? 'Rare' : c.rarity).toLowerCase()"></i>
                                                         <img v-if="c.rarity === 'RareLand'" style="filter: invert(100%); margin-left:0.5rem;" v-bind:src="iconLand" class="wcLarge" />
                                                     </div>
                                                 </div>
@@ -3060,40 +3303,50 @@
                                     </div>
                                     <div style="margin-top:auto; background: #111; padding:1rem;">
                                         <div class="level">
-                                            <div class="level-left tooltip" v-bind:class="idx === 0 ? ' is-tooltip-right' : idx === modelDashboard.summary.filter(i => modelSets.map(x => x.name).indexOf(i.Key) >= 0).length - 1 ? 'is-tooltip-left' : ''"
-                                                 v-bind:data-tooltip="'Missing ' + set.Value.reduce((a, b) => a + b.nbMissing, 0) + '  cards weighting a total of ' + numeral(set.Value.reduce((a, b) => a += b.missingWeight, 0)).format('0,0')">
+                                            <div class="level-left tooltip" v-bind:class="idx === 0 ? ' is-tooltip-right' : idx === modelDashboard.summary.filter(i => modelSets.map(x => x.name).indexOf(i.key) >= 0).length - 1 ? 'is-tooltip-left' : ''"
+                                                 v-bind:data-tooltip="'Missing ' + set.value.data.reduce((a, b) => a + b.nbMissing, 0) + '  cards weighting a total of ' + numeral(set.value.data.reduce((a, b) => a += b.missingWeight, 0)).format('0,0')">
                                                 <div class="level-item">
-                                                    {{set.Value.reduce((a, b) => a += b.nbMissing, 0)}}
+                                                    {{set.value.data.reduce((a, b) => a += b.nbMissing, 0)}}
                                                 </div>
                                             </div>
                                             <div class="level-right">
                                                 <div class="level-item">
-                                                    {{numeral(set.Value.reduce((a, b) => a += b.missingWeight, 0)).format('0,0')}}
+                                                    {{numeral(set.value.data.reduce((a, b) => a += b.missingWeight, 0)).format('0,0')}}
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
+                                </div>
+                                <div v-if="set.value.expectedValueOther.key !== null" style="font-size:0.8rem;" class="has-text-centered">
+                                    <br />
+                                    {{set.value.expectedValueOther.key}}
+                                    {{numeral(set.value.expectedValueOther.value).format('0,0')}} EV
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="notification" style="margin-top:1rem;">
                         <span class="icon has-text-info"><i class="fas fa-info-circle"></i></span>
-                        Keep in mind that Throne of Eldraine, Theros: Beyond Death, Ikoria: Lair of Behemoths and Core 2021 will rotate and can no longer be played in Standard in Fall 2021.
-                        Zendikar Rising, Kaldheim, Strixhaven School of Mages and D&D Adventures in the Forgotten Realms
-                        will be legal in Standard until Fall 2022.
+                        Keep in mind that Zendikar Rising, Kaldheim, Strixhaven: School of Mages and D&D Adventures in the Forgotten Realms will rotate and can no longer be played in Standard starting Fall 2022.
+                        <br />
+                        Innistrad: Midnight Hunt, Innistrad: Crimson Vow, Kamigawa: Neon Dynasty and Streets of New Capenna
+                        will be legal in Standard until Fall 2023.
                     </div>
                 </div>
                 <div v-else-if="currentPage === pageDashboardDetails">
-                    <h4 v-if="modelDashboard.summary.length === 0" class="title is-4">
+                    <h4 v-if="modelDashboard.detailsFiltered.length === 0" class="title is-4">
                         You must track decks first
                     </h4>
+                    <div v-if="isLoadingData(loadDashboardDetails)">
+                        <span class="button is-loading"></span>
+                        Loading data...
+                    </div>
                     <template v-else>
                         <div class="columns">
                             <div class="column" v-bind:class="modelDetailsCardSelected.card === '' ? '' : 'is-hidden-touch'">
                                 <h4 class="title is-4">
                                     Consider crafting these cards, according to their weight value
-                                    <span class="icon has-text-info tooltip" style="cursor:pointer;" data-tooltip="Weight?"
+                                    <span class="icon has-text-info tooltip" style="cursor:pointer;" data-tooltip="Click to see your weight settings"
                                           v-on:click="currentPage=pageProfile">
                                         <i class="fas fa-info-circle"></i>
                                     </span>
@@ -3133,7 +3386,7 @@
                                         </tr>
                                     </tbody>
                                 </table>
-                                <span v-if="isLoadingData('dashboard')" class="button is-loading"></span>
+                                <span v-if="isLoadingData(loadDashboardDetails)" class="button is-loading"></span>
                                 <div v-else class="wrapper-tablescroll">
                                     <table class="table is-narrow is-fullwidth is-bordered is-striped is-hoverable">
                                         <thead>
@@ -3801,7 +4054,8 @@
                                                     </tr>
                                                     <tr>
                                                         <td>
-                                                            {{modelMasteryPass.dailyWinsCompleted}} / {{modelMasteryPass.expectedDailyWins}} daily wins completed today
+                                                            <input type="text" class="input" style="width:40px" v-model="modelMasteryPass.dailyWinsCompleted" v-on:change="refreshMasteryPass(false)" />
+                                                            / {{modelMasteryPass.expectedDailyWins}} daily wins completed today
                                                         </td>
                                                         <td class="has-text-right">
                                                             {{numeral(modelMasteryPass.xpWorthDailyWinsToday).format('0,0')}}
@@ -3817,7 +4071,8 @@
                                                     </tr>
                                                     <tr>
                                                         <td>
-                                                            {{modelMasteryPass.weeklyWinsCompleted}} / {{modelMasteryPass.expectedWeeklyWins}} weekly wins completed this week
+                                                            <input type="text" class="input" style="width:40px" v-model="modelMasteryPass.weeklyWinsCompleted" v-on:change="refreshMasteryPass(false)" />
+                                                            / {{modelMasteryPass.expectedWeeklyWins}} weekly wins completed this week
                                                         </td>
                                                         <td class="has-text-right">
                                                             {{numeral(modelMasteryPass.xpWorthWeeklyWinsToday).format('0,0')}}
@@ -3852,10 +4107,10 @@
                                         <div style="display:block; white-space:nowrap; color:#ddd;">
                                             <hr />
                                             <p>
-                                                Level 114: All free-to-play rewards
+                                                Level 48: All free-to-play rewards
                                             </p>
                                             <p>
-                                                Level 130: All mastery pass rewards
+                                                Level 60: All mastery pass rewards
                                             </p>
                                             <hr />
                                         </div>
@@ -3868,7 +4123,7 @@
                                     Rewards
                                 </h4>
                                 <div class="masteryPassRewards" style="margin:0.5rem auto;">
-                                    <img src="/images/masteryRewards/masteryZNR.jpg" alt="Mastery pass rewards (THB)" />
+                                    <img src="/images/masteryRewards/masteryMID.jpg" alt="Mastery pass rewards (MID)" />
                                 </div>
                             </div>
                         </div>
@@ -3980,8 +4235,8 @@
                             <div class="column">
                                 <div v-if="modelAccount.isAuthenticated">
                                     <!--<p>
-                            Id: <span>{{modelAccount.subjectId}}</span>
-                        </p>-->
+                                        Id: <span>{{modelAccount.subjectId}}</span>
+                                    </p>-->
                                     <h5 class="subtitle is-5">
                                         Email: <span>{{modelAccount.email}}</span>
                                     </h5>
@@ -3995,12 +4250,12 @@
                             </div>
                             <div class="column">
                                 <!--<div>
-                        <div class="field">
-                            <input type="checkbox" id="switchTheme" name="switchTheme" class="switch" v-model="themeIsDark" v-on:change="saveTheme()">
-                            <label for="switchTheme">{{themeIsDark ? 'Dark' : 'Light'}}</label>
-                            theme
-                        </div>
-                    </div>-->
+                                    <div class="field">
+                                        <input type="checkbox" id="switchTheme" name="switchTheme" class="switch" v-model="themeIsDark" v-on:change="saveTheme()">
+                                        <label for="switchTheme">{{themeIsDark ? 'Dark' : 'Light'}}</label>
+                                        theme
+                                    </div>
+                                </div>-->
                                 <div v-if="modelUser.notificationsInactive.length > 0" style="margin-top:1rem;">
                                     <div class="field tooltip is-tooltip-left"
                                          v-bind:data-tooltip="'Reactivate the ' + modelUser.notificationsInactive.length + ' hidden notification' + (modelUser.notificationsInactive.length === 1 ? '' : 's')">
@@ -4021,7 +4276,9 @@
                         <table v-else class="table is-bordered is-striped is-narrow" style="width:unset;">
                             <thead>
                                 <tr>
-                                    <th>Rarity</th>
+                                    <th>
+                                        Rarity
+                                    </th>
                                     <th>Main</th>
                                     <th>Sideboard</th>
                                     <th v-if="showWeightsProposed()">
@@ -4141,7 +4398,7 @@
                             </div>
                         </div>
                         <div class="columns is-multiline is-mobile">
-                            <div v-for="(land, index) in modelLands.filter((i) => { return i.type === currentPageProfileLandsType })[0].cards"
+                            <div v-for="(land, index) in getCollectedLands()"
                                  class="column is-1-desktop is-2-touch has-text-centered" style="margin-bottom:1.5rem;" v-on:mouseleave="showCard(null)" v-on:mouseover="showCard(land.imageCardUrl)">
                                 <div class="field" style="margin-bottom:0;">
                                     <input type="checkbox" v-bind:id="'landPref' + currentPageProfileLandsType + index" v-bind:name="'landPref' + currentPageProfileLandsType + index"
@@ -4165,7 +4422,7 @@
                             <div class="control">
                                 <label class="label is-small">Set</label>
                                 <select class="input is-small" v-model="modelCustomDraftRatingsFilterSet">
-                                    <option v-for="set in modelDraftsCalculator.sets" v-bind:value="set">
+                                    <option v-for="set in customDraftRatingsSets" v-bind:value="set">
                                         {{set}}
                                     </option>
                                 </select>
@@ -4402,7 +4659,6 @@
 
                         <p>By accessing or using the Service you agree to be bound by these Terms. If you disagree with any part of the terms then you may not access the Service.</p>
 
-
                         <h5 class="title is-5">
                             Accounts
                         </h5>
@@ -4410,7 +4666,6 @@
                         <p>If you are an owner of an account on this website, you are solely responsible for safeguarding the password that you use to access the Service and for any activities or actions under your password, whether your password is with our Service or a third-party service.</p>
 
                         <p>You agree not to disclose your password to any third party. You must notify us immediately upon becoming aware of any breach of security or unauthorized use of your account.</p>
-
 
                         <h5 class="title is-5">
                             Links To Other Web Sites
@@ -4421,7 +4676,6 @@
                         <p>MTGAHelper has no control over, and assumes no responsibility for, the content, privacy policies, or practices of any third party web sites or services. You further acknowledge and agree that MTGAHelper shall not be responsible or liable, directly or indirectly, for any damage or loss caused or alleged to be caused by or in connection with use of or reliance on any such content, goods or services available on or through any such web sites or services.</p>
 
                         <p>We strongly advise you to read the terms and conditions and privacy policies of any third-party web sites or services that you visit.</p>
-
 
                         <h5 class="title is-5">
                             Termination
@@ -4455,7 +4709,6 @@
 
                         <p>Our failure to enforce any right or provision of these Terms will not be considered a waiver of those rights. If any provision of these Terms is held to be invalid or unenforceable by a court, the remaining provisions of these Terms will remain in effect. These Terms constitute the entire agreement between us regarding our Service, and supersede and replace any prior agreements we might have between us regarding the Service.</p>
 
-
                         <h5 class="title is-5">
                             Changes
                         </h5>
@@ -4463,7 +4716,6 @@
                         <p>We reserve the right, at our sole discretion, to modify or replace these Terms at any time. If a revision is material we will try to provide at least 30 days notice prior to any new terms taking effect. What constitutes a material change will be determined at our sole discretion.</p>
 
                         <p>By continuing to access or use our Service after those revisions become effective, you agree to be bound by the revised terms. If you do not agree to the new terms, please stop using the Service.</p>
-
 
                         <h5 class="title is-5">
                             Contact Us
@@ -4473,31 +4725,31 @@
                     </div>
                 </div>
                 <!--<div>
-        <script type="text/javascript">
-            amzn_assoc_placement = "adunit0";
-            amzn_assoc_search_bar = "true";
-            amzn_assoc_tracking_id = "mtgahelper01-20";
-            amzn_assoc_ad_mode = "search";
-            amzn_assoc_ad_type = "smart";
-            amzn_assoc_marketplace = "amazon";
-            amzn_assoc_region = "US";
-            amzn_assoc_title = "Shop Related Products";
-            amzn_assoc_default_search_phrase = "magic gathering";
-            amzn_assoc_default_category = "Toys";
-            amzn_assoc_linkid = "a87ac82676c3ba7b04c95b390eccd4a8";
-            amzn_assoc_default_browse_node = "165793011";
-        </script>
-        <script src="//z-na.amazon-adsystem.com/widgets/onejs?MarketPlace=US"></script>
-    </div>-->
+                    <script type="text/javascript">
+                        amzn_assoc_placement = "adunit0";
+                        amzn_assoc_search_bar = "true";
+                        amzn_assoc_tracking_id = "mtgahelper01-20";
+                        amzn_assoc_ad_mode = "search";
+                        amzn_assoc_ad_type = "smart";
+                        amzn_assoc_marketplace = "amazon";
+                        amzn_assoc_region = "US";
+                        amzn_assoc_title = "Shop Related Products";
+                        amzn_assoc_default_search_phrase = "magic gathering";
+                        amzn_assoc_default_category = "Toys";
+                        amzn_assoc_linkid = "a87ac82676c3ba7b04c95b390eccd4a8";
+                        amzn_assoc_default_browse_node = "165793011";
+                    </script>
+                    <script src="//z-na.amazon-adsystem.com/widgets/onejs?MarketPlace=US"></script>
+                </div>-->
                 <div v-show="currentPage === pageBacklog">
-                    <h4 class="title is-4">
+                    <!--<h4 class="title is-4">
                         Help determine what's next
                     </h4>
                     <div>
                         <script type="text/javascript" src="https://host1.easypolls.net/ext/scripts/emPoll.js?c=5d7554c7e4b00d4af40ac339"></script>
                         <a class="OPP-powered-by" href="https://www.easypolls.net/" style="text-decoration:none;"><div style="font: 9px arial; color: gray;">undefined</div></a>
                         <noscript>JavaScript is disabled!</noscript>
-                    </div>
+                    </div>-->
                 </div>
 
                 <div class="notification is-size-7" style="margin-top:1rem; padding:0.5rem 2.5rem 0.5rem 1.5rem;">
@@ -4531,28 +4783,28 @@
                     <i class="fas fa-history my-float"></i>
                 </span>
                 <!--<span id="iconBacklog" class="float tooltip is-tooltip-left" data-tooltip="Vote for the next features in December" style="right:53px;" v-on:click="loadPage(pageBacklog)">
-        <i class="fas fa-laptop-code my-float"></i>
-    </span>-->
+                    <i class="fas fa-laptop-code my-float"></i>
+                </span>-->
                 <span class="float tooltip is-tooltip-left" data-tooltip="Support the project" style="z-index:2147483647;" v-on:click="showModalDonate = true">
                     <i class="fas fa-heart my-float" style="color:#bf0000;"></i>
                 </span>
                 <!-- MODALS -->
                 <!--<div class="modal" v-bind:class="showLoginModal ? 'is-active' : ''">
-        <div class="modal-background" v-on:click="showLoginModal = false"></div>
-        <div class="modal-content box">
-            <div class="field is-grouped" style="justify-content: center;">
-                <span class="is-size-4" style="margin-right:1rem;">User id:</span>
-                <div class="field has-addons">
-                    <div class="control">
-                        <input type="text" autofill="off" class="input" id="txtLoginId" v-on:change="tryToLoginWithUserId()" v-model="loginUserId"
-                               placeholder="3e67ec9fee324e9fa39742d563fc95ab" style="width:24rem;" />
+                    <div class="modal-background" v-on:click="showLoginModal = false"></div>
+                    <div class="modal-content box">
+                        <div class="field is-grouped" style="justify-content: center;">
+                            <span class="is-size-4" style="margin-right:1rem;">User id:</span>
+                            <div class="field has-addons">
+                                <div class="control">
+                                    <input type="text" autofill="off" class="input" id="txtLoginId" v-on:change="tryToLoginWithUserId()" v-model="loginUserId"
+                                           placeholder="3e67ec9fee324e9fa39742d563fc95ab" style="width:24rem;" />
+                                </div>
+                                <div class="control"><button class="button is-link" v-on:click="tryToLoginWithUserId()">Go</button></div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="control"><button class="button is-link" v-on:click="tryToLoginWithUserId()">Go</button></div>
-                </div>
-            </div>
-        </div>
-        <button class="modal-close is-large" aria-label="close" v-on:click="showLoginModal = false"></button>
-    </div>-->
+                    <button class="modal-close is-large" aria-label="close" v-on:click="showLoginModal = false"></button>
+                </div>-->
                 <div class="modal" v-bind:class="showModalChangeAccountUserId ? 'is-active' : ''">
                     <div class="modal-background" v-on:click="showModalChangeAccountUserId = false"></div>
                     <div class="modal-content box">
@@ -4708,7 +4960,7 @@
                                 </div>
                                 <div class="button" style="margin-top:1rem;">
                                     <a href="/External/Challenge?provider=Facebook&returnUrl=%2F">
-                                        <img src="https://static.xx.fbcdn.net/rsrc.php/yo/r/iRmz9lCMBD2.ico" style="height:1rem; margin-right:0.5rem;" alt="Facebook" />
+                                        <img src="https://static.xx.fbcdn.net/rsrc.php/yD/r/d4ZIVX-5C-b.ico" style="height:1rem; margin-right:0.5rem;" alt="Facebook" />
                                         With Facebook
                                     </a>
                                 </div>
@@ -4837,14 +5089,14 @@
                     </div>
                 </div>
                 <!--<div class="modal modalTopLevel" v-bind:class="showModalAdPreorder ? 'is-active' : ''">
-        <div class="modal-background" v-on:click="showModalAdPreorder = false"></div>
-        <div class="modal-content box" style="background:url('https://mtgazone.com/wp-content/uploads/2019/10/thb_1080p_en.jpg');">
-            <a href="https://www.amazon.com/s/ref=as_li_ss_tl?k=theros+beyond+death&crid=17QA8XOE3K3X1&sprefix=theros+beyond+,aps,141&ref=nb_sb_ss_i_1_14&linkCode=ll2&tag=mtgahelper01-20&linkId=e0759fb97f5e27a906df976a6396aadf&language=en_US">
-                <h2 class="title is-2">Pre-order your Magic: The Gathering Teros Beyond Death Booster Box</h2>
-                <h4 class="subtitle is-4">and help support MTGAHelper ❤</h4>
-            </a>
-        </div>
-    </div>-->
+                    <div class="modal-background" v-on:click="showModalAdPreorder = false"></div>
+                    <div class="modal-content box" style="background:url('https://mtgazone.com/wp-content/uploads/2019/10/thb_1080p_en.jpg');">
+                        <a href="https://www.amazon.com/s/ref=as_li_ss_tl?k=theros+beyond+death&crid=17QA8XOE3K3X1&sprefix=theros+beyond+,aps,141&ref=nb_sb_ss_i_1_14&linkCode=ll2&tag=mtgahelper01-20&linkId=e0759fb97f5e27a906df976a6396aadf&language=en_US">
+                            <h2 class="title is-2">Pre-order your Magic: The Gathering Teros Beyond Death Booster Box</h2>
+                            <h4 class="subtitle is-4">and help support MTGAHelper ❤</h4>
+                        </a>
+                    </div>
+                </div>-->
                 <div class="modal modal-fx-fadeInScale"
                      v-bind:class="[showModalAdPreorder || isLoadingSomething ? 'is-active' : '']">
                     <div class="modal-background" style="background-image:url('/images/loadingBg.jpg'); background-size:cover;"></div>
@@ -4858,39 +5110,39 @@
                             </p>
                         </div>
                         <!--<div v-if="showModalAdPreorder"
-                 style="background:#fff; color:#000; padding:2rem; border-bottom-left-radius:10px; border-bottom-right-radius:10px; border-top-left-radius:10px; border-top-right-radius:10px;">
+                             style="background:#fff; color:#000; padding:2rem; border-bottom-left-radius:10px; border-bottom-right-radius:10px; border-top-left-radius:10px; border-top-right-radius:10px;">
 
-                <h3 style="color:#000;" class="title is-3">
-                    Purchase your games or Magic: The Gathering paper products on
-                    <a href="https://www.gamenerdz.com/search.php?search_query=theros&section=product&aff=42" rel="nofollow" target="_blank" style="color:#00F">
-                        GameNerdz
-                    </a>
-                </h3>
-                <h4 style="color:#000;" class="subtitle is-4">
-                    and help improve the MTGAHelper services
-                    <span style="color:#f00;">❤</span>
-                </h4>
+                            <h3 style="color:#000;" class="title is-3">
+                                Purchase your games or Magic: The Gathering paper products on
+                                <a href="https://www.gamenerdz.com/search.php?search_query=kaldheim&section=product&aff=42" rel="nofollow" target="_blank" style="color:#00F">
+                                    GameNerdz
+                                </a>
+                            </h3>
+                            <h4 style="color:#000;" class="subtitle is-4">
+                                and help improve the MTGAHelper services
+                                <span style="color:#f00;">❤</span>
+                            </h4>
 
-                <div class="level">
-                    <div class="level-item">
-                        <div style="text-align:center;">
-                            Best price! 90$
-                            <br />
-                            <a href="https://www.gamenerdz.com/magic-the-gathering-ikoria-lair-of-behemoths-booster-box-preorder?aff=42" rel="nofollow" target="_blank">
-                                <img src="https://cdn11.bigcommerce.com/s-ua4dd/images/stencil/242x310/products/40902/87485/WOCC7417__62569.1581445427.jpg" />
-                            </a>
-                        </div>
+                            <div class="level">
+                                <div class="level-item">
+                                    <div style="text-align:center;">
+                                        Best price! 90$
+                                        <br />
+                                        <a href="https://www.gamenerdz.com/magic-the-gathering-ikoria-lair-of-behemoths-booster-box-preorder?aff=42" rel="nofollow" target="_blank">
+                                            <img src="https://cdn11.bigcommerce.com/s-ua4dd/images/stencil/242x310/products/40902/87485/WOCC7417__62569.1581445427.jpg" />
+                                        </a>
+                                    </div>
 
-                        <a href="https://www.gamenerdz.com/magic-the-gathering-theros-beyond-death-booster-box-preorder?aff=42" rel="nofollow" target="_blank">
-                            <img src="https://images-na.ssl-images-amazon.com/images/I/51cn2m%2BZuPL._SL250_.jpg" />
-                        </a>
+                                    <a href="https://www.gamenerdz.com/magic-the-gathering-theros-beyond-death-booster-box-preorder?aff=42" rel="nofollow" target="_blank">
+                                        <img src="https://images-na.ssl-images-amazon.com/images/I/51cn2m%2BZuPL._SL250_.jpg" />
+                                    </a>
 
-                        <a href="https://www.gamenerdz.com/magic-the-gathering-game-night-2019?aff=42" rel="nofollow" target="_blank">
-                            <img style="height:192px;" src="https://cdn11.bigcommerce.com/s-ua4dd/images/stencil/480x420/products/39474/83902/wocc62710__06007.1572048907.jpg?c=2" />
-                        </a>
-                    </div>
-                </div>
-            </div>-->
+                                    <a href="https://www.gamenerdz.com/magic-the-gathering-game-night-2019?aff=42" rel="nofollow" target="_blank">
+                                        <img style="height:192px;" src="https://cdn11.bigcommerce.com/s-ua4dd/images/stencil/480x420/products/39474/83902/wocc62710__06007.1572048907.jpg?c=2" />
+                                    </a>
+                                </div>
+                            </div>
+                        </div>-->
                     </div>
                     <!--<button v-if="showModalAdPreorder" class="modal-close is-large" aria-label="close" v-on:click="showModalAdPreorder = false" />-->
                 </div>
@@ -4908,11 +5160,11 @@
                 </div>
 
                 <!--v-if="showModalAdPreorder"-->
-                <div v-if="modelUser.isSupporter !== true" style="background:#fff; color:#000; padding:2rem; border-bottom-left-radius:10px; border-bottom-right-radius:10px; border-top-left-radius:10px; border-top-right-radius:10px;">
+                <!--<div v-if="modelUser.isSupporter !== true && modelUser.nbLogin >= 10" style="background:#fff; color:#000; padding:2rem; border-bottom-left-radius:10px; border-bottom-right-radius:10px; border-top-left-radius:10px; border-top-right-radius:10px;">
 
                     <h3 style="color:#000;" class="title is-3">
                         Purchase your games or Magic: The Gathering paper products on
-                        <a href="https://www.gamenerdz.com/search.php?search_query=theros&section=product&aff=42" rel="nofollow" target="_blank" style="color:#00F">
+                        <a href="https://www.gamenerdz.com/magic-the-gathering?aff=42" rel="nofollow" target="_blank" style="color:#00F">
                             GameNerdz
                         </a>
                     </h3>
@@ -4923,21 +5175,21 @@
                     <div class="level">
                         <div class="level-item">
                             <div style="text-align:center;">
-                                <a href="https://www.gamenerdz.com/magic-the-gathering-zendikar-rising-collector-booster-box-preorder?aff=42" rel="nofollow" target="_blank">
-                                    <img src="https://cdn11.bigcommerce.com/s-ua4dd/images/stencil/480x420/products/42652/91338/71HjzRvsQmL__52064.1595894206.jpg?c=2" width="280" />
+                                <a href="https://www.gamenerdz.com/magic-the-gathering-adventures-in-the-forgotten-realms-set-booster-box-preorder?aff=42" rel="nofollow" target="_blank">
+                                    <img src="https://cdn11.bigcommerce.com/s-ua4dd/images/stencil/1280x1280/products/46662/102876/Untitled_32__23107.1620840135.jpg?c=2" width="250" />
                                 </a>
                             </div>
 
-                            <a href="https://www.gamenerdz.com/magic-the-gathering-core-2021-collector-booster-box-preorder?aff=42" rel="nofollow" target="_blank">
-                                <img src="data:image/jpeg;base64,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" alt="Amazon.com: Magic: The Gathering Core Set 2021 (M21) Collector ..."/>
+                            <a href="https://www.gamenerdz.com/search.php?search_query=strixhaven&section=product&aff=42&_bc_fsnf=1&brand=93&sort=bestselling" rel="nofollow" target="_blank">
+                                <img src="https://cdn11.bigcommerce.com/s-ua4dd/images/stencil/242x310/products/45233/98829/en_PsMMh0tLby__32587.1614035377.png?c=2" width="280" />
                             </a>
 
-                            <a href="https://www.gamenerdz.com/sword-sorcery-ancient-chronicles-preorder?aff=42" rel="nofollow" target="_blank">
-                                <img style="height:192px;" src="/images/SnS.png" width="320" />
+                            <a href="https://www.gamenerdz.com/gloomhaven?aff=42" rel="nofollow" target="_blank">
+                                <img src="/images/SnS.png" width="250" />
                             </a>
                         </div>
                     </div>
-                </div>
+                </div>-->
             </div>
         </div>
     </div>
@@ -4957,6 +5209,8 @@
         </div>
     </div>-->
     <!-- Script placement optimized -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.10/vue.min.js"></script>
+    <script src="js/vueApp.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             if (window.Event) {
@@ -4972,8 +5226,6 @@
             vueApp.mouseY = y;
         }
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
-    <script src="js/vueApp.js"></script>
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-137512649-1"></script>
     <script>
